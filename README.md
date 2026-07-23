@@ -23,16 +23,22 @@ API docs at [http://localhost:3001/api/v1/docs](http://localhost:3001/api/v1/doc
 
 ## Seeded Users
 
-| Role | Email |
-|---|---|
-| SuperAdmin | wmsumba@imosys.mw |
-| Operations | wongani087@gmail.com |
-| Finance | wonganimsumba0@gmail.com |
-| ME | tayamuthola@gmail.com |
-| Auditor | wonganimsumba@oldmutual.co.mw |
-| Sponsor | takondwampoya6@gmail.com |
+All use password `Password123!` (MFA disabled by default).
 
-All use password `password` (MFA disabled by default).
+| Role | Name | Email |
+|---|---|---|
+| SuperAdmin | Super Admin | superadmin@presstrust.mw |
+| Operations | Operations Manager | operations@presstrust.mw |
+| Operations | Emmanuel Phiri | emmanuel.phiri@presstrust.mw |
+| Operations | Linda Mbewe | linda.mbewe@presstrust.mw |
+| Finance | Finance Officer | finance@presstrust.mw |
+| Finance | Joseph Kalua | joseph.kalua@presstrust.mw |
+| Finance | Ruth Nkhoma | ruth.nkhoma@presstrust.mw |
+| ME | M&E Coordinator | me@presstrust.mw |
+| ME | Precious Gondwe | precious.gondwe@presstrust.mw |
+| Auditor | Auditor | auditor@presstrust.mw |
+| Auditor | Frank Tembo | frank.tembo@presstrust.mw |
+| Sponsor | Sponsor | sponsor@presstrust.mw |
 
 ## Features
 
