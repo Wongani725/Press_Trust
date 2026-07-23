@@ -198,7 +198,22 @@ const options: swaggerJsdoc.Options = {
           type: 'object',
           required: ['permissions'],
           properties: {
-            permissions: { type: 'object' },
+            permissions: {
+              type: 'object',
+              additionalProperties: { type: 'array', items: { type: 'string' } },
+              description: 'Resource → action map. Canonical keys from GET /admin/roles/permissions-catalog',
+              example: {
+                programs: ['read', 'create', 'update'],
+                bank_accounts: ['read', 'unmask'],
+              },
+            },
+          },
+        },
+        RoleStatusUpdate: {
+          type: 'object',
+          required: ['status'],
+          properties: {
+            status: { type: 'string', enum: ['active', 'inactive'] },
           },
         },
         ProgramCreate: {
@@ -211,6 +226,8 @@ const options: swaggerJsdoc.Options = {
             application_close_date: { type: 'string', format: 'date-time' },
             budget_ceiling: { type: 'number', minimum: 0 },
             award_types: { type: 'array', items: { type: 'string', enum: ['one_off', 'recurring', 'renewable'] } },
+            funding_source_ids: { type: 'array', items: { type: 'string', format: 'uuid' } },
+            required_documents: { type: 'array', items: { type: 'string' }, example: ['Birth Certificate', 'National ID', 'Latest Report Card'] },
           },
         },
         ProgramUpdate: {
@@ -221,6 +238,8 @@ const options: swaggerJsdoc.Options = {
             application_open_date: { type: 'string', format: 'date-time' },
             application_close_date: { type: 'string', format: 'date-time' },
             award_types: { type: 'array', items: { type: 'string', enum: ['one_off', 'recurring', 'renewable'] } },
+            funding_source_ids: { type: 'array', items: { type: 'string', format: 'uuid' } },
+            required_documents: { type: 'array', items: { type: 'string' } },
           },
         },
         ProgramStatusUpdate: {
@@ -576,7 +595,27 @@ const options: swaggerJsdoc.Options = {
           type: 'object',
           required: ['items'],
           properties: {
-            items: { type: 'array', items: { type: 'object' } },
+            items: {
+              type: 'array',
+              minItems: 1,
+              maxItems: 50,
+              items: { $ref: '#/components/schemas/DisbursementCreate' },
+              description: 'Each item mirrors DisbursementCreate (award_id, amount, category, academic_period, payee_type, payee_name, optional payee_id / payee_bank_account)',
+            },
+          },
+        },
+        AtRiskFlagWarn: {
+          type: 'object',
+          required: ['reason'],
+          properties: {
+            reason: { type: 'string', example: 'Performance did not improve after re-check period' },
+          },
+        },
+        TerminationRecommendationCreate: {
+          type: 'object',
+          required: ['reason'],
+          properties: {
+            reason: { type: 'string', example: 'Repeated academic failure despite formal warning' },
           },
         },
         DisbursementReject: {
