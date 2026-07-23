@@ -1,0 +1,44 @@
+import { Router } from 'express';
+import healthRoutes from './health.routes';
+import authRoutes from './auth.routes';
+import adminUserRoutes from './admin/users.routes';
+import adminRoleRoutes from './admin/roles.routes';
+import adminProgramRoutes from './admin/programs.routes';
+import adminMasterDataRoutes from './admin/master-data.routes';
+import adminImportRoutes from './admin/imports.routes';
+import adminBeneficiaryRoutes from './admin/beneficiaries.routes';
+import adminDocumentRoutes from './admin/documents.routes';
+import adminAwardRoutes from './admin/awards.routes';
+import adminDisbursementRoutes from './admin/disbursements.routes';
+import adminMeRoutes from './admin/me.routes';
+import adminReportsRoutes from './admin/reports.routes';
+import adminReportDefinitionRoutes from './admin/report-definitions.routes';
+import adminScheduledReportsRoutes from './admin/scheduled-reports.routes';
+import adminNotificationRoutes from './admin/notifications.routes';
+import adminAuditLogRoutes from './admin/audit-logs.routes';
+import adminSystemConfigRoutes from './admin/system-config.routes';
+import docsRoutes from '../docs';
+
+const router = Router();
+
+router.use(healthRoutes);
+router.use(authRoutes);
+router.use(adminUserRoutes);
+router.use(adminRoleRoutes);
+router.use(adminProgramRoutes);
+router.use(adminMasterDataRoutes);
+router.use(adminImportRoutes);
+router.use(adminBeneficiaryRoutes);
+router.use(adminDocumentRoutes);
+router.use(adminAwardRoutes);
+router.use(adminDisbursementRoutes);
+router.use(adminMeRoutes);
+router.use(adminReportsRoutes);
+router.use(adminReportDefinitionRoutes);
+router.use(adminScheduledReportsRoutes);
+router.use(adminNotificationRoutes);
+router.use(adminAuditLogRoutes);
+router.use(adminSystemConfigRoutes);
+router.use(docsRoutes);
+
+export default router;

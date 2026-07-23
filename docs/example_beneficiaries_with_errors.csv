@@ -1,0 +1,6 @@
+first_name,last_name,gender,national_id,school_name,district,academic_year
+Chifundo,Banda,female,MW-CHB-001,Lilongwe Secondary School,Lilongwe,2026
+Tapiwa,Phiri,male,MW-TAP-002,Blantyre Girls Secondary,Blantyre,2026
+,,male,MW-ZIK-003,Mzuzu Academy,Zomba,2026
+Thandiwe,Kayira,unknown,MW-THK-004,Zomba Catholic Secondary,Mzuzu,2026
+Kondwani,Nkhoma,male,,,Ntcheu,2026

@@ -1,0 +1,4996 @@
+Document Name : Software Requirements Specification (SRS)
+Company Name : Press Trust
+System Name : Scholarship Management System (SMS)
+Version : 1.2
+Issued : 30 April 2026
+Version History
+Version
+Number
+Date of
+Change Changes By Nature of Change Approval
+Reference
+1.0 17-Feb-26 Lead IT Systems
+Consultant Originator
+1.1 03-Mar-26 Lead IT Systems
+Consultant Revision
+1.2 06-Mar-26 Operations
+Manager Revision
+Table of Contents:
+1. Definitions................................................................................................................................4
+2. Abbreviations used:..............................................................................................................4
+3. Introduction............................................................................................................................5
+4. Purpose....................................................................................................................................5
+5. Scope ......................................................................................................................................5
+6. Background and core functions of Press Trust Malawi..................................................5
+7. Overall Description ...............................................................................................................6
+8. Assumptions and dependencies.......................................................................................8
+9. Functional Requirements.....................................................................................................8
+10. Non-core functional requirements....................................................................................9
+11. Program and configuration management .................................................................. 10
+12. External Interface Requirements..................................................................................... 43
+13. Data Requirements............................................................................................................ 44
+14. Non-Functional Requirements......................................................................................... 45
+15. Verification, Acceptance, and Testing......................................................................... 49
+16. Deliverables expected from the vendor....................................................................... 49
+17. Appendix ............................................................................................................................. 50
+18. Process Flow Diagram....................................................................................................... 76
+19. Ownership, Intellectual Property & Sustainability........................................................ 80
+20. Recommended Implementation Timeline ................................................................... 81
+21. Milestone-Based Payment Plan ...................................................................................... 81
+22. Document Approval ......................................................................................................... 82
+1. Definitions
+2. Abbreviations used:
+SMS Scholarship Management System
+RBAC Role Based Access Control
+SSL/TLS Secure Sockets Layer / Transport Layer Security
+RPO/RTO Recovery Point Objective / Recovery Time Objective
+MFA Multi-Factor Authentication
+SLA Service Level Agreement
+API Application Programming Interface
+Cloud
+Computing
+Cloud computing is access to computer system resources, data
+storage and computing power on demand and without direct
+management by the user.
+Data\Information This is Information belonging to Press Trust, employee private
+information and Third-Party information.
+Data Centre This is a dedicated space used to house computer,
+telecommunications, and data storage systems.
+IT Assets These refer to computing and other devices able to connect to
+a computer network, Software applications, IT and Information
+services accessible by devices and applications (e.g., Network
+infrastructure and internet connectivity)
+3. Introduction
+Press Trust Malawi is a charitable trust established to promote social and economic
+development in Malawi, with a strong focus on supporting access to education through
+scholarships and related educational support programmes. The Trust operates as an
+independent, non-political institution committed to equity, transparency, accountability,
+and national development impact.
+The Scholarship Management System (SMS) is intended to digitise and streamline Press
+Trust’s scholarship administration processes. The system will provide a single, authoritative
+digital platform to manage the full scholarship lifecycle, from application intake,
+administration, disbursement oversight, beneficiary monitoring, and reporting. By digitising
+these processes, Press Trust aims to improve service delivery, reduce manual processing
+risks, strengthen governance and auditability, and enhance data-driven decisionmaking.
+4. Purpose
+The purpose of this Software Requirements Specification (SRS) is to define a complete,
+clear, and unambiguous set of functional and non-functional requirements for the
+Scholarship Management System (SMS). This document serves as the authoritative
+baseline for system design, development, testing, deployment, and acceptance. It is
+intended to enable software vendors and developers to deliver the SMS with minimal
+clarification cycles, thereby reducing implementation risk, cost overruns, and project
+delays.
+5. Scope
+The Scholarship Management System (SMS) will support Press Trust’s scholarship operations
+from program setup through application intake, approvals, disbursement tracking,
+beneficiary monitoring, and reporting. The system will provide portals for applicants,
+external stakeholders, and internal workflows for Press Trust operations, finance, M&E,
+management, and administrators.
+6. Background and core functions of Press Trust Malawi
+Press Trust Malawi is a charitable trust with a national mandate to provide funding for
+social and economic development in Malawi, including education support and other
+national benefit purposes. Press Trust’s operational core functions include:
+• Scholarship management: administering merit- and/or needs-based education
+support, including selection, payments, and beneficiary tracking.
+• Stakeholder management: working with schools/institutions, guardians,
+donors/sponsors, and implementing partners.
+• Monitoring, evaluation, and learning: tracking performance, outcomes, and impact
+metrics for funded beneficiaries and programs.
+• Financial stewardship and reporting: ensuring traceable approvals and payments,
+compliance, and timely reporting to management, board, and stakeholders.
+7. Overall Description
+7.1 Product perspective
+The Scholarship Management System (SMS) must be a web-based information system
+(with optional mobile-first design) that centralizes scholarship data, workflows,
+documents, decisions, and financial tracking. It will replace the manual and spreadsheetbased processes and provides controlled access to internal and external users.
+7.2 Product functions
+At a high level, the SMS shall provide the following capabilities:
+• Program configuration and publishing (program setup, forms, rules, timelines,
+templates).
+• Applicant portal (registration, application, document upload, tracking, notifications).
+• Eligibility screening and validation (automated and manual overrides with audit trail).
+• Entitlements allocation and Inventory management.
+• Award management (letters/agreements, acceptance, renewals, lifecycle status).
+• Disbursement and financial tracking (schedules, approvals, payment evidence,
+reconciliation, exceptions).
+• Beneficiary monitoring and case management (performance, site visits, interventions,
+outcomes).
+• Reporting and analytics (dashboards, exports, custom reports, dynamic reports).
+• Administration and security (RBAC, audit logging, configuration without code, data
+protection).
+7.3 User classes and characteristics
+The SMS must support the following user classes. Exact roles can be configured through
+RBAC.
+User Class Typical Responsibilities Access Level
+Applicant Create/submit
+applications; upload
+documents; track status;
+accept awards
+Internal and External,
+restricted to own data
+Program Officer
+(Operations)
+Configure programs;
+manage intake;
+coordinate evaluation;
+generate letters; track
+lifecycle
+Internal, program-scoped
+M&E Officer Track beneficiary progress,
+visits, interventions;
+produce outcome reports
+Internal,
+program/beneficiaryscoped
+Finance
+(Maker/Checker/Approver)
+Prepare, approve, and
+record disbursements;
+Internal, maker-checker
+controls
+attach evidence;
+reconcile
+Sponsor/Donor View program portfolio
+and reports; download
+approved reporting packs
+External/internal; sponsorscoped
+System Administrator User management;
+configuration; security
+policies; reference data
+Internal, full admin
+Auditor (Read-only) Review logs, decisions, and
+payment evidence
+Internal/external, read-only
+with export controls
+7.4 Operating environment
+The SMS must operate as a secure web application accessible over modern browsers
+(Chrome/Edge/Firefox) and optimized for mobile devices. The solution may be deployed
+on cloud infrastructure or on premises, subject to procurement decisions. The system shall
+support low-bandwidth usage through optimized pages and resumable uploads.
+The system shall support deployment on industry-standard operating systems, including
+low-cost, open-source platforms, with full vendor or enterprise support.
+7.5 Hardware
+The solution must be capable of operating on either virtualized environments (including
+on-premise or cloud-based virtual machines) or bare-metal servers. The proposed
+architecture should be scalable to accommodate future growth in users, data volumes,
+and transaction loads without significant hardware reconfiguration.
+7.6 Software / Operating System
+The solution must support deployment on industry-standard operating systems. Use of lowcost, open-source platforms is acceptable, and licensing should not restrict flexibility in
+operating system choice.
+7.7 Database
+The solution must support a robust, secure, and proven relational database management
+system (RDBMS). Acceptable databases may include MySQL, PostgreSQL, Oracle
+Database, or Microsoft SQL Server, or equivalent enterprise-grade databases. The
+database should support high availability, data integrity, backup and recovery, and
+scalability.
+7.8 Application Software
+The system must be web-based, accessible through standard web browsers without the
+need for specialized client installations. The application shall utilize open data exchange
+and interoperability standards (such as RESTful APIs, XML, or JSON) to facilitate integration
+with third-party systems and future platforms.
+8. Assumptions and dependencies
+• Press Trust will provide or approve official program policies for configuration.
+• Integration with SAGE Evolution, Email Gateway.
+• The solution must support hosting at Press Trust offices or any other approved hosting
+environment/site, without technical or licensing limitations.
+• User onboarding will include training and agreed support processes.
+• Where historical records are available and of acceptable quality, the proposed
+solution shall support the migration of up to five (5) years of data from existing Excelbased records into the new system.
+9. Functional Requirements
+This section provides detailed functional requirements organized by capability area.
+9.1 Core Functional Requirements
+9.1.1 Applicant and Beneficiary Management
+The system shall support the registration and management of applicants and
+beneficiaries throughout the Scholarship lifecycle. This module shall include:
+• Beneficiary biodata and demographic information
+• Academic and institutional details
+• Linking beneficiaries to schools and academic periods
+• Maintenance of schools and institutions master data, including school names,
+types, districts, locations, contact details, and bank/payment details
+• Status management (applicant, active beneficiary, suspended, completed,
+terminated)
+• Secure storage of supporting documentation
+9.1.2 Application and Eligibility Management
+The system shall support the end-to-end management of Scholarship applications,
+including:
+• Configurable application forms for new and renewal applications
+• Application tracking and status updates
+9.1.3 Award and Disbursement Management
+The system shall support the management of Scholarship awards:
+• Award creation, amounts, duration, and conditions
+• Payments made directly to schools (tuition, boarding, exam fees, school shoes,
+school uniform, books and other charges)
+• Disbursement schedules, payment tracking, and reconciliation
+• Support management, including:
+o Recording of items purchased by the Press Trust
+o Issuance of items to beneficiaries
+o Valuation of issued items
+o Capture and storage of beneficiary acknowledgement and signatures
+confirming receipt
+• Linkage of awards and disbursements to funding sources or sponsors.
+9.1.4 Monitoring, Reporting, and Audit
+The system shall support governance, oversight, and accountability through:
+• Monitoring academic progress and compliance with Scholarship conditions.
+• Tracking of sponsor-funded and Trust-funded beneficiaries.
+• Standard and ad-hoc reporting by beneficiary, school, district, sponsor, and
+period.
+• Budget utilization and commitment reporting.
+• Comprehensive system audit logs and reporting.
+• The system must capture academic progress and milestone reports, to assess
+continued eligibility.
+• The system must trigger alerts for non-compliance or poor performance, to
+enable early intervention.
+• The system must support continuation, suspension, or termination decisions, to
+protect funding integrity.
+10. Non-core functional requirements
+10.1.1 Document & Records Management
+• The system must provide secure centralized document storage (to preserve
+institutional records).
+• The system must support version control and access permissions (to prevent
+unauthorized changes).
+• The system must enable advanced search and retrieval (to improve operational
+efficiency).
+10.1.2 Communication & Notifications
+• The system must send automated email notifications (To keep applicants and
+staff informed).
+• The system must support bulk communications and templates (To manage large
+applicant volumes efficiently).
+• The system must log all communication activities (To ensure traceability).
+10.1.3 Reporting & Analytics
+• The system must generate real-time operational dashboards (to support
+management oversight)
+• The system must produce donor and compliance reports (to meet funding
+requirements).
+• The system must support data export in standard formats (PDF, Excel, CSV) - (to
+facilitate analysis and audits).
+10.1.4 System Configuration & Administration
+• The system must allow configuration of workflows, forms, and notifications without
+coding (to ensure flexibility and sustainability).
+• The system must support backup and disaster recovery mechanisms (to ensure
+business continuity).
+• The system must provide system performance monitoring tools (to maintain
+uptime and reliability).
+10.1.5 User & Access Management
+• The system must support role-based access control (RBAC) – (to ensure users only
+access functions relevant to their responsibilities).
+• The system must allow secure user registration and authentication (To protect
+applicant and institutional data).
+• The system must maintain full audit logs of user activities (to support
+accountability, investigations, and compliance audits).
+• The system must enforce password and security policies (to reduce unauthorized
+access risks).
+11. Program and configuration management
+11.1.1 Program Management
+The system shall allow Press Trust to create and manage multiple programs (scholarships,
+bursaries) with flexible configuration so that changes can be made by administrators
+without vendor code changes.
+Req ID Requirement Priority Verification
+FR-01 The system shall allow
+authorized
+administrators to
+create a new
+Scholarship program.
+Must System demo
+FR-02 The system shall allow
+authorized
+administrators to view
+and list all Scholarship
+programs.
+Must System demo
+FR-03 The system shall allow
+authorized
+administrators to
+update program
+details.
+Must System demo
+FR-04 The system shall allow
+authorized
+administrators to
+deactivate or archive
+a Scholarship
+program.
+Must System demo
+FR-05 The system shall allow
+administrators to
+configure application
+opening date per
+program.
+Must System demo
+FR-06 The system shall allow
+administrators to
+configure application
+closing date per
+program.
+Must System demo
+FR-07 The system shall
+automatically close
+application
+submission when the
+closing date is
+reached.
+Must System demo
+FR-08 The system shall allow
+administrators to
+configure required
+onboarding
+documents per
+program.
+Must System demo
+FR-09 The system shall allow
+administrators to
+configure funding
+source allocation per
+program.
+Must System demo
+FR-10 The system shall allow
+administrators to
+change program
+status (Draft / Open /
+Closed / Archived).
+Must System demo
+FR-11 The system shall
+maintain an audit trail
+of all program
+configuration
+changes (who, what,
+when, before/after).
+Should System demo
+• Administrators shall configure program-specific eligibility rules, required documents,
+and application form fields using a form builder with conditional logic.
+• Administrators shall configure evaluation rubrics with weights, minimum thresholds,
+and tie-break logic.
+• Administrators shall configure workflow stages and approvers per program (singlestage, multi-stage, panel, moderation, approval).
+• Administrators shall configure templates for communications and documents (emails,
+award letters, contracts).
+11.1.2 User roles, access control, and workflow
+The system shall enforce robust role-based access control (RBAC) and workflow
+assignment to ensure segregation of duties, confidentiality of applications, and
+auditability of decisions.
+Req ID Requirement Priority Verification
+FR-12 The system shall
+allow System
+Administrator to
+create user roles.
+Must System demo
+FR-13 The system shall
+allow System
+Administrator to edit
+user roles.
+Must System demo
+FR-14 The system shall
+allow System
+Administrator to
+deactivate user
+roles.
+Should System demo
+FR-15 The system shall
+allow System
+Administrator to
+assign permissions
+to a role.
+Must System demo
+FR-16 The system shall
+allow System
+Administrator to
+create internal user
+accounts.
+Must System demo
+FR-17 The system shall
+allow System
+Administrator to
+update user
+account details.
+Must System demo
+FR-18 The system shall
+allow System
+Administrator to
+deactivate or
+suspend user
+accounts.
+Must System demo
+FR-19 The system shall
+allow System
+Administrator to
+assign one or more
+roles to a user.
+Must System demo
+FR-20 The system shall
+restrict system
+functionality based
+Must System demo
+on assigned role
+permissions.
+FR-21 The system shall
+restrict access to
+sensitive financial
+data to authorized
+finance roles only.
+Must System demo
+FR-22 The system shall
+restrict access to
+bank account
+details through
+masking by default.
+Must System demo
+FR-23 The system shall
+restrict modification
+of approved
+disbursement
+records.
+Must System demo
+FR-24
+The system shall
+enforce
+segregation
+between
+disbursement
+preparation
+(Maker) and
+disbursement
+approval
+(Checker).
+Must System demo
+FR-25
+The system shall
+prevent a user from
+approving a
+disbursement they
+created.
+Must System demo
+FR-26
+The system shall
+enforce separation
+between
+onboarding
+approval and
+financial
+disbursement
+approval.
+Must System demo
+FR-27
+The system shall
+restrict user access
+to data based on
+assigned
+program(s).
+Must System demo
+FR-28
+The system shall
+allow read-only
+access for internal
+auditors.
+Must System demo
+• The system shall enforce least-privilege access by role, program, and assignment (e.g.,
+reviewers only see assigned applications).
+• The system shall enforce segregation of duties between evaluation, approval, and
+payment processing (maker-checker-approver).
+• The system shall provide reviewer conflict-of-interest declarations and block or
+escalate affected assignments.
+• The system shall ensure that user logins are securely managed and that users can only
+view or access information they are authorized to see.
+11.1.3 Applicant intake and submission
+The system shall provide an applicant-facing portal to support online submissions, drafts,
+validation, and automated notifications.
+Req ID Requirement Priority Verification
+FR-29 The system shall allow
+authorized users to
+upload a beneficiary
+list in CSV format.
+Must System demo
+FR-30 The system shall allow
+users to download a
+standardized CSV
+import template.
+Must System demo
+FR-31 The system shall allow
+configurable
+mapping between
+CSV columns and
+system fields during
+import.
+Must System demo
+FR-32 The system shall
+validate required
+fields during CSV
+import.
+Must System demo
+FR-33 The system shall
+validate data types
+during CSV import
+(dates, numeric fields,
+formats).
+Must System demo
+FR-34 The system shall
+validate duplicate
+beneficiary records
+during import.
+Must System demo
+FR-35 The system shall
+validate referential
+data (e.g., school,
+district, program must
+exist).
+Must System demo
+FR-36 Save-as-draft,
+autosave, and ability
+to edit until final
+submission.
+Must System demo
+FR-37 The system shall
+generate a row-level
+error log for failed
+import records.
+Must System demo
+FR-38 The system shall
+generate an import
+summary report (total
+uploaded, accepted,
+rejected).
+Must System demo
+FR-39 The system shall allow
+import of valid records
+without being
+blocked by rejected
+records.
+Must System demo
+FR-40 The system shall allow
+authorized users to
+view imported
+beneficiary records.
+Must System demo
+FR-41 The system shall allow
+authorized users to
+edit imported
+beneficiary records
+before onboarding.
+Must System demo
+FR-42 The system shall allow
+authorized users to
+delete incorrectly
+imported beneficiary
+records prior to
+onboarding.
+Must System demo
+FR-43 The system shall allow
+authorized users to
+convert an imported
+beneficiary record
+into an active
+Scholarship profile.
+Must System demo
+FR-44 The system shall
+enforce completion
+of mandatory
+onboarding fields
+before activation.
+Must System demo
+FR-45 The system shall allow
+uploading of
+onboarding
+supporting
+documents.
+Must System demo
+FR-46 The system shall assign
+a unique internal
+beneficiary identifier
+upon onboarding.
+Must System demo
+FR-47 The system shall allow
+authorized users to
+activate a beneficiary
+record.
+Must System demo
+FR-48 The system shall allow
+authorized users to
+suspend a beneficiary
+record with
+mandatory reason
+capture.
+Must System demo
+FR-49 The system shall allow
+authorized users to
+reinstate a suspended
+beneficiary record.
+Must System demo
+FR-50 The system shall allow
+authorized users to
+terminate or close a
+beneficiary record
+with mandatory
+reason capture.
+Must System demo
+FR-51 The system shall
+prevent financial
+disbursement to
+beneficiaries whose
+status is not Active.
+Must System demo
+FR-52 The system shall
+maintain an audit trail
+for all beneficiary
+data changes.
+Must System demo
+FR-53 The system shall
+maintain an audit trail
+for all status changes.
+Must System demo
+FR-54 The system shall
+prevent duplicate
+onboarding of the
+same beneficiary
+based on defined
+uniqueness criteria
+(e.g., National ID or
+Examination ID).
+Must System demo
+FR-55 Automated
+submission
+confirmation (email)
+with reference
+Must System demo
+number and next
+steps.
+• Applicants shall create accounts using email and/or phone number; system shall
+support password reset and Multi-Factor Authentication (MFA).
+• Applications shall support save-as-draft, autosave, and resume later, including partial
+document uploads.
+• The system shall validate data formats and completeness and prevent submission until
+mandatory requirements are met.
+• The system shall support confirmations and status updates via email/in-app
+notifications.
+11.1.4 Data management
+The system shall maintain complete and accurate master and transactional data for
+applicants, guardians, schools, sponsors, programs, applications, awards, payments, and
+beneficiary performance, with full audit trails.
+Req ID Requirement Priority Verification
+FR-56 The system shall allow
+authorized users to create
+beneficiary records.
+Must System demo
+FR-57 The system shall allow
+authorized users to view
+beneficiary records.
+Must System demo
+FR-58 The system shall allow
+authorized users to
+update beneficiary
+records.
+Must System demo
+FR-59 The system shall allow
+authorized users to
+deactivate or archive
+beneficiary records.
+Must System demo
+FR-60 The system shall enforce
+uniqueness rules to
+prevent duplicate
+beneficiaries (e.g.,
+National ID + Exams ID +
+Intake).
+Must System demo
+FR-61 The system shall allow
+authorized users to create
+guardian/next-of-kin
+details linked to a
+beneficiary.
+Must System demo
+FR-62 The system shall allow
+authorized users to
+update guardian/nextMust System demo
+of-kin details linked to a
+beneficiary.
+FR-63 The system shall allow
+authorized users to view
+guardian/next-of-kin
+details linked to a
+beneficiary.
+Must System demo
+FR-64 The system shall allow
+authorized users to
+deactivate
+guardian/next-of-kin
+records.
+Must System demo
+FR-65 The system shall allow
+authorized users to create
+school/institution records.
+Must System demo
+FR-66 The system shall allow
+authorized users to view
+school/institution records.
+Must System demo
+FR-67 The system shall allow
+authorized users to
+update school/institution
+records.
+Must System demo
+FR-68 The system shall allow
+authorized users to
+deactivate or archive
+school/institution records.
+Must System demo
+FR-69 The system shall allow
+authorized users to create
+a bank account record
+linked to a school.
+Must System demo
+FR-70 The system shall allow
+authorized users to view
+bank account records
+linked to a school.
+Must System demo
+FR-71 The system shall allow
+authorized users to
+update bank account
+records linked to a school.
+Must System demo
+FR-72 The system shall allow
+authorized users to
+deactivate bank
+account records linked to
+a school.
+Must System demo
+FR-73 The system shall require
+approval (makerchecker) for changes to
+active school bank
+account details.
+Must System demo
+FR-74 The system shall allow
+authorized users to create
+reference data records
+(e.g., districts, academic
+year/term, item
+categories).
+Must System demo
+FR-75 The system shall allow
+authorized users to
+update reference data
+records.
+Must System demo
+FR-76 The system shall allow
+authorized users to view
+reference data records.
+Must System demo
+FR-77 The system shall allow
+authorized users to
+deactivate reference
+data records.
+Must System demo
+FR-78 The system shall validate
+mandatory fields for
+beneficiary records.
+Must System demo
+FR-79 The system shall validate
+field formats for key data
+elements (e.g., phone,
+dates, numeric fields).
+Must System demo
+FR-80 The system shall enforce
+referential integrity
+between related records
+(e.g., beneficiary must
+reference a valid school
+and program).
+Must System demo
+FR-81 The system shall prevent
+deletion of records that
+are referenced by
+transactions (e.g.,
+disbursements).
+Must System demo
+FR-82 The system shall mask
+bank account details by
+default.
+Must System demo
+FR-83 The system shall restrict
+viewing of unmasked
+bank account details to
+authorized roles only.
+Must System demo
+FR-84 The system shall log every
+access to unmasked
+bank account details.
+Must System demo
+FR-85 The system shall log
+creation of beneficiary
+records (who, when).
+Must System demo
+FR-86 The system shall log
+updates to beneficiary
+records including
+before/after values.
+Must System demo
+FR-87 The system shall log
+deactivation or archiving
+of beneficiary records.
+Must System demo
+FR-88 The system shall allow
+authorized users to view
+audit logs for a selected
+record.
+Must System demo
+FR-89 The system shall allow
+authorized users to export
+audit logs for audit
+purposes.
+Must System demo
+FR-90 Capture and store
+detailed
+student/applicant
+information
+(demographics,
+contacts, location,
+identifiers).
+Must System demo
+FR-91 Capture and store
+parent/guardian
+information, including
+relationship, contacts,
+and consent where
+required.
+Must System demo
+FR-92 Capture and manage
+school/institution profiles
+(contacts, location,
+accreditation/registration
+status, identifiers).
+Must System demo
+FR-93 Capture and manage
+scholarship
+sponsor/donor profiles
+(funding rules, restrictions,
+reporting needs).
+Must System demo
+FR-94 Capture and securely
+store banking details for
+schools and
+parents/guardians (with
+access controls and
+masking).
+Must Demo & security
+review
+FR-95 Maintain student
+performance indicators
+over time (term/semester
+results, attendance,
+progression, completion).
+Must System demo
+• The system shall maintain master data for districts, schools, programs, sponsors, and
+support categories (fees, books, transport, etc.).
+• Sensitive fields (e.g., bank details) shall be masked by default and accessible only to
+authorized finance roles and passwords shall be required to open the sensitive fields.
+• The system shall maintain a complete audit trail for create/update/delete actions on
+key records (who, what, when, before/after).
+11.1.5 Document management
+The system shall support secure upload, storage, verification, and controlled access to
+supporting documents.
+Req ID Requirement Priority Verification
+FR-96 The system shall
+allow authorized
+users to upload
+documents linked
+to a beneficiary
+record.
+Must System demo
+FR-97 The system shall
+allow authorized
+users to upload
+documents linked
+to a disbursement
+record.
+Must System demo
+FR-98 The system shall
+virus-scan
+documents upon
+upload.
+Must System demo
+FR-99 The system shall
+store uploaded
+documents with
+metadata
+(document type,
+owner record,
+upload date,
+uploaded by).
+Should System demo
+FR-100 The system shall
+enforce
+configurable file size
+limits.
+Must System demo
+FR-101 The system shall
+allow authorized
+users to view
+document
+metadata.
+Must System demo
+FR-102 The system shall
+allow authorized
+Must System demo
+users to download
+documents.
+FR-103 The system shall
+restrict document
+access based on
+user role
+permissions.
+Must System demo
+FR-104 The system shall log
+all document
+download activities.
+Must System demo
+FR-105 The system shall
+allow authorized
+users to set
+document status to
+“Pending”.
+Must System demo
+FR-106 The system shall
+allow authorized
+users to set
+document status to
+“Verified”.
+Must System demo
+FR-107 The system shall
+allow authorized
+users to set
+document status to
+“Rejected”.
+Must System demo
+FR-108 The system shall
+require capture of a
+rejection reason
+when a document
+is marked as
+Rejected.
+Must System demo
+FR-109 The system shall
+allow authorized
+users to upload a
+new version of an
+existing document.
+Must System demo
+FR-110 The system shall
+retain previous
+document versions
+for audit purposes.
+Must System demo
+FR-111 The system shall
+display document
+version history.
+Must System demo
+FR-112 The system shall
+allow authorized
+users to define
+expiry dates for
+documents.
+Must System demo
+FR-113 The system shall
+automatically flag
+expired documents.
+Must System demo
+FR-114 The system shall
+allow authorized
+users to request reupload of expired
+or rejected
+documents.
+Must System demo
+FR-115 The system shall
+prevent deletion of
+documents that are
+linked to approved
+financial
+transactions.
+Must System demo
+FR-116 The system shall
+allow only
+authorized roles to
+delete documents
+prior to approval.
+Must System demo
+FR-117 The system shall
+maintain an
+immutable audit
+trail of all
+document-related
+actions (upload,
+update, delete,
+verification,
+download).
+Must System demo
+FR-118 The system shall
+support bulk
+document upload
+linked to a batch of
+beneficiaries.
+Must System demo
+FR-119 The system shall
+prevent
+disbursement
+processing if
+mandatory
+supporting
+documents are
+missing or not
+verified.
+Must System demo
+• Documents shall be virus-scanned on upload and stored with metadata (type, owner,
+date, expiry, version).
+• The system shall provide a verification workflow (Pending/Verified/Rejected) with
+reason capture and re-upload requests.
+• Downloads/exports shall be controlled and logged; bulk downloads shall be restricted
+to specific roles.
+11.1.6 Eligibility screening, review, and evaluation
+The system shall support automated and manual eligibility screening, reviewer scoring,
+ranking/shortlisting, and committee approvals.
+Req ID Requirement Priority Verification
+FR-120 The system shall
+validate
+completeness of
+mandatory
+beneficiary data
+fields before
+onboarding.
+Must System demo
+FR-121 The system shall
+validate beneficiary
+uniqueness against
+existing records in
+the system.
+Must System demo
+FR-122 The system shall
+validate that
+referenced schools
+exist in the master
+data.
+Must System demo
+FR-123 The system shall flag
+inconsistencies
+between imported
+data and existing
+master data.
+Must System demo
+FR-124 The system shall
+allow authorized
+users to correct
+validation errors
+prior to onboarding.
+Must System demo
+FR-125 The system shall
+allow authorized
+users to confirm that
+a beneficiary
+record has passed
+internal validation
+checks.
+Must System demo
+FR-126 The system shall
+allow authorized
+users to approve a
+beneficiary record
+for onboarding.
+Must System demo
+FR-127 The system shall
+prevent
+Must System demo
+onboarding of
+beneficiary records
+that are not
+internally
+approved.
+FR-128 The system shall
+allow authorized
+users to flag a
+beneficiary record
+as “Exception”.
+Must System demo
+FR-129 The system shall
+require capture of a
+reason when
+marking a
+beneficiary record
+as Exception.
+Must System demo
+FR-130 The system shall
+allow authorized
+users to resolve
+flagged exceptions.
+Must System demo
+FR-131 The system shall
+maintain an audit
+trail of exception
+status changes.
+Must System demo
+FR-132 The system shall
+allow segregation
+between validation
+confirmation and
+onboarding
+approval roles.
+Must System demo
+FR-133 The system shall
+prevent a user from
+approving
+onboarding for a
+beneficiary record
+they validated.
+Must System demo
+FR-134 The system shall
+maintain an audit
+trail of all validation
+and approval
+actions.
+Must System demo
+FR-135 The system shall
+allow authorized
+users to generate a
+validated
+beneficiary register
+report prior to
+disbursement
+processing.
+Must System demo
+• Eligibility engine shall produce clear reasons for ineligibility and allow authorized
+override with justification.
+• Reviewer screens shall support criterion-level scoring, comments, and
+attachments/notes.
+• The system shall produce ranked lists and shortlists, including tie-handling and
+moderation rules.
+• Committee decisions shall capture outcomes (Approved/Waitlisted/Rejected) with
+reasons and decision minutes (optional).
+11.1.7 Award and contract management
+The system shall generate award letters/contracts, manage acceptance and consent
+workflows, and track the award lifecycle including renewals.
+Req ID Requirement Priority Verification
+FR-136 The system shall
+allow authorized
+users to create a
+Scholarship award
+record linked to an
+approved
+beneficiary.
+Should System demo
+FR-137 The system shall
+allow authorized
+users to view
+Scholarship award
+records.
+Should System demo
+FR-138 The system shall
+allow authorized
+users to update
+Scholarship award
+details prior to
+financial activation.
+Must System demo
+FR-139 The system shall
+prevent
+modification of
+Scholarship award
+amount after first
+disbursement unless
+approved by
+authorized role.
+Must System demo
+FR-140 The system shall
+generate
+Scholarship award
+confirmation letters
+using configurable
+templates.
+Must System demo
+FR-141 The system shall
+store generated
+award letters in the
+beneficiary record.
+Must System demo
+FR-142 The system shall
+allow authorized
+users to re-generate
+award letters where
+required.
+Must System demo
+FR-143 The system shall
+allow authorized
+Must System demo
+users to activate a
+Scholarship award.
+FR-144 The system shall
+prevent financial
+disbursement
+before award
+activation.
+Must System demo
+FR-145 The system shall
+allow authorized
+users to suspend a
+Scholarship award
+with mandatory
+reason capture.
+Must System demo
+FR-146 The system shall
+allow authorized
+users to reinstate a
+suspended
+Scholarship award.
+Must System demo
+FR-147 The system shall
+allow authorized
+users to close or
+terminate a
+Scholarship award
+with mandatory
+reason capture.
+Must System demo
+FR-148 The system shall
+allow authorized
+users to define
+award start date.
+Must System demo
+FR-149 The system shall
+allow authorized
+users to define
+award end date.
+Must System demo
+FR-150 The system shall
+automatically flag
+awards reaching
+end date.
+Must System demo
+FR-151 The system shall
+allow authorized
+users to renew an
+award for a new
+period.
+Must System demo
+FR-152 The system shall
+maintain linkage
+between original
+award and
+renewed award
+records.
+Must System demo
+FR-153 The system shall
+require linkage of
+each award to a
+funding source or
+budget line.
+Must System demo
+FR-154 The system shall
+prevent award
+creation if funding
+allocation is
+insufficient.
+Must System demo
+FR-155 The system shall
+update program
+budget balance
+upon award
+approval.
+Must System demo
+FR-156 The system shall
+maintain an audit
+trail of all award
+record changes.
+Must System demo
+FR-157 The system shall log
+all award status
+changes.
+Must System demo
+• Award letters/contracts shall be generated from templates with variable substitution
+and stored in the record.
+• Acceptance workflow shall capture applicant acceptance plus guardian/school
+acknowledgements where applicable.
+• Renewals shall be configurable and triggered by performance/compliance
+milestones with reminders and reassessment workflow.
+• Awards shall have lifecycle statuses (Draft, Submitted, Under Review, Approved,
+Awarded, Active, Suspended, Completed, Closed).
+11.1.8 Financial tracking and disbursement
+The system shall capture disbursement schedules, multi-level payment approvals, and
+payment evidence, supporting multiple payee models and reconciliation.
+Req ID Requirement Priority Verification
+FR-158 The system shall
+allow authorized
+users to create a
+disbursement
+request linked to an
+active Scholarship
+award.
+Must System demo
+FR-159 The system shall
+prevent creation of
+a disbursement
+Must System demo
+request for inactive
+beneficiaries.
+FR-160 The system shall
+allow authorized
+users to specify
+disbursement
+amount.
+Must System demo
+FR-161 The system shall
+allow authorized
+users to specify
+disbursement
+category (fees,
+uniform, books)
+Must System demo
+FR-162 The system shall
+allow authorized
+users to specify
+payee type (school,
+guardian, vendor).
+Must System demo
+FR-163 The system shall
+prevent
+disbursement
+amounts from
+exceeding
+approved award
+balance.
+Must System demo
+FR-164 The system shall
+update remaining
+award balance
+after each
+approved
+disbursement.
+Must System demo
+FR-165 The system shall
+prevent
+disbursement that
+exceeds available
+program budget.
+Must System demo
+FR-166 The system shall
+prevent duplicate
+disbursement for
+the same
+beneficiary,
+category, and
+academic period.
+Must System demo
+FR-167 The system shall
+allow override of
+duplicate
+prevention only with
+authorized
+approval and
+Must System demo
+mandatory
+justification.
+FR-168 The system shall
+require
+disbursement
+requests to be
+approved before
+payment
+confirmation.
+Must System demo
+FR-169 The system shall
+prevent a user from
+approving a
+disbursement they
+created.
+Must System demo
+FR-170 The system shall
+allow multi-level
+approval
+configuration (e.g.,
+Maker–Checker–
+Approver).
+Must System demo
+FR-171 The system shall
+record approval
+timestamps and
+approving user
+details.
+Must System demo
+FR-172 The system shall
+allow authorized
+users to update
+disbursement
+payment status
+(Requested /
+Approved / Paid /
+Failed /
+Reconciled).
+Must System demo
+FR-173 The system shall
+prevent status
+change from Paid
+to Requested.
+Must System demo
+FR-174 The system shall
+require mandatory
+reason capture
+when marking a
+disbursement as
+Failed.
+Must System demo
+FR-175 The system shall
+allow authorized
+users to upload
+payment evidence
+Must System demo
+linked to a
+disbursement.
+FR-176 The system shall
+prevent marking a
+disbursement as
+Paid unless
+payment evidence
+is attached.
+Must System demo
+FR-177 The system shall log
+upload and
+modification of
+payment evidence.
+Must System demo
+FR-178 The system shall
+retrieve payee
+bank details only
+from approved
+master records.
+Must System demo
+FR-179 The system shall
+prevent editing of
+payee bank details
+during
+disbursement
+processing.
+Must System demo
+FR-180 The system shall
+allow authorized
+users to record
+returned funds.
+Must System demo
+FR-181 The system shall
+allow authorized
+users to record
+disbursement
+reversals.
+Must System demo
+FR-182 The system shall
+update award
+balance
+automatically upon
+reversal.
+Must System demo
+FR-183 The system shall
+allow authorized
+users to mark
+disbursements as
+reconciled.
+Must System demo
+FR-184 The system shall
+generate
+disbursement
+reconciliation
+reports.
+Must System demo
+FR-185 The system shall
+prevent
+Must System demo
+modification of
+reconciled
+disbursement
+records.
+FR-186 The system shall
+maintain a
+complete audit trail
+of all disbursement
+actions.
+Must System demo
+FR-187 The system shall log
+all changes to
+disbursement
+amounts.
+Must System demo
+FR-188 The system shall log
+all approval
+decisions.
+Must System demo
+• Disbursement schedules shall support one-off or periodic payments, with tranches
+linked to milestones or academic terms.
+• Payment workflow shall enforce maker-checker-approver roles and capture
+evidence (vouchers, invoices, bank confirmations).
+• The system shall support exceptions (failed payments, returned funds, partial
+payments) and reconciliation statuses.
+• The system shall support payments to schools, guardians, and vendors/suppliers,
+including split payments if policy allows.
+11.1.9 Monitoring & evaluation and case management
+The system shall enable ongoing monitoring of beneficiaries, including performance
+tracking, flags for at-risk beneficiaries, interventions, visits, and outcome metrics.
+Req ID Requirement Priority Verification
+FR-189 The system shall
+allow authorized
+users to record
+academic
+performance per
+beneficiary per
+academic period
+and per school.
+Must System demo
+FR-190 The system shall
+allow authorized
+users to update
+academic
+performance
+records.
+Should System demo
+FR-191 The system shall
+allow authorized
+Should System demo
+users to view
+historical academic
+performance
+records.
+FR-192 The system shall
+prevent deletion of
+academic
+performance
+records once
+disbursement has
+occurred for that
+period.
+Must System demo
+FR-193 The system shall
+allow authorized
+users to record
+attendance status
+per beneficiary per
+academic period.
+Must System demo
+FR-194 The system shall
+allow authorized
+users to record
+academic
+progression status
+(Promoted /
+Repeated /
+Completed /
+Dropped).
+Must System demo
+FR-195 The system shall
+allow authorized
+users to update
+progression status
+with mandatory
+reason capture
+where applicable.
+Must System demo
+FR-196 The system shall
+automatically flag
+beneficiaries whose
+performance falls
+below configured
+threshold.
+Must System demo
+FR-197 The system shall
+allow authorized
+users to manually
+flag a beneficiary
+as At-Risk.
+Must System demo
+FR-198 The system shall
+require reason
+capture when
+manually flagging a
+Must System demo
+beneficiary as AtRisk.
+FR-199 The system shall
+allow authorized
+users to remove AtRisk flag with
+justification.
+Must System demo
+FR-200 The system shall
+allow authorized
+users to record
+intervention actions
+linked to a
+beneficiary.
+Must System demo
+FR-201 The system shall
+allow authorized
+users to assign
+responsibility for an
+intervention action.
+Must System demo
+FR-202 The system shall
+allow authorized
+users to define due
+dates for
+intervention
+actions.
+Must System demo
+FR-203 The system shall
+allow authorized
+users to update
+intervention status
+(Open / In Progress /
+Closed).
+Must System demo
+FR-204 The system shall
+prevent deletion of
+intervention
+records.
+Must System demo
+FR-205 The system shall
+allow authorized
+users to record
+monitoring visits
+linked to
+beneficiaries or
+schools.
+Must System demo
+FR-206 The system shall
+allow authorized
+users to upload visit
+reports or
+supporting
+documents.
+Must System demo
+FR-207 The system shall
+allow authorized
+Must System demo
+users to record
+findings from
+monitoring visits.
+FR-208 The system shall
+allow authorized
+users to record
+follow-up actions
+from monitoring
+visits.
+Must System demo
+FR-209 The system shall
+allow authorized
+users to record
+completion status
+of beneficiaries.
+Must System demo
+FR-210 The system shall
+allow authorized
+users to record
+graduation
+outcomes.
+Must System demo
+FR-211 The system shall
+allow authorized
+users to record exit
+reasons for
+beneficiaries who
+discontinue.
+Must System demo
+FR-212 The system shall
+allow authorized
+users to generate
+outcome statistics
+(completion rate,
+dropout rate,
+progression rate).
+Must System demo
+FR-213 The system shall
+prevent renewal of
+Scholarship awards
+where performance
+criteria are not met
+(if renewal is
+configured).
+Must System demo
+FR-214 The system shall
+maintain an audit
+trail of all monitoring
+and intervention
+actions.
+Must System demo
+FR-215 The system shall
+allow authorized
+users to export
+monitoring and
+intervention logs.
+Must System demo
+• The system shall track term/semester performance, attendance, progression, and
+completion per beneficiary.
+• At-risk rules shall be configurable (e.g., below threshold, non-attendance) and trigger
+alerts and intervention logs.
+• M&E shall capture site visits, findings, attachments, actions, owners, and due dates.
+• Outcome metrics shall be program-configurable and reportable (completion rates,
+dropout rates, graduation, etc.).
+11.1.10 Reporting and analytics
+The system shall provide dashboards, standard reports, ad-hoc reporting, and exports for
+operational, financial, and impact reporting.
+Req ID Requirement Priority Verification
+FR-216 The system shall
+provide a standard
+beneficiary register
+report.
+Must System demo
+FR-217 The system shall
+provide a standard
+awards report.
+must Technical
+documentation &
+demo (if available)
+FR-218 The system shall
+provide a standard
+disbursements report.
+Must System demo
+FR-219 The system shall
+provide a standard
+budget utilization
+report.
+Must System demo
+FR-220 The system shall
+provide a standard
+school-level
+payments report.
+Must System demo
+FR-221 The system shall
+provide a standard
+M&E outcomes
+report.
+Must System demo
+FR-222 The system shall allow
+users to filter reports
+by program.
+Must System demo
+FR-223 The system shall allow
+users to filter reports
+by academic period.
+Must System demo
+FR-224 The system shall allow
+users to filter reports
+by district.
+Must System demo
+FR-225 The system shall allow
+users to filter reports
+by school.
+Must System demo
+FR-226 The system shall allow
+users to filter reports
+by beneficiary status.
+Must System demo
+FR-227 The system shall allow
+authorized users to
+select data fields for
+an ad-hoc report.
+Must System demo
+FR-228 The system shall allow
+authorized users to
+apply filters to an adhoc report.
+Must System demo
+FR-229 The system shall allow
+authorized users to
+run an ad-hoc report
+on demand.
+Must System demo
+FR-230 The system shall allow
+authorized users to
+save an ad-hoc
+report definition as a
+template.
+Must System demo
+FR-231 The system shall allow
+authorized users to
+update saved report
+templates.
+Must System demo
+FR-232 The system shall allow
+authorized users to
+delete saved report
+templates.
+Must System demo
+FR-233 The system shall allow
+users to export reports
+to CSV format.
+Must System demo
+FR-234 The system shall allow
+users to export reports
+to Excel format.
+Must System demo
+FR-235 The system shall allow
+users to export reports
+to PDF format.
+Must System demo
+FR-236 The system shall
+include the applied
+filters in exported
+report outputs.
+Must System demo
+FR-237 The system shall
+display a
+management
+dashboard showing
+key Scholarship KPIs.
+Must System demo
+FR-238 The system shall
+display total active
+beneficiaries by
+program.
+Must System demo
+FR-239 The system shall
+display total
+disbursements by
+period.
+Must System demo
+FR-240 The system shall
+display budget
+utilization by
+program.
+Must System demo
+FR-241 The system shall
+display at-risk
+beneficiary counts.
+Must System demo
+FR-242 The system shall allow
+users to drill down
+from dashboard KPIs
+to underlying
+beneficiary lists.
+Must System demo
+FR-243 The system shall allow
+users to drill down
+from dashboard KPIs
+to underlying
+disbursement
+records.
+Must System demo
+FR-244 The system shall
+restrict access to
+financial reports to
+authorized finance
+roles only.
+Must System demo
+FR-245 The system shall
+restrict access to
+beneficiary personal
+data fields based on
+role permissions.
+Must System demo
+FR-246 The system shall log
+report export actions
+(who exported,
+when, report name,
+format).
+Must System demo
+FR-247 The system shall allow
+auditors to view
+report export logs.
+Must System demo
+FR-248 The system shall allow
+authorized users to
+schedule automated
+report generation.
+Must System demo
+FR-249 The system shall allow
+authorized users to
+schedule automated
+report delivery to
+internal user groups.
+Must System demo
+FR-250 The system shall
+provide a dynamic
+report builder
+interface that allows
+authorized users to
+create reports by
+selecting fields using
+drag-and-drop.
+Must System demo
+FR-251 The system shall allow
+users to drag and
+drop available data
+fields into a report
+layout
+(rows/columns/filters).
+Must System demo
+FR-252 The system shall allow
+users to add and
+configure filters within
+the dynamic report
+builder.
+Must System demo
+FR-253 The system shall allow
+users to save a
+dynamic report
+definition as a
+reusable template.
+Must System demo
+FR-254 The system shall allow
+users to edit a saved
+dynamic report
+template.
+Must System demo
+FR-255 The system shall allow
+users to delete a
+saved dynamic
+report template.
+Must System demo
+FR-256 The system shall allow
+users to run a saved
+dynamic report
+template on
+demand.
+Must System demo
+FR-257 The system shall allow
+users to export
+dynamic report
+outputs in CSV and
+Excel formats.
+Must System demo
+FR-258 The system shall
+restrict access to
+Must System demo
+dynamic report
+builder functionality
+based on role
+permissions.
+• Dashboards shall show pipeline and performance KPIs with drill-down by program,
+district, gender, school, sponsor, and time period.
+• Reports shall be exportable to Excel/PDF/CSV with filter context.
+• Ad-hoc reporting shall allow users to select fields, apply filters, save views, and
+share report definitions subject to RBAC.
+11.1.11 Integration and communication
+The system shall support configurable notifications and provide APIs and import/export
+utilities for integration with external systems.
+Req ID Requirement Priority Verification
+FR-259 The system shall
+send automated
+email notifications
+based on
+configured events.
+Must System demo
+FR-260 The system shall
+allow administrators
+to configure
+notification
+templates.
+Must System demo
+FR-261 The system shall
+allow administrators
+to edit notification
+templates.
+Must System demo
+FR-262 The system shall log
+all notification
+events (recipient,
+date, channel,
+status).
+Must System demo
+FR-263 The system shall
+allow administrators
+to activate or
+deactivate
+notification triggers.
+Must System demo
+FR-264 The system shall
+expose REST APIs for
+integration with
+approved financial
+systems.
+Must System demo
+FR-265 The system shall
+allow retrieval of
+approved
+Must System demo
+disbursement data
+through secure API
+endpoints.
+FR-266 The system shall
+require
+authentication and
+authorization for all
+API access.
+Must System demo
+FR-267 The system shall log
+all API access
+activities.
+Must System demo
+FR-268 The system shall
+allow authorized
+users to upload CSV
+files for bulk data
+import.
+Must System demo
+FR-269 The system shall
+allow users to
+download CSV
+import templates.
+Must System demo
+FR-270 The system shall
+allow configurable
+field mapping
+during CSV import.
+Must System demo
+FR-271 The system shall
+validate imported
+CSV records.
+Must System demo
+FR-272 The system shall
+generate row-level
+error logs for failed
+import records.
+Must System demo
+FR-273 The system shall
+generate an import
+summary report.
+Must System demo
+FR-274 The system shall
+encrypt SMTP
+credentials at rest.
+Must System demo
+FR-275 The system shall
+allow administrators
+to configure SMTP
+settings.
+Must System demo
+• Notifications shall be template-driven and event-based (submission, missing docs,
+decisions, renewals, payment updates).
+• The system shall expose REST APIs (or equivalent) for integrations and provide bulk
+import/export with mapping and error logs.
+12. External Interface Requirements
+12.1 User interfaces
+The system shall provide secure, role-based internal user interfaces accessible via web
+browser. The interfaces shall be responsive, optimized for low-bandwidth environments,
+and support desktop and mobile device access.
+12.1.1 Operations Portal
+The Operations Portal shall support:
+• Program configuration and management
+• Government beneficiary list import
+• Beneficiary onboarding
+• Award creation and activation
+• Beneficiary registry management
+• Exception handling and validation confirmation
+12.1.2 Finance Portal
+The Finance Portal shall support:
+• Disbursement request creation
+• Maker–Checker–Approver workflows
+• Payment status tracking
+• Payment evidence upload
+• Reversal and reconciliation processing
+• Financial reporting and exports
+12.1.3 Monitoring & Evaluation (M&E) Portal
+The M&E Portal shall support:
+• Academic performance entry
+• Attendance tracking
+• At-risk flagging
+• Intervention logging
+• Site visit recording
+• Outcome tracking and dashboards
+12.1.4 Administration Portal
+The Administration Portal shall support:
+• User account management
+• Role and permission configuration
+• Reference data management
+• Template management (letters, notifications)
+• System configuration settings
+• Audit log access
+12.1.5 Management Dashboard
+The system shall provide a Management Dashboard showing:
+• Active beneficiaries
+• Budget utilization
+• Disbursement summaries
+• At-risk beneficiary counts
+• Program performance indicators
+12.1.6 Authentication & Security Controls
+The system shall:
+• Provide secure login functionality for all internal users.
+• Provide password reset functionality.
+• Enforce multi-factor authentication (MFA) during login.
+• Enforce session timeout after configurable inactivity period.
+• Prevent access to restricted modules without proper role authorization.
+12.2 Hardware interfaces
+The SMS shall not require specialized hardware. Optional integrations may include
+scanners for document digitization and biometric devices only if explicitly requested in
+future phases.
+12.3 System integrations
+The SMS should support integration with the following systems where applicable:
+• Future integration with Accounting/ERP (e.g., SAGE Evolution): exchange of
+approved budgets, payment vouchers, and reconciliation references.
+• Email service: transactional emails and templated communications.
+• Future integration with Payment rails/banking: optional integration for electronic
+payments and payment status callbacks.
+• Identity services: optional single sign-on (SSO) for internal users (e.g., Windows
+Domain Controller, Azure AD) if available.
+• Future integration with financial institutions
+12.4 Communications interfaces
+The system shall support configurable notification channels (email, in-app). Each
+notification shall be logged with timestamp, recipient, channel, template used, and
+delivery status.
+13. Data Requirements
+13.1 Core entities
+Entity Description / Key Data
+Program Program metadata, budget ceiling, funding source,
+configuration settings, status.
+Beneficiary Beneficiary biodata, identifiers, contact details,
+linked program, status (Imported, Active,
+Suspended, Closed).
+School / Institution School profile, registration status, location, contact
+details, linked bank accounts.
+School Bank Account Bank name, branch, account number (masked),
+active status, approval status.
+Funding Source Donor/funding allocation linked to program and
+awards.
+Award Approved Scholarship allocation linked to
+beneficiary and funding source, amount, duration,
+lifecycle status.
+Disbursement Payment request, category, payee, amount, status,
+approval records, payment evidence.
+Disbursement Item Catalog of allowable support categories (fees,
+uniforms, books, etc.).
+Academic Performance Term results, attendance status, progression status.
+Intervention / Case Log Recorded actions, assigned officer, due dates,
+resolution status.
+Monitoring Visit Visit date, findings, attachments, follow-up actions.
+Audit Log Immutable log of user actions (create, update,
+approve, export, status change).
+Notification Log Record of sent notifications (email), timestamp,
+recipient, delivery status.
+Reference Data Districts, academic periods, item categories,
+program types, status codes.
+13.2 Data quality and validation
+• The system shall enforce field-level validation, including formats for emails, phone
+numbers, dates, and numeric ranges.
+• The system shall enforce uniqueness constraints where applicable (e.g., applicant
+identifier per program, user email).
+• The system shall maintain referential integrity between related entities (e.g.,
+application must reference an existing program).
+• The system shall support data completeness indicators (e.g., missing mandatory
+fields/documents).
+13.3 Data retention and archival
+Press Trust shall define retention periods. The system shall support configurable retention
+rules and secure archival of closed records. Records containing minors’ data shall follow
+applicable legal and policy requirements.
+14. Non-Functional Requirements
+Non-functional requirements define quality attributes and constraints for the SMS.
+NFR ID Requirement Priority Verification
+NFR-01 Role-based security and
+access control aligned to least
+privilege.
+Must Security review &
+demo
+NFR-02 Encryption of data in transit
+(TLS) and at rest (database
+and document storage).
+Must Technical
+documentation
+NFR-03 Compliance with applicable
+data protection/privacy
+requirements, including
+consent management for
+minors where relevant.
+Must Compliance
+statement & policy
+review
+NFR-04 System availability target (e.g.,
+≥99.5%) with vendor support
+SLAs and incident response
+times.
+Should SLA review
+NFR-05 Scalable architecture to
+support peak application
+submissions and large
+document volumes without
+degradation.
+Must Architecture
+review &
+performance
+evidence
+NFR-06 Responsive, mobile-friendly
+interface suitable for lowbandwidth environments
+(optimized pages and
+uploads).
+Must System demo
+NFR-07 Audit logs for key transactions
+and decisions (eligibility,
+scoring, approvals, payments)
+and export for audit.
+Must System demo
+NFR-08 Automated backups and
+disaster recovery plan with
+defined RPO/RTO; tested
+restoration procedures.
+Must DR
+documentation
+NFR-09 Maintainability/configurability:
+admin-driven configuration for
+forms, workflows, rubrics,
+templates without code
+changes.
+Must Demo & technical
+documentation
+NFR-10 Vendor support model with
+defined SLAs, documentation,
+and training plan for
+administrators and users.
+Should SLA & support
+documentation
+NFR-11 The system shall support
+concurrent access by multiple
+users, allowing simultaneous
+logins without user or licensing
+restrictions.
+Must System demo
+14.1 Security and privacy
+• Authentication shall support strong passwords, configurable lockout after 3 failed
+attempts, and MFA for all users.
+• The system shall ensure that user logins are securely managed and that users can only
+view or access information they are authorized to see.
+• Sessions shall be securely managed and terminated on logout; browser back
+navigation shall not restore authenticated pages.
+• Audit logs shall capture security events and all key business actions; logs shall be
+tamper-evident and exportable for audit.
+• File uploads shall be virus-scanned; file size limits shall be configurable (recommended
+50–100MB per file unless policy requires more).
+• The system shall ensure that all data exchanged over the network is encrypted using
+a secure SSL/TLS certificate.
+• The system shall support field-level access control to restrict viewing of sensitive fields
+(e.g., bank account numbers, national IDs) based on user role.
+• The system shall log all data export activities, including user, date/time, report name,
+and file format.
+• The system shall enforce segregation of duties between disbursement creation and
+disbursement approval.
+• The system shall support configurable data retention periods and secure archival of
+inactive records.
+• All API endpoints shall require secure authentication and authorization.
+• The system shall log all access to sensitive data fields, including user, timestamp, and
+action performed.
+• The system shall enforce approval workflow for changes to stored bank account
+details.
+• The system shall retain audit logs for a configurable period in accordance with
+organizational policy.
+• Audit logs shall be protected from modification or deletion by unauthorized users.
+• Access to audit log configuration and management shall be restricted to authorized
+administrative roles only.
+• The system shall generate alerts in the event of audit logging failure or backup
+failure.
+• The system shall synchronize system time with an approved time source to ensure
+accurate audit timestamps.
+• Passwords shall be stored using secure one-way hashing and shall never be stored in
+plaintext.
+• The system shall support secure configuration baselines and removal of default or
+unused system accounts.
+• The system shall support regular security patching of application and underlying
+components in accordance with defined patch management policy.
+• The system shall prevent sensitive data (e.g., full bank account numbers) from being
+written to system logs.
+14.2 Performance, availability, and scalability
+• The system shall support peak disbursement, bulk import, and reporting periods without
+performance degradation.
+• Target response times for common operations (view list, open application, save draft)
+should be <= 3 seconds under normal load.
+• Availability target should be >= 99.5% per month excluding planned maintenance,
+subject to hosting model.
+• The system shall support concurrent access by multiple internal users without
+performance degradation.
+• The system shall support bulk CSV imports of beneficiary records within defined
+volume thresholds without timeout.
+• Standard operational reports shall execute within defined response time thresholds
+under normal system load.
+• The system shall support monitoring and alerting for system availability and critical
+background jobs.
+• Backup processes shall generate automated alerts upon failure.
+• Backups shall be automated; disaster recovery shall define RPO/RTO and include
+documented and periodically tested restoration procedures.
+14.3 Usability, accessibility, and localization
+• User interfaces shall be mobile-friendly and usable on low-bandwidth networks,
+including resumable uploads and compressed previews.
+• The system shall provide clear, user-friendly error messages that do not expose server
+internals; technical errors shall be logged for support.
+• The system shall support accessibility considerations (readable fonts, keyboard
+navigation, contrast, screen-reader labels) where feasible.
+• The system shall support configurable date/time formats and can be extended to
+support local languages if required.
+• The system shall dynamically render user interfaces based on assigned roles and
+permissions.
+• The system shall provide real-time validation feedback during data entry to reduce
+data entry errors.
+• The system shall provide progress indicators for long-running operations such as bulk
+imports and report generation.
+14.4 Data Governance & Quality
+• The system shall enforce consistent validation rules across manual entry, CSV import,
+and API interfaces.
+• The system shall provide duplicate detection mechanisms for beneficiaries and
+payees.
+• The system shall support exception queues for resolution of flagged data
+inconsistencies.
+• The system shall prevent deletion of records that are linked to financial transactions.
+14.5 Maintainability & Supportability
+• The system shall support separate development, testing, and production
+environments.
+• The system shall allow configuration of forms, workflows, templates, and reports
+without vendor code changes.
+• The system shall provide documented API interfaces where integrations are
+supported.
+• The vendor shall provide defined service level agreements (SLAs) for incident
+response and resolution.
+• The system shall not impose vendor lock-in and shall allow export of core datasets in
+open formats.
+15. Verification, Acceptance, and Testing
+Each requirement shall be verified using one or more of the following methods:
+demonstration, functional testing, document review, security testing, and performance
+testing. The vendor shall provide a test plan, test cases, and evidence of testing.
+The vendor shall support the development, validation, and refinement of detailed
+business process flows, data flow diagrams, and related system design artefacts based
+on the agreed functional requirements. This shall include collaboration with the client
+during implementation and demonstration sessions to ensure that all process flows and
+data models accurately reflect operational needs and system functionality.
+16. Deliverables expected from the vendor
+• Solution architecture and hosting design (including scalability, security controls, DR).
+• Configured SMS application and source code (as per procurement terms), including
+admin manuals and user guides.
+• API documentation and data import/export templates.
+• Deployment and data migration plan.
+• Training plan and handover package.
+• Support and maintenance SLA proposal (incident response, bug fix timelines,
+enhancements).
+17. Appendix
+17.1 Appendix A: Detailed Requirement Catalogue
+This appendix provides a more detailed set of requirements derived from the SMS requirements matrix to support API design, detailed
+testing, and implementation planning. These requirements are not exhaustive and may be refined or supplemented during system
+demonstrations and solution discussions. Vendors may propose additional requirements or enhancements; however, none of the
+requirements specified herein shall be removed or excluded.
+FR_ID Module Feature / Use
+Case
+Requirement (What the
+system shall do) Actors / Roles Priority Verification Acceptance Criteria
+FR-AUTH-
+001 Authentication User Login
+The system shall authenticate
+internal users using
+email/username and
+password.
+All users High Test
+Valid credentials
+succeed; invalid
+credentials return a
+generic error without
+revealing whether the
+account exists.
+FR-AUTH-
+002 Authentication Multi-Factor
+Authentication
+The system shall enforce multifactor authentication (MFA)
+for all user logins.
+All users High Test
+Login requires
+successful second
+factor; bypass is not
+possible for standard
+users.
+FR-AUTH-
+003 Authentication Password Reset
+The system shall provide
+password reset functionality
+for internal users.
+All users High Test
+Password reset
+succeeds via
+configured channel;
+reset links/tokens
+expire; old token
+cannot be reused.
+FR-AUTH-
+004 Authentication Account
+Lockout
+The system shall lock user
+accounts after a
+configurable number of failed
+login attempts.
+All users High Test
+After threshold failures,
+login is blocked until
+lockout expires or
+Admin unlocks the
+account.
+FR-AUTH-
+005 Authentication Session Timeout
+The system shall terminate
+user sessions after
+configurable inactivity
+timeout.
+All users High Test
+After timeout,
+protected pages
+require reauthentication; back
+navigation does not
+restore authenticated
+pages.
+FR-AUTH-
+006 Authentication Logout The system shall terminate
+sessions upon user logout. All users High Test
+After logout,
+protected endpoints
+reject the session
+token; browser back
+does not restore
+access.
+FR-AUTH-
+007 Authentication Password
+Storage
+The system shall store
+passwords using secure oneway hashing and shall never
+store passwords in plaintext.
+System High Security
+review
+Password hashes are
+salted/hashed; no
+plaintext passwords
+exist in database, logs,
+or configuration.
+FR-AUTHZ-
+001 Authorization Protected
+Module Access
+The system shall restrict
+access to modules and
+functions based on role
+permissions.
+All
+authenticated
+users
+High Test
+Unauthorized users
+cannot access
+restricted screens or
+API endpoints;
+authorized roles can
+access permitted
+functions only.
+FR-AUTHZ-
+002 Authorization Field-Level
+Security
+The system shall support fieldlevel access control for
+sensitive fields (e.g., bank
+accounts, national IDs).
+Admin;
+Finance;
+Operations;
+M&E
+High Test
+Sensitive fields are
+masked by default;
+only authorized roles
+can view unmasked
+values.
+FR-AUTHZ-
+003 Authorization Program-Level
+Data Access
+The system shall restrict data
+access by assigned
+program(s) where applicable.
+Admin;
+Operations;
+Finance; M&E
+Medium Test Users see only records
+for programs assigned
+to them (if program
+scoping is enabled).
+FR-AUTHZ-
+004 Authorization Segregation of
+Duties
+The system shall enforce
+segregation of duties
+between disbursement
+creation (Maker) and
+approval
+(Checker/Approver).
+Finance High Test
+A user cannot
+approve a
+disbursement they
+created; workflow
+blocks self-approval.
+FR-AUTHZ-
+005 Authorization Read-only
+Auditor Role
+The system shall support a
+read-only auditor role with
+access to audit logs and
+records without edit
+capability.
+Auditor;
+Admin Medium Test
+Auditor can
+view/export reports
+and logs but cannot
+modify master or
+transactional records.
+FR-USER-
+001
+User
+Management Create User
+The system shall allow Admin
+to create internal user
+accounts.
+Admin High Test
+New user receives
+credentials/activation;
+user can log in when
+Active.
+FR-USER-
+002
+User
+Management Update User
+The system shall allow Admin
+to update user profile details
+(name, email, phone).
+Admin High Test
+Updated user details
+display correctly; audit
+log captures the
+change.
+FR-USER-
+003
+User
+Management
+Deactivate
+User
+The system shall allow Admin
+to deactivate or suspend user
+accounts.
+Admin High Test
+Deactivated users
+cannot log in; existing
+sessions are
+invalidated or blocked
+on next request.
+FR-ROLE-
+001
+Role
+Management Create Role The system shall allow Admin
+to create roles. Admin High Test
+Role appears in role list
+and can be assigned
+to users.
+FR-ROLE-
+002
+Role
+Management Update Role The system shall allow Admin
+to update roles. Admin High Test
+Role updates apply to
+users assigned that
+role; audit log
+captures changes.
+FR-ROLE-
+003
+Role
+Management
+Deactivate
+Role
+The system shall allow Admin
+to deactivate roles. Admin Medium Test
+Deactivated role
+cannot be assigned;
+users previously
+assigned must be
+reassigned or lose
+permissions per policy.
+FR-ROLE-
+004
+Role
+Management
+Assign
+Permissions
+The system shall allow Admin
+to assign granular permissions
+to roles.
+Admin High Test
+Permission changes
+immediately affect
+access; unauthorized
+screens/APIs are
+blocked.
+FR-USER-
+004
+User
+Management
+Assign Roles to
+Users
+The system shall allow Admin
+to assign one or more roles to
+a user.
+Admin High Test
+User access reflects
+assigned roles;
+changes are
+auditable.
+FR-USER-
+005
+User
+Management
+Unlock
+Account
+The system shall allow Admin
+to unlock locked user
+accounts.
+Admin Medium Test
+Unlocked user can
+authenticate
+successfully; action is
+logged.
+FR-PGM-
+001
+Program
+Management
+Create
+Program
+The system shall allow
+Admin/Operations to create
+Scholarship programs with
+independent configurations.
+Admin;
+Operations High Test
+Program cannot be
+saved without
+required fields;
+appears in program
+list.
+FR-PGM-
+002
+Program
+Management
+Update
+Program
+The system shall allow
+Admin/Operations to update
+program details.
+Admin;
+Operations High Test
+Updated program
+fields persist and
+reflect in lists and
+reports.
+FR-PGM-
+003
+Program
+Management
+Archive
+Program
+The system shall allow
+Admin/Operations to
+archive/deactivate a
+program.
+Admin;
+Operations High Test
+Archived programs
+cannot be used for
+new awards/intakes;
+historical records
+remain accessible.
+FR-PGM-
+004
+Program
+Management
+Configure
+Academic
+Periods
+The system shall allow
+Admin/Operations to
+configure academic periods
+(year/term/semester) per
+program.
+Admin;
+Operations High Test
+Periods are selectable
+on
+awards/disbursements;
+invalid date ranges
+are rejected.
+FR-PGM-
+005
+Program
+Management
+Configure
+Program
+Budget
+The system shall allow
+Admin/Operations to
+configure program budgets
+and budget ceilings.
+Admin;
+Operations High Test
+Budget values save;
+budget utilization
+updates when
+awards/disbursements
+are approved.
+FR-PGM-
+006
+Program
+Management
+Budget
+Guardrail
+The system shall prevent
+approval of
+awards/disbursements that
+would exceed program
+budget ceiling.
+Finance;
+Operations High Test
+System blocks
+approval when ceiling
+would be exceeded
+and displays a clear
+validation message.
+FR-PGM-
+007
+Program
+Management
+Adminconfigurable
+Settings
+The system shall allow
+authorized administrators to
+modify program settings
+without vendor code
+changes.
+Admin High
+Demo &
+technical
+documentati
+on
+Admin can change
+configuration via UI;
+change is effective
+without redeploying
+code.
+FR-PGM-
+008
+Program
+Management
+Funding
+Source
+Allocation
+The system shall allow
+allocation of funding
+sources/budget lines to
+programs.
+Admin;
+Operations Medium Test
+Funding source
+allocation is selectable
+during award
+creation; utilization
+reports reflect
+allocations.
+FR-PGM-
+009
+Program
+Management
+Configure
+Award Types
+The system shall allow
+configuration of award types
+(one-off, recurring,
+renewable).
+Admin;
+Operations Medium Test
+Award type settings
+apply to award
+lifecycle and
+disbursement rules.
+FR-MD-001 Master Data Maintain
+Funding
+The system shall allow Admin
+to create funding
+source/donor records.
+Admin Medium Test Funding source can
+be created and
+Sources -
+Create
+appears in lists and
+dropdowns.
+FR-MD-002 Master Data
+Maintain
+Funding
+Sources -
+Update
+The system shall allow Admin
+to update funding
+source/donor records.
+Admin Medium Test
+Edits are saved and
+reflected; audit log
+captures changes.
+FR-MD-003 Master Data
+Maintain
+Funding
+Sources -
+View/List
+The system shall allow Admin
+to view and list funding
+source/donor records.
+Admin Medium Test
+List loads and reflects
+latest records without
+duplicates.
+FR-MD-004 Master Data
+Maintain
+Funding
+Sources -
+Deactivate
+The system shall allow Admin
+to deactivate funding
+sources/donors.
+Admin Low Test
+Deactivated funding
+sources cannot be
+selected for new
+awards.
+FR-SCH-
+001 Schools Create School
+The system shall allow Admin
+to create school/institution
+profiles.
+Admin High Test
+School is created and
+appears in dropdowns
+and reports.
+FR-SCH-
+002 Schools Update School
+The system shall allow Admin
+to update school/institution
+profiles.
+Admin High Test Edits persist; linked
+records remain valid.
+FR-SCH-
+003 Schools View/List
+Schools
+The system shall allow
+authorized users to view and
+list schools.
+Admin;
+Operations;
+Finance; M&E
+High Test Users can view school
+details per permissions.
+FR-SCH-
+004 Schools Deactivate
+School
+The system shall allow Admin
+to deactivate/archieve
+school profiles.
+Admin Medium Test
+Deactivated schools
+cannot be selected
+for new
+onboarding/awards;
+historical transactions
+remain.
+FR-BANK-
+001 Banks Maintain Banks
+List
+The system shall allow Admin
+to maintain a list of supported
+banks.
+Admin Medium Test
+Banks can be created
+and appear in bank
+selection fields.
+FRSCHACC-
+001
+School
+Accounts
+Create School
+Bank Account
+The system shall allow Admin
+to create bank accounts
+linked to schools with
+Active/Inactive state.
+Admin High Test
+Account can be
+created; active
+accounts are
+selectable for
+payments.
+FRSCHACC-
+002
+School
+Accounts
+Update School
+Bank Account
+The system shall allow Admin
+to update school bank
+account details.
+Admin High Test
+Updates require
+approval if
+configured; changes
+are audited.
+FRSCHACC-
+003
+School
+Accounts
+Deactivate
+School Bank
+Account
+The system shall allow Admin
+to deactivate school bank
+accounts.
+Admin High Test
+Inactive accounts are
+not selectable during
+disbursement.
+FRSCHACC-
+004
+School
+Accounts
+Bank Detail
+Change
+Approval
+The system shall enforce
+maker-checker approval for
+changes to active school
+bank account details.
+Admin;
+Finance High System demo
+Change remains
+pending until
+approved; audit trail
+captures maker and
+approver.
+FR-CAT-
+001 Item Catalog Create Item
+The system shall allow Admin
+to create disbursement
+items/categories (e.g., fees,
+books, uniforms) with Active
+flag.
+Admin High Test
+Active items appear in
+disbursement item lists;
+inactive items do not.
+FR-CAT-
+002 Item Catalog Update Item
+The system shall allow Admin
+to update disbursement
+items/categories.
+Admin High Test
+Updates reflect in
+future selections;
+historical
+disbursements retain
+original item
+reference.
+FR-CAT-
+003 Item Catalog Deactivate
+Item
+The system shall allow Admin
+to deactivate disbursement
+items/categories.
+Admin Medium Test
+Deactivated items are
+not selectable for new
+disbursements.
+FR-CAT-
+004 Item Catalog View/List Items
+The system shall allow
+authorized users to view and
+list disbursement items.
+Admin;
+Finance;
+Operations
+Medium Test
+List loads with
+active/inactive status
+per permission.
+FR-BEN-
+001 Beneficiaries Create
+Beneficiary
+The system shall allow
+authorized users to create
+beneficiary records.
+Operations;
+Admin High Test
+Beneficiary can be
+created with required
+fields and is visible in
+registry.
+FR-BEN-
+002 Beneficiaries Update
+Beneficiary
+The system shall allow
+authorized users to update
+beneficiary records.
+Operations;
+Admin High Test
+Changes are saved;
+audit log records
+before/after values.
+FR-BEN-
+003 Beneficiaries View/List
+Beneficiaries
+The system shall allow
+authorized users to view and
+list beneficiary records.
+Operations;
+Finance; M&E;
+Admin
+High Test
+List supports filtering;
+users see records per
+access rights.
+FR-BEN-
+004 Beneficiaries Archive
+Beneficiary
+The system shall allow
+authorized users to
+archive/deactivate
+beneficiary records with
+reason capture.
+Operations;
+Admin High Test
+Archived beneficiaries
+cannot receive new
+awards/disbursements;
+history remains
+accessible.
+FR-BEN-
+005 Beneficiaries Status
+Management
+The system shall support
+beneficiary statuses
+(Imported, Pending
+Onboarding, Active,
+Suspended, Closed).
+Operations High Test
+Status transitions follow
+configured rules; status
+changes are audited.
+FR-BEN-
+006 Beneficiaries
+Prevent
+Duplicate
+Beneficiary
+The system shall prevent
+duplicate beneficiaries based
+on defined uniqueness rules
+(e.g., National ID + Program +
+Intake).
+Operations;
+Admin High Test
+Duplicate attempt is
+blocked or flagged
+according to
+configuration.
+FR-IMP-001 Beneficiary
+Intake
+Download CSV
+Template
+The system shall allow
+authorized users to download
+standardized CSV templates
+for beneficiary import.
+Operations;
+Admin High System demo
+Template downloads
+successfully and
+includes required
+columns and format
+guidance.
+FR-IMP-002 Beneficiary
+Intake
+Upload CSV
+File
+The system shall allow
+authorized users to upload
+CSV files for bulk beneficiary
+import.
+Operations High System demo
+CSV file upload
+completes; import
+process starts and
+shows progress.
+FR-IMP-003 Beneficiary
+Intake
+Configurable
+Field Mapping
+The system shall allow
+configurable mapping
+between CSV columns and
+system fields during import.
+Operations;
+Admin High System demo
+User can map
+columns; mapping
+can be saved and
+reused.
+FR-IMP-004 Beneficiary
+Intake
+Validate
+Required Fields
+The system shall validate
+required fields during import. Operations High System demo
+Rows missing required
+fields fail with a clear
+reason in error log.
+FR-IMP-005 Beneficiary
+Intake
+Validate Data
+Types
+The system shall validate data
+types/formats during import
+(dates, numeric fields).
+Operations High System demo
+Invalid formats are
+rejected with row-level
+reasons.
+FR-IMP-006 Beneficiary
+Intake
+Duplicate
+Detection on
+Import
+The system shall validate
+duplicates during import
+based on configured
+uniqueness rules.
+Operations High System demo
+Duplicate rows are
+rejected or flagged;
+summary shows
+duplicates.
+FR-IMP-007 Beneficiary
+Intake
+Referential
+Integrity
+Validation
+The system shall validate
+referential integrity during
+import (e.g., school, district,
+program must exist).
+Operations High System demo
+Rows referencing
+missing master data
+are rejected with
+reason.
+FR-IMP-008 Beneficiary
+Intake
+Row-level Error
+Log
+The system shall generate a
+downloadable row-level error
+log for failed import records.
+Operations High System demo
+Error log includes row
+number and failure
+reason; file is
+downloadable.
+FR-IMP-009 Beneficiary
+Intake
+Import
+Summary
+Report
+The system shall generate an
+import summary (total,
+accepted, rejected).
+Operations High System demo
+Summary counts
+match imported
+dataset; report is
+saved in import history.
+FR-IMP-010 Beneficiary
+Intake
+Partial Success
+Import
+The system shall import valid
+rows without being blocked
+by rejected rows.
+Operations High System demo Accepted records
+appear in registry
+even when some rows
+fail.
+FR-ONB-
+001 Onboarding
+Convert
+Imported to
+Beneficiary
+Profile
+The system shall allow
+authorized users to convert
+an imported record into an
+onboarded beneficiary
+profile.
+Operations High System demo
+Converted record
+becomes available for
+award creation;
+onboarding action is
+audited.
+FR-ONB-
+002 Onboarding
+Mandatory
+Onboarding
+Fields
+The system shall enforce
+completion of mandatory
+onboarding fields before
+activation.
+Operations High System demo
+Activation is blocked
+until mandatory fields
+are complete.
+FR-ONB-
+003 Onboarding
+Onboarding
+Document
+Upload
+The system shall allow
+uploading onboarding
+documents (e.g., admission
+letter, ID) linked to
+beneficiary.
+Operations High System demo
+Documents are stored
+and visible in
+beneficiary document
+list.
+FR-ONB-
+004 Onboarding
+Internal
+Validation
+Confirmation
+The system shall allow internal
+validation confirmation prior
+to onboarding approval.
+Operations High System demo
+Record cannot be
+approved for
+onboarding without
+validation
+confirmation; actions
+are audited.
+FR-ONB-
+005 Onboarding Exception
+Queue
+The system shall allow users to
+flag beneficiary records as
+exceptions with reason
+capture.
+Operations Medium System demo
+Exception appears in
+exception queue;
+reason is recorded
+and auditable.
+FR-ONB-
+006 Onboarding Resolve
+Exceptions
+The system shall allow
+authorized users to resolve
+flagged exceptions.
+Operations Medium System demo
+Resolved exception is
+removed from queue;
+resolution action is
+audited.
+FR-DOC-
+001
+Document
+Management
+Upload
+Beneficiary
+Document
+The system shall allow
+authorized users to upload
+Operations;
+Admin High Test Uploaded document
+is linked to beneficiary
+documents linked to
+beneficiary records.
+and can be retrieved
+by authorized roles.
+FR-DOC-
+002
+Document
+Management
+Upload
+Disbursement
+Evidence
+The system shall allow
+authorized users to upload
+payment evidence linked to
+disbursement records.
+Finance High Test
+Evidence is linked to
+the disbursement and
+visible in disbursement
+details.
+FR-DOC-
+003
+Document
+Management
+Virus Scan on
+Upload
+The system shall virus-scan
+files upon upload. System High System demo
+Infected files are
+rejected; event is
+logged.
+FR-DOC-
+004
+Document
+Management File Size Limits
+The system shall enforce
+configurable file size limits for
+uploads.
+System;
+Admin Medium Test
+Files above limit are
+rejected with a userfriendly message.
+FR-DOC-
+005
+Document
+Management
+Document
+Metadata
+The system shall store
+document metadata (type,
+owner record, uploaded by,
+upload date).
+System High Test
+Metadata is visible to
+authorized users and
+included in audit trails.
+FR-DOC-
+006
+Document
+Management
+View
+Document
+Metadata
+The system shall allow
+authorized users to view
+document metadata.
+Operations;
+Finance;
+Admin;
+Auditor
+High Test
+Metadata displays
+correctly and respects
+access permissions.
+FR-DOC-
+007
+Document
+Management
+Download
+Document
+The system shall allow
+authorized users to download
+documents.
+Authorized
+users
+High Test
+Download succeeds
+for authorized users;
+unauthorized users are
+blocked.
+FR-DOC-
+008
+Document
+Management
+Log Document
+Downloads
+The system shall log all
+document download
+activities.
+System High Test
+Log includes user,
+timestamp,
+document, and
+record reference.
+FR-DOC-
+009
+Document
+Management
+Document
+Status -
+Pending
+The system shall allow
+authorized users to set
+document status to Pending.
+Operations Medium Test Status change is
+recorded and visible.
+FR-DOC-
+010
+Document
+Management
+Document
+Status - Verified
+The system shall allow
+authorized users to set
+document status to Verified.
+Operations High Test
+Verified documents
+can satisfy mandatory
+document rules.
+FR-DOC-
+011
+Document
+Management
+Document
+Status -
+Rejected
+The system shall allow
+authorized users to set
+document status to Rejected.
+Operations High Test
+Rejected documents
+are marked clearly
+and require re-upload
+where applicable.
+FR-DOC-
+012
+Document
+Management
+Rejection
+Reason
+Required
+The system shall require
+capture of rejection reason
+when a document is marked
+Rejected.
+Operations High Test
+Rejection cannot be
+saved without a
+reason; reason is
+visible to authorized
+users.
+FR-DOC-
+013
+Document
+Management
+Document
+Versioning
+The system shall support
+uploading a new version of
+an existing document.
+Operations;
+Finance Medium Test
+New version is linked;
+previous versions
+remain accessible for
+audit.
+FR-DOC-
+014
+Document
+Management
+Document
+Version History
+The system shall display
+document version history.
+Authorized
+users
+Medium Test
+Version history shows
+all versions with
+upload dates and
+users.
+FR-DOC-
+015
+Document
+Management
+Document
+Expiry Date
+The system shall allow setting
+expiry dates for documents
+where applicable.
+Operations;
+Admin Low Test Expired documents
+are flagged.
+FR-DOC-
+016
+Document
+Management
+Flag Expired
+Documents
+The system shall automatically
+flag expired documents. System Low Test
+Expired status appears
+and can trigger reupload workflow if
+enabled.
+FR-DOC-
+017
+Document
+Management
+Prevent
+Deletion After
+Approval
+The system shall prevent
+deletion of documents linked
+to approved financial
+transactions.
+Admin;
+Finance High Test
+Delete option is not
+available or is blocked
+for approved
+transactions; attempt
+is audited.
+FR-DOC-
+018
+Document
+Management
+Controlled
+Document
+Deletion
+The system shall allow
+controlled deletion of
+documents prior to
+transaction approval based
+on permissions.
+Admin Medium Test
+Only authorized role
+can delete; deletion is
+logged with reason.
+FRAWARD-
+001
+Award
+Management Create Award
+The system shall allow
+authorized users to create
+Scholarship awards linked to
+approved beneficiaries and
+programs.
+Operations;
+Finance High Test
+Award creation
+requires active
+beneficiary; award
+appears in beneficiary
+profile.
+FRAWARD-
+002
+Award
+Management
+View/List
+Awards
+The system shall allow
+authorized users to view and
+list awards.
+Operations;
+Finance;
+Admin
+High Test
+Award list supports
+filters by program,
+period, status.
+FRAWARD-
+003
+Award
+Management
+Update Award
+Before First
+Disbursement
+The system shall allow
+updates to award details
+prior to first disbursement,
+subject to permissions.
+Operations;
+Finance Medium Test
+Award can be
+updated; audit log
+captures changes.
+FRAWARD-
+004
+Award
+Management
+Protect Award
+Amount After
+Payment
+The system shall restrict award
+amount changes after first
+disbursement unless
+approved by an authorized
+role.
+Finance;
+Admin High System demo
+System blocks
+changes or requires
+approval with
+justification; action is
+auditable.
+FRAWARD-
+005
+Award
+Management
+Activate
+Award
+The system shall allow
+authorized users to activate
+an award.
+Operations High Test
+Inactive awards
+cannot be used for
+disbursement;
+activation enables
+disbursement.
+FRAWARD-
+006
+Award
+Management
+Suspend
+Award
+The system shall allow
+authorized users to suspend
+an award with mandatory
+reason capture.
+Operations High Test
+Suspended award
+cannot receive new
+disbursements; reason
+is stored.
+FRAWARD-
+007
+Award
+Management
+Reinstate
+Award
+The system shall allow
+authorized users to reinstate a
+suspended award.
+Operations Medium Test
+Reinstated award
+becomes eligible for
+disbursement.
+FRAWARD-
+008
+Award
+Management Close Award
+The system shall allow
+authorized users to
+close/terminate an award
+with mandatory reason
+capture.
+Operations High Test
+Closed awards cannot
+accept new
+disbursements; closure
+reason is recorded.
+FRAWARD-
+009
+Award
+Management
+Generate
+Award Letter
+The system shall generate
+award confirmation letters
+using configurable templates.
+Operations Low System demo
+Generated letter
+contains correct
+variable fields and is
+stored in beneficiary
+record.
+FRAWARD-
+010
+Award
+Management Renew Award
+The system shall allow
+authorized users to renew
+awards for a new period
+where renewal applies.
+Operations Low System demo
+Renewal creates a
+new period record
+linked to original
+award; history
+preserved.
+FR-FIN-001 Disbursements
+Create
+Disbursement
+Request
+The system shall allow
+Finance to create
+disbursement requests linked
+to active awards.
+Finance High Test
+Disbursement cannot
+be created for
+inactive
+beneficiary/award;
+valid requests are
+saved.
+FR-FIN-002 Disbursements Specify Payee
+Model
+The system shall allow
+Finance to specify payee
+type
+(school/guardian/vendor) for
+a disbursement.
+Finance High Test
+Payee selection is
+validated; payee
+details auto-populate
+from master data.
+FR-FIN-003 Disbursements
+Specify
+Disbursement
+Category
+The system shall allow
+Finance to select
+disbursement item/category
+from approved catalog.
+Finance High Test Only active catalog
+items are selectable.
+FR-FIN-004 Disbursements
+Budget
+Balance
+Check
+The system shall prevent
+disbursement amounts from
+exceeding remaining award
+balance.
+Finance High Test
+System blocks
+amounts above
+remaining balance;
+message shows
+available balance.
+FR-FIN-005 Disbursements Program
+Budget Check
+The system shall prevent
+disbursement approvals that
+exceed program budget
+availability.
+Finance High Test
+Approval is blocked
+when budget
+insufficient.
+FR-FIN-006 Disbursements Multi-level
+Approval
+The system shall support multilevel approval workflow for
+disbursements (MakerChecker-Approver).
+Finance High System demo
+Disbursement cannot
+be marked
+Approved/Paid
+without required
+approvals; approval
+trail captured.
+FR-FIN-007 Disbursements Approval Trail
+The system shall record
+approval timestamps and
+approving user details for
+disbursements.
+Finance;
+Auditor High Test Disbursement shows
+full approval history.
+FR-FIN-008 Disbursements Prevent SelfApproval
+The system shall prevent a
+user from approving a
+disbursement they created.
+Finance High Test System blocks selfapproval attempt.
+FR-FIN-009 Disbursements Disbursement
+Status Tracking
+The system shall support
+disbursement statuses
+(Requested, Approved, Paid,
+Failed, Reconciled).
+Finance High Test
+Status transitions are
+controlled; statuses
+display consistently in
+lists and reports.
+FR-FIN-010 Disbursements Failure Reason
+Capture
+The system shall require a
+reason when marking a
+disbursement as Failed.
+Finance High Test
+Failed status cannot
+be saved without
+reason; reason
+appears in audit trail.
+FR-FIN-011 Disbursements
+Attach
+Payment
+Evidence
+The system shall allow
+attachment of payment
+evidence
+Finance High Test Evidence is attached
+and required before
+(voucher/receipt/bank
+confirmation) to
+disbursements.
+status can be set to
+Paid (if configured).
+FR-FIN-012 Disbursements
+Evidence
+Required for
+Paid
+The system shall prevent
+marking a disbursement as
+Paid unless payment
+evidence is attached
+(configurable).
+Finance High System demo
+Attempt to mark Paid
+without evidence is
+blocked with userfriendly message.
+FR-FIN-013 Disbursements
+Duplicate
+Payment
+Prevention
+The system shall prevent
+duplicate disbursements for
+the same beneficiary,
+category, and academic
+period.
+Finance High Test
+Duplicate attempt is
+blocked or requires
+authorized override
+with justification if
+enabled.
+FR-FIN-014 Disbursements
+Duplicate
+Override with
+Justification
+The system shall allow
+authorized override of
+duplicate disbursement
+prevention with mandatory
+justification.
+Finance;
+Admin Low System demo
+Override requires
+justification; override
+action is audited.
+FR-FIN-015 Disbursements Batch
+Disbursement
+The system shall allow
+Finance to create a batch of
+disbursements for multiple
+beneficiaries and/or items.
+Finance Medium System demo
+Batch creates
+individual
+disbursement records;
+batch summary totals
+match line items.
+FR-FIN-016 Disbursements
+Multiple
+Disbursements
+Allowed
+The system shall allow multiple
+disbursements for the same
+award without overwriting
+prior records.
+Finance High Test
+Multiple disbursements
+appear in history and
+reports distinctly.
+FR-FIN-017 Disbursements
+Bank Detail
+Lock During
+Processing
+The system shall retrieve
+payee bank details from
+approved master data and
+prevent editing during
+disbursement processing.
+Finance High Test
+Bank details cannot
+be edited on
+disbursement screen;
+changes must occur
+through master data
+workflow.
+FR-FIN-018 Reversals &
+Adjustments
+Record
+Returned
+Funds
+The system shall allow
+Finance to record returned
+funds linked to a
+disbursement.
+Finance Medium System demo
+Returned funds entry
+reduces paid totals
+and is auditable.
+FR-FIN-019 Reversals &
+Adjustments
+Record
+Reversal
+The system shall allow
+Finance to record a
+disbursement reversal.
+Finance Medium System demo
+Reversal updates
+balances correctly;
+reversal reason is
+captured.
+FR-FIN-020 Reconciliation Mark
+Reconciled
+The system shall allow
+Finance to mark
+disbursements as reconciled.
+Finance High System demo
+Reconciled status is
+saved and included in
+reconciliation reports.
+FR-FIN-021 Reconciliation
+Prevent
+Changes After
+Reconciliation
+The system shall prevent
+modification of reconciled
+disbursement records.
+Finance;
+Admin High Test
+Edit actions are
+blocked once
+reconciled; attempt is
+logged.
+FR-FIN-022 Reconciliation Reconciliation
+Reports
+The system shall generate
+disbursement reconciliation
+reports.
+Finance;
+Auditor High System demo
+Report totals match
+reconciled transaction
+dataset and filters
+applied.
+FR-ME-001 Monitoring &
+Evaluation
+Record
+Performance
+The system shall allow M&E
+users to record academic
+performance per beneficiary
+per academic period.
+M&E High Test
+Performance record
+saves and is visible in
+beneficiary history.
+FR-ME-002 Monitoring &
+Evaluation
+Update
+Performance
+The system shall allow
+authorized users to update
+academic performance
+records.
+M&E Medium Test Edits are tracked in
+audit log.
+FR-ME-003 Monitoring &
+Evaluation
+Record
+Attendance
+The system shall allow M&E
+users to record attendance
+status per beneficiary per
+period.
+M&E Medium Test
+Attendance record
+saves; period is
+required.
+FR-ME-004 Monitoring &
+Evaluation
+Record
+Progression
+The system shall allow M&E
+users to record progression
+status
+(Promoted/Repeated/Compl
+eted/Dropped).
+M&E Medium Test
+Progression changes
+are recorded and
+reportable.
+FR-ME-005 Risk
+Management
+Auto Flag Low
+Performance
+The system shall automatically
+flag beneficiaries whose
+performance falls below
+configured thresholds
+(optional).
+M&E Low System demo
+System flags
+beneficiary and
+places in at-risk list
+when criteria met.
+FR-ME-006 Risk
+Management
+Manual At-Risk
+Flag
+The system shall allow M&E
+users to manually flag a
+beneficiary as at-risk with
+reason capture.
+M&E High Test
+At-risk flag requires
+reason; appears in atrisk register.
+FR-ME-007 Case
+Management
+Log
+Intervention
+The system shall allow M&E
+users to log
+interventions/actions linked to
+a beneficiary.
+M&E High Test
+Intervention record
+captures action,
+owner, due date, and
+status.
+FR-ME-008 Case
+Management
+Assign
+Intervention
+Owner
+The system shall allow
+assignment of responsibility
+for interventions.
+M&E Medium Test
+Assigned owner is
+stored and can be
+filtered in intervention
+views.
+FR-ME-009 Case
+Management
+Update
+Intervention
+Status
+The system shall allow
+updating intervention status
+(Open/In Progress/Closed).
+M&E Medium Test
+Status changes are
+captured and
+auditable.
+FR-ME-010 Case
+Management
+Prevent
+Intervention
+Deletion
+The system shall prevent
+deletion of intervention
+records.
+System High Test
+Delete action not
+available; attempts
+are blocked and
+logged.
+FR-ME-011 Monitoring
+Visits
+Record Site
+Visit
+The system shall allow
+recording monitoring visits
+linked to beneficiaries or
+schools.
+M&E Low System demo
+Visit record includes
+date, location, and
+linked entity.
+FR-ME-012 Monitoring
+Visits
+Upload Visit
+Report
+The system shall allow
+uploading visit reports and
+attachments.
+M&E Low System demo
+Attachments are
+linked to visit record;
+access controlled.
+FR-ME-013 Outcomes Record
+Completion
+The system shall allow
+recording
+completion/graduation
+outcomes for beneficiaries.
+M&E Medium Test
+Outcome captured
+and appears in
+outcomes reporting.
+FR-ME-014 Outcomes Record Exit
+Reason
+The system shall require exit
+reason capture for
+discontinued beneficiaries.
+M&E Medium Test
+Exit reason is
+mandatory when
+setting status to
+Dropped/Closed.
+FR-ME-015 Outcomes Outcome
+Metrics
+The system shall calculate
+and report program outcome
+metrics (completion, dropout,
+progression rates).
+M&E;
+Management Medium System demo
+Metrics match
+underlying dataset
+and applied filters.
+FR-DASH-
+001 Dashboard Management
+Dashboard
+The system shall provide a
+dashboard showing key
+Scholarship KPIs (active
+beneficiaries, budget
+utilization, disbursements).
+Management;
+Admin;
+Finance;
+Operations
+Medium System demo
+KPIs load and reflect
+current data; rolebased visibility applies.
+FR-DASH-
+002 Dashboard
+Recent
+Disbursements
+Widget
+The system shall display a
+recent disbursements widget
+based on disbursement
+transactions.
+Finance;
+Management Medium System demo
+New disbursement
+appears immediately
+after
+capture/approval per
+refresh.
+FR-DASH-
+003 Dashboard At-risk
+Summary
+The system shall display at-risk
+beneficiary counts (optional).
+M&E;
+Management Low System demo At-risk count matches
+at-risk register.
+FR-REP-001 Reporting Beneficiary
+Register Report
+The system shall provide a
+beneficiary register report.
+Operations;
+Management;
+Auditor
+High Test
+Report totals match
+beneficiary registry
+filtered dataset.
+FR-REP-002 Reporting Awards Report
+The system shall provide an
+awards report by program
+and period.
+Operations;
+Finance High Test
+Awards totals
+reconcile to award
+master records.
+FR-REP-003 Reporting Disbursements
+Report
+The system shall provide
+disbursement reports by
+program, period, payee, and
+category.
+Finance;
+Auditor High Test
+Report totals reconcile
+to disbursement
+transactions.
+FR-REP-004 Reporting
+Budget
+Utilization
+Report
+The system shall provide
+program budget utilization
+reports.
+Management;
+Finance;
+Operations
+High Test
+Utilization equals
+approved
+awards/disbursements
+per configuration.
+FR-REP-005 Reporting
+M&E
+Outcomes
+Report
+The system shall provide M&E
+outcome reports
+(completion, dropout,
+progression).
+M&E;
+Management Medium System demo
+Outcome measures
+match stored
+outcomes and period
+filters.
+FR-REP-006 Reporting Report Filters
+The system shall allow filtering
+reports by program,
+academic period, district,
+school, and status.
+Authorized
+users
+High System demo
+Filters update results
+correctly and are
+reflected in exports.
+FR-REP-007 Reporting Dynamic
+Report Builder
+The system shall provide a
+dynamic report builder with
+drag-and-drop field selection
+for authorized users.
+Admin;
+Finance; M&E;
+Operations
+High System demo
+User can drag fields
+into layout and
+generate a report
+output.
+FR-REP-008 Reporting Save Report
+Template
+The system shall allow users to
+save dynamic report
+definitions as reusable
+templates.
+Admin;
+Finance; M&E;
+Operations
+Medium System demo
+Saved template
+appears in templates
+list and can be re-run.
+FR-REP-009 Reporting Edit Report
+Template
+The system shall allow users to
+edit saved report templates.
+Admin;
+Finance; M&E;
+Operations
+Low System demo
+Edits persist; template
+versioning/audit is
+recorded if enabled.
+FR-REP-010 Reporting Delete Report
+Template
+The system shall allow users to
+delete saved report
+templates based on
+permissions.
+Admin Low System demo
+Deleted template is
+removed from list;
+deletion is audited.
+FR-REP-011 Reporting Export Reports
+- CSV
+The system shall allow
+exporting report outputs to
+CSV.
+Authorized
+users
+High Test
+Exported CSV
+matches filtered
+dataset; export event
+is logged.
+FR-REP-012 Reporting Export Reports
+- Excel
+The system shall allow
+exporting report outputs to
+Excel.
+Authorized
+users
+High Test
+Exported Excel
+matches filtered
+dataset; export event
+is logged.
+FR-REP-013 Reporting Export Reports
+- PDF
+The system shall allow
+exporting report outputs to
+PDF (where supported).
+Authorized
+users
+Medium System demo
+Exported PDF contains
+correct headings and
+filters; export event is
+logged.
+FR-REP-014 Reporting Export Logging
+The system shall log all report
+and data exports (user,
+date/time, report name,
+format).
+System;
+Auditor High Test
+Export log is viewable
+by auditor/admin and
+includes necessary
+metadata.
+FR-REP-015 Reporting
+Scheduling
+Reports
+(Optional)
+The system shall allow
+scheduling of report
+generation and delivery to
+internal users (optional).
+Admin Low System demo
+Scheduled report runs
+at configured time
+and delivers to
+configured recipients;
+failures are logged.
+FR-NOTIF-
+001 Notifications Email
+Notifications
+The system shall send
+automated email
+notifications for configured
+internal events.
+System;
+Admin Medium System demo
+Email is sent on trigger;
+delivery status is
+logged.
+FR-NOTIF-
+003 Notifications Notification
+Templates
+The system shall allow Admin
+to create and edit
+notification templates.
+Admin Medium System demo
+Template updates are
+used for subsequent
+notifications; changes
+are auditable.
+FR-NOTIF-
+004 Notifications Notification
+Trigger Control
+The system shall allow Admin
+to activate/deactivate
+notification triggers.
+Admin Medium System demo
+Disabled trigger does
+not send notifications;
+action is audited.
+FR-NOTIF-
+005 Notifications Notification
+Log
+The system shall maintain a
+log of sent notifications
+including recipient, channel,
+timestamp, and status.
+Admin;
+Auditor Medium Test
+Notification log
+reflects sent status and
+failures with reason
+(where available).
+FR-API-001 Integration Secure API
+Authentication
+The system shall require
+secure authentication and
+authorization for all API
+endpoints.
+System High Security
+review
+Unauthenticated
+requests are rejected;
+role-based API access
+is enforced.
+FR-API-002 Integration API Access
+Logging
+The system shall log all API
+access activities.
+System;
+Auditor Medium Test
+Logs contain
+endpoint, user/client,
+timestamp, status
+code, and correlation
+ID (where supported).
+FR-API-003 Integration
+Disbursement
+Data API
+(Optional)
+The system shall provide
+secure API endpoints to
+retrieve approved
+disbursement data (optional).
+System;
+Finance Low
+Technical
+documentati
+on & demo
+API returns only
+authorized data; data
+matches UI/reporting
+dataset.
+FR-EMAIL-
+001 Email Settings Maintain SMTP
+Settings
+The system shall allow Admin
+to configure SMTP settings. Admin Medium Test
+Valid SMTP config
+enables email
+delivery; config
+changes are audited.
+FR-EMAIL-
+002 Email Settings Encrypt SMTP
+Credentials
+The system shall store SMTP
+credentials encrypted at rest. System High Security
+review
+Credentials are not
+visible in UI or logs;
+stored encrypted in
+database or secret
+store.
+FR-AUD-
+001
+Audit &
+Compliance
+Audit Log -
+Capture
+Actions
+The system shall capture audit
+logs for key actions (create,
+update, delete/archive,
+approve, export).
+System High Test
+Audit entries include
+actor, timestamp,
+action, entity, and
+before/after values
+where applicable.
+FR-AUD-
+002
+Audit &
+Compliance
+Audit Log -
+Tamper
+Protection
+Audit logs shall be protected
+from unauthorized
+modification or deletion.
+Admin;
+System High Security
+review
+Users cannot edit
+audit logs; attempts
+are blocked and
+logged.
+FR-AUD-
+003
+Audit &
+Compliance
+Audit Log
+Retention
+The system shall retain audit
+logs for a configurable period
+per organizational policy.
+Admin;
+System Medium Test
+Retention period is
+configurable; logs are
+retrievable for the full
+retention window.
+FR-AUD-
+004
+Audit &
+Compliance
+Audit Log
+Admin
+Restriction
+Access to audit log
+configuration and
+management shall be
+restricted to authorized
+administrative roles only.
+Admin Medium Test
+Only designated
+admin roles can
+access audit
+configuration; access
+attempts are logged.
+FR-DG-001 Data
+Governance
+Consistent
+Validation
+Rules
+The system shall enforce
+consistent validation rules
+across manual entry, CSV
+import, and API interfaces.
+System High Test
+Same invalid data is
+rejected across UI,
+import, and API with
+consistent reasons.
+FR-DG-002 Data
+Governance
+Prevent
+Deletion of
+Financial
+Records
+The system shall prevent
+deletion of records linked to
+financial transactions.
+System High Test
+Delete action is
+blocked; record can
+be archived if
+permitted; attempt is
+auditable.
+FR-DG-003 Data
+Governance
+Exception
+Queue for
+Data Quality
+The system shall support
+exception queues for
+resolution of flagged data
+inconsistencies.
+Operations;
+Admin Medium System demo
+Exceptions can be
+filtered, assigned, and
+resolved with
+auditable notes.
+FR-DG-004 Data
+Governance
+Data Export in
+Open Formats
+The system shall allow export
+of core datasets in open
+formats (CSV/Excel) subject
+to permissions.
+Admin;
+Auditor;
+Authorized
+users
+Medium System demo
+Exports succeed for
+authorized users;
+exports are logged
+and include applied
+filters.
+FR-OPS-
+001 Operability Alert on
+Logging Failure
+The system shall generate
+alerts in the event of audit
+logging failure.
+System;
+Admin Medium Technical
+review
+Alert is triggered when
+logging fails; event is
+recorded for support.
+FR-OPS-
+002 Operability Alert on
+Backup Failure
+The system shall generate
+alerts when backups fail.
+System;
+Admin Medium Technical
+review
+Backup failure alert is
+generated; failure is
+logged.
+FR-OPS-
+003 Operability
+Time
+Synchronizatio
+n
+The system shall synchronize
+system time with an
+approved time source to
+ensure accurate audit
+timestamps.
+System Low Technical
+review
+Time sync is
+configured; audit
+timestamps are
+consistent across
+components.
+17.2 Appendix B: Requirements Traceability (High-Level)
+The table below presents the high-level functional requirements referenced in Section
+3. These requirements are not exhaustive and may be refined or supplemented during
+system demonstrations and implementation discussions. During implementation, the
+vendor shall map each listed requirement to the relevant design components, test
+cases, and release versions. Vendors may propose additional requirements or
+enhancements; however, all requirements specified herein shall remain mandatory
+and shall not be removed or substituted.
+Req ID Description Priority Verification
+FR-01 Create and manage multiple Scholarship
+programs with independent configurations.
+Must
+System demo
+FR-02 Configure academic periods, funding cycles,
+and program budgets per Scholarship program.
+Must
+System demo
+FR-03 Configure award types (one-off, recurring,
+renewable) including duration and lifecycle rules.
+Must
+System demo
+FR-04 Allow program configuration changes without
+vendor code changes (admin-configurable).
+Must Demo &
+technical
+documentation
+FR-05 Role-based access control (RBAC) for
+Operations, Finance, M&E, and Admin users.
+Must
+System demo
+FR-06 Restrict data visibility based on role permissions
+and assigned responsibilities.
+Must
+System demo
+FR-07 Enforce segregation of duties between
+disbursement creation and approval.
+Must
+System demo
+FR-08 Maintain user activity audit logs for all key system
+actions.
+Must
+System demo
+FR-09 Bulk import government-approved beneficiary
+lists via CSV upload.
+Must
+System demo
+FR-10 Validate imported records for required fields,
+duplicates, data types, and referential integrity.
+Must
+System demo
+FR-11 Generate row-level error logs and import
+summary reports.
+Must
+System demo
+FR-12 Maintain beneficiary master records including
+demographics and identifiers.
+Must
+System demo
+FR-13 Capture and manage school/institution profiles. Must System demo
+FR-14 Capture and securely store banking details with
+masking and access controls.
+Must Demo &
+security review
+FR-15 Upload and store supporting documents linked
+to beneficiaries and disbursements.
+Must
+System demo
+FR-16 Support document verification workflow
+(Pending/Verified/Rejected) with audit trail.
+Must
+System demo
+FR-17 Restrict document access by role and log
+document downloads.
+Must
+System demo
+FR-18 Support document versioning and expiry tracking
+where applicable.
+Must
+System demo
+FR-19 Create Scholarship awards linked to approved
+beneficiaries.
+Must
+System demo
+FR-20 Track award lifecycle from activation to closure
+with mandatory reason capture.
+Must
+System demo
+FR-21 Generate award letters using configurable
+templates.
+Must
+System demo
+FR-22 Support award renewals based on defined
+program rules.
+Must
+System demo
+FR-23 Record approved award amounts and
+disbursement schedules.
+Must
+System demo
+FR-24 Track support/expenditure categories (fees,
+books, uniforms, etc.).
+Must
+System demo
+FR-25 Multi-level approval workflow for disbursements
+(Maker-Checker-Approver).
+Must
+System demo
+FR-26 Track disbursement status
+(Requested/Approved/Paid/Reconciled/Failed).
+Must
+System demo
+FR-27 Attach payment evidence to each disbursement
+record.
+Must
+System demo
+FR-28 Support payments to schools, guardians, or
+vendors as configured.
+Must
+System demo
+FR-29 Prevent duplicate disbursements for same
+beneficiary and academic period.
+Must
+System demo
+FR-30 Maintain full audit trail of financial transactions
+and approvals.
+Must
+System demo
+FR-31 Maintain academic performance indicators over
+time (results, attendance, progression).
+Must
+System demo
+FR-32 Flag at-risk beneficiaries and log interventions
+with follow-up reminders.
+Must
+System demo
+FR-33 Capture monitoring/site visit reports including
+findings and attachments.
+Must
+System demo
+FR-34 Track program outcomes and impact metrics
+(completion, dropout, graduation, KPIs).
+Must
+System demo
+FR-35 Provide predefined operational and financial
+reports.
+Must
+System demo
+FR-36 Provide dynamic ad-hoc reporting with dragand-drop field selection.
+Must
+System demo
+FR-37 Allow filtering by program, period, school, district,
+and status.
+Must
+System demo
+FR-38 Export reports to Excel, PDF, and CSV including
+applied filters.
+Must
+System demo
+FR-39 Provide dashboards with KPIs and trend views for
+management.
+Must
+System demo
+FR-40 Provide automated notifications (email) for key
+internal system events.
+Must
+System demo
+FR-41 Provide secure API integration capabilities where
+required.
+Must Technical
+documentation
+& demo
+FR-42 Support configurable SMTP gateway settings. Must System demo
+FR-43 Enforce consistent validation rules across manual
+entry, CSV import, and API interfaces.
+Must
+System demo
+FR-44 Provide duplicate detection mechanisms for
+beneficiaries and payees.
+Must
+System demo
+FR-45 Prevent deletion of records linked to financial
+transactions.
+Must
+System demo
+18. Process Flow Diagram
+Business Process flow Fig 1
+19. Minimum Vendor Team Composition and Qualification Requirements
+1. Project Manager
+Minimum Qualifications
+• Bachelor’s Degree in Information Technology, Computer Science,
+Engineering, or Business.
+• Professional certification (mandatory advantage):
+o PMP / PRINCE2 / Agile Certification.
+Minimum Experience
+• At least 8 years’ experience in IT project management.
+• At least 3 successfully delivered enterprise system implementations.
+• Proven experience managing:
+o Multi-stakeholder environments.
+o Projects involving financial systems or workflow automation.
+Key Competencies
+• Risk management and mitigation.
+• Stakeholder engagement (Board, management, users).
+• Project governance and reporting.
+2. Solution Architect / Technical Lead
+Minimum Qualifications
+• Bachelor’s Degree in Computer Science, Software Engineering, or related
+field
+• Relevant certifications (advantage):
+o Cloud (AWS/Azure).
+o TOGAF or equivalent architecture certification.
+Minimum Experience
+• At least 8 years’ experience in system architecture and software
+development.
+• At least 3 enterprise system designs (web-based platforms).
+• Proven experience in:
+o Secure system design (RBAC, encryption, MFA).
+o API-based integrations.
+o Scalable systems.
+Key Competencies
+• End-to-end system design.
+• Integration architecture.
+• Security-by-design principles.
+3. Software Developer - Backend
+Minimum Qualifications
+• Degree/Diploma in Computer Science, Software Engineering, or equivalent.
+Minimum Experience
+• At least 5 years’ experience in backend development.
+• Proven experience in:
+o Workflow-based systems.
+o API development (RESTful services).
+o Database interaction.
+Key Competencies
+• Business logic implementation.
+• Secure coding practices.
+• Performance optimization.
+4. Software Developer - Frontend
+Minimum Qualifications
+• Degree/Diploma in IT or Software Development.
+Minimum Experience
+• At least 5 years’ experience in frontend/web development.
+• Proven experience developing:
+o Responsive, mobile-friendly applications.
+o Low-bandwidth optimized interfaces.
+Key Competencies
+• User interface design.
+• Usability and accessibility.
+• Cross-browser compatibility.
+5. Business Analyst / Systems Analyst
+Minimum Qualifications
+• Degree in Information Systems, Business IT, or related field.
+Minimum Experience
+• At least 5 years’ experience in business/system analysis.
+• Proven experience in:
+o Process mapping (DFDs, workflows).
+o Requirements gathering and validation.
+o Translating business processes into system specifications.
+Key Competencies
+• Workflow design (critical for scholarship lifecycle).
+• Stakeholder requirement management.
+• Documentation and validation.
+6. Database Administrator (DBA)
+Minimum Qualifications
+• Degree in Computer Science, IT, or Database Management.
+Minimum Experience
+• At least 5 years’ experience in database administration
+• Proven experience in:
+o RDBMS (MySQL, PostgreSQL, SQL Server, Oracle).
+o Data migration and reconciliation.
+o Backup and disaster recovery.
+Key Competencies
+• Data integrity and security.
+• Performance tuning.
+• Migration of legacy data (Excel-based systems).
+7. Quality Assurance (QA) / Testing Specialist
+Minimum Qualifications
+• Degree/Diploma in IT, Software Testing, or related field.
+Minimum Experience
+• At least 5 years’ experience in software testing.
+• Proven experience in:
+o Functional testing.
+o User Acceptance Testing (UAT).
+o Test plan and test case development.
+Key Competencies
+• Defect management.
+• Test automation (advantage).
+• Ensuring system reliability and stability.
+20. Ownership, Intellectual Property & Sustainability
+The solution may be delivered as either a custom-developed system or a
+commercial off-the-shelf (COTS/SaaS) product. The following conditions shall apply:
+1. Data Ownership
+Press Trust shall retain full and exclusive ownership of all data stored, processed, or
+generated within the system at all times.
+The vendor shall provide the ability to export all core datasets (beneficiaries, awards,
+disbursements, monitoring records, audit logs, and reference data) in open,
+standard formats (e.g., CSV, Excel) without restriction.
+2. Custom-Developed Components
+Where the system or any part thereof is custom-developed specifically for Press Trust:
+• Press Trust shall receive full ownership rights to the custom-developed
+components.
+• The vendor shall hand over complete and up-to-date source code.
+• The handover shall include database schemas, configuration files,
+deployment scripts, and technical documentation.
+• The source code shall be structured, documented, and free from hard-coded
+credentials.
+• Press Trust shall retain unrestricted rights to use, modify, and further develop
+the custom-developed components.
+3. Commercial Off-the-Shelf (COTS/SaaS) Components
+Where the solution includes commercial off-the-shelf components:
+• The vendor shall provide Press Trust with appropriate licensing or subscription
+rights.
+• Press Trust shall retain full ownership of its data.
+• The system shall not impose vendor lock-in.
+• The vendor shall provide full administrative access required for configuration
+and management.
+• The vendor shall provide complete documentation and API documentation
+where applicable.
+• In the event of contract termination, the vendor shall provide full data
+extraction support within an agreed transition period.
+4. Business Continuity & Exit Support
+Upon termination or expiration of the contract:
+• The vendor shall provide data export in open formats.
+• The vendor shall provide reasonable transition assistance.
+• The vendor shall ensure no proprietary mechanisms prevent data migration.
+21. Recommended Implementation Timeline
+Phase Timeline
+Requirements & System Design 2–3 weeks
+Development & Configuration 5–7 weeks
+Integration, Testing & Deployment 3–4 weeks
+Post-Implementation Support 12 months after Go-Live
+Total implementation period: approximately 3–4 months, followed by 12 months
+support.
+22. Milestone-Based Payment Plan
+The implementation of the Scholarship Management System shall follow a milestonebased payment structure tied to the successful completion and acceptance of key
+deliverables. Payments shall be made upon certification by the client that each
+milestone has been satisfactorily achieved.
+Milestone Deliverabless Payment
+Requirements & System Design
+Approved System Requirement
+Specification and system
+architecture
+25%
+System Development Completion of system modules and
+prototype demonstration 30%
+Integration & Deployment Successful integration, testing,
+deployment, and training 30%
+Post-Implementation Support Provision of technical support and
+maintenance for 12 months 15%
+23. Document Approval
+The requirements listed above accurately reflect the agreed discussions and the
+intended operation of the proposed system. I hereby approve the Software
+Requirements Specification (SRS).
+NAME ROLE TITLE SIGNATURE DATE
+Gibson Ngalamila Project
+Sponsor\Owner
+Executive
+Secretary
+Madalitso Kazembe Process Owner Head of
+Operations
+Johannes Kumpata Stakeholder Operations
+Manager
+Chimwemwe Songwe Stakeholder Projects Officer
+Sherry Dukes Stakeholder Executive
+Assistant
+Gift Mtonga Stakeholder Intern Quantity
+Surveyor
+Barry Makumba ICT Consultant Lead IT Systems
+Consultant

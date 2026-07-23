@@ -1,0 +1,724 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ──────────────────────────────────────────────
+// ENUMS
+// ──────────────────────────────────────────────
+
+enum UserRole {
+  SuperAdmin
+  Operations
+  Finance
+  ME
+  Auditor
+  Sponsor
+}
+
+enum UserStatus {
+  active
+  inactive
+  blocked
+}
+
+enum ProgramStatus {
+  Draft
+  Open
+  Closed
+  Archived
+}
+
+enum BeneficiaryStatus {
+  Imported
+  PendingOnboarding
+  Active
+  Suspended
+  Closed
+}
+
+enum AwardStatus {
+  Draft
+  Active
+  Suspended
+  Completed
+  Closed
+}
+
+enum AwardType {
+  one_off
+  recurring
+  renewable
+}
+
+enum DisbursementStatus {
+  Requested
+  Approved
+  Paid
+  Failed
+  Reconciled
+}
+
+enum PayeeType {
+  school
+  guardian
+  vendor
+}
+
+enum DocumentStatus {
+  Pending
+  Verified
+  Rejected
+}
+
+enum ProgressionStatus {
+  Promoted
+  Repeated
+  Completed
+  Dropped
+}
+
+enum InterventionStatus {
+  Open
+  InProgress
+  Closed
+}
+
+enum OutcomeType {
+  Completion
+  Graduation
+  Exit
+}
+
+enum EntityType {
+  beneficiary
+  school
+}
+
+enum NotificationChannel {
+  email
+  in_app
+}
+
+// ──────────────────────────────────────────────
+// IDENTITY
+// ──────────────────────────────────────────────
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  permissions Json     @default("{}")
+  status      String   @default("active")
+
+  users User[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model User {
+  id                   String     @id @default(uuid()) @db.Uuid
+  name                 String
+  email                String     @unique
+  password_hash        String
+  mfa_secret           String?
+  mfa_enabled          Boolean    @default(false)
+  mfa_method           String     @default("totp")
+  role_id              String     @db.Uuid
+  role                 Role       @relation(fields: [role_id], references: [id])
+  role_name            UserRole
+  phone                String?
+  status               UserStatus @default(active)
+  failed_login_attempts Int       @default(0)
+  locked_until         DateTime?
+  last_login           DateTime?
+
+  programs            UserProgram[]
+  audits              AuditLog[]
+  documents           Document[]       @relation("UserDocuments")
+  export_logs         ExportLog[]
+  created_disbursements Disbursement[] @relation("DisbursementMaker")
+  approved_disbursements Disbursement[] @relation("DisbursementChecker")
+  reconciled_disbursements Disbursement[] @relation("DisbursementReconciler")
+  uploaded_evidence       DisbursementEvidence[] @relation("EvidenceUploader")
+  created_reversals       Reversal[]
+  recorded_performances   AcademicPerformance[] @relation("PerformanceRecorder")
+  assigned_interventions  Intervention[]        @relation("InterventionAssignee")
+  created_interventions   Intervention[]        @relation("InterventionCreator")
+  flagged_at_risk         AtRiskFlag[]          @relation("AtRiskFlagger")
+  resolved_at_risk        AtRiskFlag[]          @relation("AtRiskResolver")
+  conducted_visits        MonitoringVisit[]     @relation("VisitConductor")
+  recorded_outcomes       Outcome[]             @relation("OutcomeRecorder")
+  report_definitions      ReportDefinition[]
+  scheduled_reports       ScheduledReport[]
+  notification_templates  NotificationTemplate[]
+  notification_triggers   NotificationTrigger[]
+  notification_logs       NotificationLog[]
+  in_app_notifications    InAppNotification[]
+  otp_codes               OtpCode[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model UserProgram {
+  user_id    String  @db.Uuid
+  program_id String  @db.Uuid
+  user       User    @relation(fields: [user_id], references: [id])
+  program    Program @relation(fields: [program_id], references: [id])
+
+  @@id([user_id, program_id])
+}
+
+// ──────────────────────────────────────────────
+// REPORTING & NOTIFICATIONS
+// ──────────────────────────────────────────────
+
+model ReportDefinition {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  description String?
+  source      String
+  fields      Json
+  filters     Json?
+  sort_by     String?
+  sort_order  String?  @default("desc")
+  created_by  String   @db.Uuid
+
+  creator        User              @relation(fields: [created_by], references: [id])
+  scheduled      ScheduledReport[]
+  schedule_runs  ReportRunLog[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model ScheduledReport {
+  id              String    @id @default(uuid()) @db.Uuid
+  report_id       String    @db.Uuid
+  name            String
+  cron_expression String
+  format          String    @default("pdf")
+  recipients      Json
+  enabled         Boolean   @default(true)
+  last_run_at     DateTime?
+  next_run_at     DateTime?
+  created_by      String    @db.Uuid
+
+  report ReportDefinition @relation(fields: [report_id], references: [id])
+  creator User @relation(fields: [created_by], references: [id])
+  runs ReportRunLog[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model ReportRunLog {
+  id             String    @id @default(uuid()) @db.Uuid
+  schedule_id    String?   @db.Uuid
+  report_id      String    @db.Uuid
+  status         String
+  format         String
+  error_message  String?
+  file_url       String?
+  row_count      Int?
+  started_at     DateTime  @default(now())
+  completed_at   DateTime?
+  triggered_by   String
+
+  schedule ScheduledReport? @relation(fields: [schedule_id], references: [id])
+  report ReportDefinition @relation(fields: [report_id], references: [id])
+}
+
+model NotificationTemplate {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  channel    NotificationChannel
+  subject    String
+  body       String
+  variables  Json     @default("[]")
+  created_by String   @db.Uuid
+
+  creator User @relation(fields: [created_by], references: [id])
+  logs NotificationLog[]
+  triggers NotificationTrigger[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model NotificationTrigger {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String
+  event_name  String
+  template_id String   @db.Uuid
+  conditions  Json?
+  enabled     Boolean  @default(true)
+  created_by  String   @db.Uuid
+
+  template NotificationTemplate @relation(fields: [template_id], references: [id])
+  creator User @relation(fields: [created_by], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model InAppNotification {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @db.Uuid
+  title      String
+  body       String
+  read       Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+model NotificationLog {
+  id            String             @id @default(uuid()) @db.Uuid
+  user_id       String?            @db.Uuid
+  recipient     String
+  channel       NotificationChannel
+  template_id   String?            @db.Uuid
+  subject       String?
+  status        String
+  error_message String?
+  sent_at       DateTime           @default(now())
+
+  user User? @relation(fields: [user_id], references: [id])
+  template NotificationTemplate? @relation(fields: [template_id], references: [id])
+}
+
+model ExportLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  user_id     String   @db.Uuid
+  export_type String
+  format      String
+  filters     Json?
+  exported_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id])
+}
+
+// ──────────────────────────────────────────────
+// AUDIT & COMPLIANCE
+// ──────────────────────────────────────────────
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  user_id     String?  @db.Uuid
+  action      String
+  entity_type String
+  entity_id   String
+  old_values  Json?
+  new_values  Json?
+  ip_address  String?
+  created_at  DateTime @default(now())
+
+  user User? @relation(fields: [user_id], references: [id])
+
+  @@index([entity_type, entity_id])
+  @@index([user_id])
+  @@index([created_at])
+}
+
+// ──────────────────────────────────────────────
+// MASTER DATA
+// ──────────────────────────────────────────────
+
+model Program {
+  id                   String        @id @default(uuid()) @db.Uuid
+  name                 String
+  description          String?
+  status               ProgramStatus @default(Draft)
+  application_open_date  DateTime?
+  application_close_date DateTime?
+  budget_ceiling       Decimal       @default(0)
+  budget_utilized      Decimal       @default(0)
+  award_types          AwardType[]
+  eligibility_rules    Json?
+  evaluation_rubric    Json?
+  workflow_config      Json?
+  form_config          Json?
+
+  users       UserProgram[]
+  awards      Award[]
+  beneficiaries Beneficiary[]
+  disbursements Disbursement[]
+  outcomes    Outcome[]
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model FundingSource {
+  id               String   @id @default(uuid()) @db.Uuid
+  name             String
+  description      String?
+  total_allocation Decimal  @default(0)
+  utilized_amount  Decimal  @default(0)
+  status           String   @default("active")
+
+  awards Award[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model School {
+  id                  String  @id @default(uuid()) @db.Uuid
+  name                String
+  type                String  @default("secondary")
+  district            String
+  location            String?
+  contact_phone       String?
+  contact_email       String?
+  registration_status String?
+  status              String  @default("active")
+
+  bank_accounts   SchoolBankAccount[]
+  beneficiaries   Beneficiary[]
+  performances    AcademicPerformance[]
+
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model SchoolBankAccount {
+  id                 String   @id @default(uuid()) @db.Uuid
+  school_id          String   @db.Uuid
+  bank_name          String
+  branch             String?
+  account_number     String
+  account_holder_name String
+  status             String   @default("active")
+  approval_status    String   @default("approved")
+
+  school School @relation(fields: [school_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model DisbursementItem {
+  id     Int    @id @default(autoincrement())
+  name   String @unique
+  status String @default("active")
+}
+
+model ReferenceData {
+  id     Int    @id @default(autoincrement())
+  type   String
+  code   String
+  name   String
+  status String @default("active")
+
+  @@unique([type, code])
+}
+
+// ──────────────────────────────────────────────
+// BENEFICIARY LIFECYCLE
+// ──────────────────────────────────────────────
+
+model Beneficiary {
+  id                     String            @id @default(uuid()) @db.Uuid
+  beneficiary_identifier String            @unique
+  first_name             String
+  last_name              String
+  date_of_birth          DateTime?
+  gender                 String
+  national_id            String?
+  exams_id               String?
+  contact_email          String?
+  contact_phone          String?
+  district               String
+  school_id              String            @db.Uuid
+  program_id             String            @db.Uuid
+  status                 BeneficiaryStatus @default(Imported)
+  status_reason          String?
+  academic_year          String?
+
+  school  School   @relation(fields: [school_id], references: [id])
+  program Program  @relation(fields: [program_id], references: [id])
+
+  guardians        Guardian[]
+  awards           Award[]
+  disbursements    Disbursement[]
+  performances     AcademicPerformance[]
+  interventions    Intervention[]
+  at_risk_flags    AtRiskFlag[]
+  outcomes         Outcome[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Guardian {
+  id               String  @id @default(uuid()) @db.Uuid
+  beneficiary_id   String  @db.Uuid
+  name             String
+  relationship     String
+  contact_phone    String
+  contact_email    String?
+  consent_provided Boolean @default(false)
+
+  beneficiary Beneficiary @relation(fields: [beneficiary_id], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model Document {
+  id                String         @id @default(uuid()) @db.Uuid
+  documentable_id   String         @db.Uuid
+  documentable_type String
+  file_path         String
+  original_name     String
+  mime_type         String
+  file_size         Int
+  document_type     String
+  status            DocumentStatus @default(Pending)
+  rejection_reason  String?
+  version           Int            @default(1)
+  expiry_date       DateTime?
+  virus_scan_status String         @default("pending")
+  uploaded_by       String         @db.Uuid
+
+  uploader User @relation("UserDocuments", fields: [uploaded_by], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([documentable_type, documentable_id])
+}
+
+// ──────────────────────────────────────────────
+// AWARD
+// ──────────────────────────────────────────────
+
+model Award {
+  id                      String      @id @default(uuid()) @db.Uuid
+  beneficiary_id          String      @db.Uuid
+  program_id              String      @db.Uuid
+  funding_source_id       String?     @db.Uuid
+  amount                  Decimal     @default(0)
+  balance_remaining       Decimal     @default(0)
+  start_date              DateTime?
+  end_date                DateTime?
+  award_type              AwardType?
+  status                  AwardStatus @default(Draft)
+  status_reason           String?
+  parent_award_id         String?     @db.Uuid
+  budget_utilization_updated Boolean @default(false)
+
+  beneficiary    Beneficiary    @relation(fields: [beneficiary_id], references: [id])
+  program        Program        @relation(fields: [program_id], references: [id])
+  funding_source FundingSource? @relation(fields: [funding_source_id], references: [id])
+  parent_award   Award?         @relation("AwardRenewal", fields: [parent_award_id], references: [id])
+  renewals       Award[]        @relation("AwardRenewal")
+
+  disbursements Disbursement[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+// ──────────────────────────────────────────────
+// FINANCIAL TRACKING
+// ──────────────────────────────────────────────
+
+model Disbursement {
+  id                 String             @id @default(uuid()) @db.Uuid
+  award_id           String             @db.Uuid
+  beneficiary_id     String             @db.Uuid
+  program_id         String             @db.Uuid
+  amount             Decimal            @default(0)
+  category           String
+  academic_period    String
+  payee_type         PayeeType
+  payee_id           String?
+  payee_name         String?
+  payee_bank_account String?
+  status             DisbursementStatus @default(Requested)
+  failure_reason     String?
+  created_by         String             @db.Uuid
+  approved_by        String?            @db.Uuid
+  approved_at        DateTime?
+  paid_at            DateTime?
+  reconciled_at      DateTime?
+  reconciled_by      String?            @db.Uuid
+
+  award       Award       @relation(fields: [award_id], references: [id])
+  beneficiary Beneficiary @relation(fields: [beneficiary_id], references: [id])
+  program     Program     @relation(fields: [program_id], references: [id])
+  maker       User        @relation("DisbursementMaker", fields: [created_by], references: [id])
+  checker     User?       @relation("DisbursementChecker", fields: [approved_by], references: [id])
+  reconciler  User?       @relation("DisbursementReconciler", fields: [reconciled_by], references: [id])
+
+  evidence DisbursementEvidence[]
+  reversals Reversal[]
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+}
+
+model DisbursementEvidence {
+  id               String   @id @default(uuid()) @db.Uuid
+  disbursement_id  String   @db.Uuid
+  document_id      String   @db.Uuid
+  uploaded_by      String   @db.Uuid
+
+  disbursement Disbursement @relation(fields: [disbursement_id], references: [id])
+  uploader     User         @relation("EvidenceUploader", fields: [uploaded_by], references: [id])
+
+  created_at DateTime @default(now())
+}
+
+// ──────────────────────────────────────────────
+// MONITORING & EVALUATION
+// ──────────────────────────────────────────────
+
+model AcademicPerformance {
+  id                   String            @id @default(uuid()) @db.Uuid
+  beneficiary_id       String            @db.Uuid
+  school_id            String            @db.Uuid
+  academic_period      String
+  subjects             Json
+  overall_score        Decimal?
+  attendance_percentage Decimal?
+  progression          ProgressionStatus?
+  notes                String?
+  created_by           String            @db.Uuid
+
+  beneficiary Beneficiary @relation(fields: [beneficiary_id], references: [id])
+  school      School      @relation(fields: [school_id], references: [id])
+  recorder    User        @relation("PerformanceRecorder", fields: [created_by], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([beneficiary_id, academic_period])
+}
+
+model Intervention {
+  id               String             @id @default(uuid()) @db.Uuid
+  beneficiary_id   String             @db.Uuid
+  action           String
+  assigned_to      String             @db.Uuid
+  due_date         DateTime
+  status           InterventionStatus @default(Open)
+  resolution_notes String?
+  created_by       String             @db.Uuid
+
+  beneficiary Beneficiary @relation(fields: [beneficiary_id], references: [id])
+  assignee    User        @relation("InterventionAssignee", fields: [assigned_to], references: [id])
+  creator     User        @relation("InterventionCreator", fields: [created_by], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([beneficiary_id])
+  @@index([status])
+}
+
+model AtRiskFlag {
+  id             String   @id @default(uuid()) @db.Uuid
+  beneficiary_id String   @db.Uuid
+  reason         String
+  flagged_by     String   @db.Uuid
+  resolved       Boolean  @default(false)
+  resolved_at    DateTime?
+  resolved_by    String?  @db.Uuid
+
+  beneficiary Beneficiary @relation(fields: [beneficiary_id], references: [id])
+  flagger     User        @relation("AtRiskFlagger", fields: [flagged_by], references: [id])
+  resolver    User?       @relation("AtRiskResolver", fields: [resolved_by], references: [id])
+
+  created_at DateTime @default(now())
+
+  @@index([beneficiary_id])
+}
+
+model MonitoringVisit {
+  id                String     @id @default(uuid()) @db.Uuid
+  entity_type       EntityType
+  entity_id         String     @db.Uuid
+  visit_date        DateTime
+  findings          String
+  follow_up_actions String?
+  conducted_by      String     @db.Uuid
+
+  conductor User @relation("VisitConductor", fields: [conducted_by], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([entity_type, entity_id])
+}
+
+model Outcome {
+  id            String      @id @default(uuid()) @db.Uuid
+  beneficiary_id String     @db.Uuid
+  program_id    String     @db.Uuid
+  outcome_type  OutcomeType
+  outcome_date  DateTime
+  reason        String?
+  recorded_by   String     @db.Uuid
+
+  beneficiary Beneficiary @relation(fields: [beneficiary_id], references: [id])
+  program     Program     @relation(fields: [program_id], references: [id])
+  recorder    User        @relation("OutcomeRecorder", fields: [recorded_by], references: [id])
+
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  @@index([beneficiary_id])
+  @@index([program_id])
+  @@index([outcome_type])
+}
+
+model Reversal {
+  id              String   @id @default(uuid()) @db.Uuid
+  disbursement_id String   @db.Uuid
+  type            String
+  amount          Decimal  @default(0)
+  reason          String
+  created_by      String   @db.Uuid
+
+  disbursement Disbursement @relation(fields: [disbursement_id], references: [id])
+  creator      User         @relation(fields: [created_by], references: [id])
+
+  created_at DateTime @default(now())
+}
+
+model SystemConfig {
+  id          String   @id @default(uuid()) @db.Uuid
+  key         String   @unique
+  value       String?
+  type        String   @default("string")
+  category    String   @default("general")
+  label       String
+  description String?
+  updated_by  String?  @db.Uuid
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+}
+
+model OtpCode {
+  id         String   @id @default(uuid()) @db.Uuid
+  user_id    String   @db.Uuid
+  code       String
+  type       String
+  expires_at DateTime
+  used       Boolean  @default(false)
+  created_at DateTime @default(now())
+
+  user User @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([expires_at])
+}

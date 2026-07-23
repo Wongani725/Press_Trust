@@ -1,0 +1,726 @@
+{
+  "_type": "export",
+  "__export_format": 4,
+  "__export_date": "2026-07-23T14:00:00.000Z",
+  "__export_source": "opencode",
+  "resources": [
+    {
+      "_id": "wrk_01",
+      "_type": "workspace",
+      "parentId": null,
+      "name": "Press Trust SMS API",
+      "description": "Scholarship Management System — Local Demo"
+    },
+    {
+      "_id": "env_01",
+      "_type": "environment",
+      "parentId": "wrk_01",
+      "name": "Local Development",
+      "data": {
+        "base_url": "http://localhost:3001/api/v1",
+        "token": "",
+        "refresh_token": "",
+        "admin_email": "wmsumba@imosys.mw",
+        "admin_pass": "password",
+        "ops_email": "wongani087@gmail.com",
+        "ops_pass": "password",
+        "finance_email": "wonganimsumba0@gmail.com",
+        "finance_pass": "password",
+        "me_email": "tayamuthola@gmail.com",
+        "me_pass": "password",
+        "program_id": "",
+        "school_id": "",
+        "beneficiary_id": "",
+        "award_id": "",
+        "disbursement_id": "",
+        "schedule_id": "",
+        "report_def_id": "",
+        "notification_template_id": "",
+        "intervention_id": "",
+        "performance_id": "",
+        "visit_id": ""
+      }
+    },
+    {
+      "_id": "env_02",
+      "_type": "environment",
+      "parentId": "env_01",
+      "name": "Production",
+      "data": {
+        "base_url": "https://sms.presstrust.org/api/v1"
+      }
+    },
+    {
+      "_id": "fldr_01",
+      "_type": "request_group",
+      "parentId": "wrk_01",
+      "name": "01 - Authentication & MFA",
+      "description": "Login, MFA (TOTP + Email OTP), password management"
+    },
+    {
+      "_id": "req_01_01",
+      "_type": "request",
+      "parentId": "fldr_01",
+      "name": "GET Health Check",
+      "url": "{{ base_url }}/health",
+      "method": "GET",
+      "headers": [],
+      "body": { "mimeType": "", "text": "" }
+    },
+    {
+      "_id": "req_01_02",
+      "_type": "request",
+      "parentId": "fldr_01",
+      "name": "POST Login",
+      "url": "{{ base_url }}/auth/login",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"email\": \"{{ admin_email }}\",\n  \"password\": \"{{ admin_pass }}\"\n}" }
+    },
+    {
+      "_id": "req_01_03",
+      "_type": "request",
+      "parentId": "fldr_01",
+      "name": "POST Verify MFA (TOTP or Email OTP)",
+      "url": "{{ base_url }}/auth/mfa/verify",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"token\": \"123456\"\n}" }
+    },
+    {
+      "_id": "req_01_04",
+      "_type": "request",
+      "parentId": "fldr_01",
+      "name": "POST Setup MFA (TOTP)",
+      "url": "{{ base_url }}/auth/mfa/setup",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"method\": \"totp\"\n}" }
+    },
+    {
+      "_id": "req_01_05",
+      "_type": "request",
+      "parentId": "fldr_01",
+      "name": "POST Setup MFA (Email OTP)",
+      "url": "{{ base_url }}/auth/mfa/setup",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"method\": \"email_otp\"\n}" }
+    },
+    {
+      "_id": "req_01_06",
+      "_type": "request",
+      "parentId": "fldr_01",
+      "name": "POST Verify & Enable MFA Setup",
+      "url": "{{ base_url }}/auth/mfa/verify-setup",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"token\": \"123456\"\n}" }
+    },
+    {
+      "_id": "req_01_07",
+      "_type": "request",
+      "parentId": "fldr_01",
+      "name": "GET My Session",
+      "url": "{{ base_url }}/auth/session",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_01_08",
+      "_type": "request",
+      "parentId": "fldr_01",
+      "name": "POST Refresh Token",
+      "url": "{{ base_url }}/auth/refresh",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"refreshToken\": \"{{ refresh_token }}\"\n}" }
+    },
+    {
+      "_id": "fldr_02",
+      "_type": "request_group",
+      "parentId": "wrk_01",
+      "name": "02 - Programs & Master Data",
+      "description": "Scholarship programs, schools, funding sources, dashboard"
+    },
+    {
+      "_id": "req_02_01",
+      "_type": "request",
+      "parentId": "fldr_02",
+      "name": "GET Dashboard KPIs",
+      "url": "{{ base_url }}/admin/dashboard",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_02_02",
+      "_type": "request",
+      "parentId": "fldr_02",
+      "name": "POST Create Program",
+      "url": "{{ base_url }}/admin/programs",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"name\": \"Malawi Secondary Education Scholarship 2026\",\n  \"description\": \"Scholarship for deserving secondary school students\",\n  \"budget_ceiling\": 50000000,\n  \"award_types\": [\"one_off\", \"recurring\"]\n}" }
+    },
+    {
+      "_id": "req_02_03",
+      "_type": "request",
+      "parentId": "fldr_02",
+      "name": "GET List Programs",
+      "url": "{{ base_url }}/admin/programs",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_02_04",
+      "_type": "request",
+      "parentId": "fldr_02",
+      "name": "PATCH Open Program",
+      "url": "{{ base_url }}/admin/programs/{{ program_id }}/status",
+      "method": "PATCH",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"status\": \"Open\"\n}" }
+    },
+    {
+      "_id": "req_02_05",
+      "_type": "request",
+      "parentId": "fldr_02",
+      "name": "GET List Schools",
+      "url": "{{ base_url }}/admin/schools",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_02_06",
+      "_type": "request",
+      "parentId": "fldr_02",
+      "name": "POST Create School",
+      "url": "{{ base_url }}/admin/schools",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"name\": \"Demo Secondary School\",\n  \"type\": \"secondary\",\n  \"district\": \"Lilongwe\"\n}" }
+    },
+    {
+      "_id": "req_02_07",
+      "_type": "request",
+      "parentId": "fldr_02",
+      "name": "POST Create Funding Source",
+      "url": "{{ base_url }}/admin/funding-sources",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"name\": \"MoE Grant #2026-04\",\n  \"total_allocation\": 50000000\n}" }
+    },
+    {
+      "_id": "fldr_03",
+      "_type": "request_group",
+      "parentId": "wrk_01",
+      "name": "03 - Beneficiary Intake & Onboarding",
+      "description": "CSV import, beneficiary CRUD, onboarding, documents"
+    },
+    {
+      "_id": "req_03_01",
+      "_type": "request",
+      "parentId": "fldr_03",
+      "name": "GET CSV Import Template",
+      "url": "{{ base_url }}/admin/imports/templates/beneficiary",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_03_02",
+      "_type": "request",
+      "parentId": "fldr_03",
+      "name": "GET CSV Template Metadata",
+      "url": "{{ base_url }}/admin/imports/templates/beneficiary/metadata",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_03_03",
+      "_type": "request",
+      "parentId": "fldr_03",
+      "name": "POST Import Beneficiaries (CSV)",
+      "url": "{{ base_url }}/admin/imports/beneficiaries",
+      "method": "POST",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": {
+        "mimeType": "multipart/form-data",
+        "params": [{"name": "file", "value": "", "fileName": "docs/example_beneficiaries.csv", "type": "file"}]
+      }
+    },
+    {
+      "_id": "req_03_04",
+      "_type": "request",
+      "parentId": "fldr_03",
+      "name": "GET Pending Onboarding",
+      "url": "{{ base_url }}/admin/onboarding/pending",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_03_05",
+      "_type": "request",
+      "parentId": "fldr_03",
+      "name": "POST Create Beneficiary (Manual)",
+      "url": "{{ base_url }}/admin/beneficiaries",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"first_name\": \"Chifundo\",\n  \"last_name\": \"Banda\",\n  \"gender\": \"female\",\n  \"district\": \"Lilongwe\",\n  \"school_id\": \"{{ school_id }}\",\n  \"program_id\": \"{{ program_id }}\",\n  \"academic_year\": \"2026\"\n}" }
+    },
+    {
+      "_id": "req_03_06",
+      "_type": "request",
+      "parentId": "fldr_03",
+      "name": "GET List Beneficiaries",
+      "url": "{{ base_url }}/admin/beneficiaries",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_03_07",
+      "_type": "request",
+      "parentId": "fldr_03",
+      "name": "GET List Documents",
+      "url": "{{ base_url }}/admin/documents",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "fldr_04",
+      "_type": "request_group",
+      "parentId": "wrk_01",
+      "name": "04 - Awards",
+      "description": "Award creation, activation, letter generation"
+    },
+    {
+      "_id": "req_04_01",
+      "_type": "request",
+      "parentId": "fldr_04",
+      "name": "GET List Awards",
+      "url": "{{ base_url }}/admin/awards",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_04_02",
+      "_type": "request",
+      "parentId": "fldr_04",
+      "name": "POST Create Award",
+      "url": "{{ base_url }}/admin/awards",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"beneficiary_id\": \"{{ beneficiary_id }}\",\n  \"program_id\": \"{{ program_id }}\",\n  \"amount\": 350000,\n  \"award_type\": \"renewable\",\n  \"start_date\": \"2026-01-15T00:00:00.000Z\",\n  \"end_date\": \"2026-12-15T00:00:00.000Z\"\n}" }
+    },
+    {
+      "_id": "req_04_03",
+      "_type": "request",
+      "parentId": "fldr_04",
+      "name": "PATCH Activate Award",
+      "url": "{{ base_url }}/admin/awards/{{ award_id }}/status",
+      "method": "PATCH",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"status\": \"Active\"\n}" }
+    },
+    {
+      "_id": "req_04_04",
+      "_type": "request",
+      "parentId": "fldr_04",
+      "name": "POST Generate Award Letter (PDF)",
+      "url": "{{ base_url }}/admin/awards/{{ award_id }}/letter/generate",
+      "method": "POST",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "fldr_05",
+      "_type": "request_group",
+      "parentId": "wrk_01",
+      "name": "05 - Disbursements (Maker-Checker)",
+      "description": "Maker creates, Checker approves, evidence upload, payment, reconciliation"
+    },
+    {
+      "_id": "req_05_01",
+      "_type": "request",
+      "parentId": "fldr_05",
+      "name": "GET List Disbursements",
+      "url": "{{ base_url }}/admin/disbursements",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_05_02",
+      "_type": "request",
+      "parentId": "fldr_05",
+      "name": "POST Create Disbursement (Maker)",
+      "url": "{{ base_url }}/admin/disbursements",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"award_id\": \"{{ award_id }}\",\n  \"amount\": 85000,\n  \"category\": \"fees\",\n  \"academic_period\": \"2026-T1\",\n  \"payee_type\": \"school\",\n  \"payee_name\": \"Lilongwe Girls Secondary\"\n}" }
+    },
+    {
+      "_id": "req_05_03",
+      "_type": "request",
+      "parentId": "fldr_05",
+      "name": "POST Upload Payment Evidence",
+      "url": "{{ base_url }}/admin/documents",
+      "method": "POST",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "multipart/form-data", "params": [{"name": "documentable_type", "value": "disbursement"}, {"name": "documentable_id", "value": "{{ disbursement_id }}"}, {"name": "document_type", "value": "disbursement_evidence"}, {"name": "file", "value": "", "fileName": "receipt.pdf", "type": "file"}] }
+    },
+    {
+      "_id": "req_05_04",
+      "_type": "request",
+      "parentId": "fldr_05",
+      "name": "POST Approve Disbursement (Checker)",
+      "url": "{{ base_url }}/admin/disbursements/{{ disbursement_id }}/approve",
+      "method": "POST",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_05_05",
+      "_type": "request",
+      "parentId": "fldr_05",
+      "name": "PATCH Mark Disbursement as Paid",
+      "url": "{{ base_url }}/admin/disbursements/{{ disbursement_id }}/status",
+      "method": "PATCH",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"status\": \"Paid\"\n}" }
+    },
+    {
+      "_id": "req_05_06",
+      "_type": "request",
+      "parentId": "fldr_05",
+      "name": "POST Reconcile Disbursement",
+      "url": "{{ base_url }}/admin/disbursements/{{ disbursement_id }}/reconcile",
+      "method": "POST",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "fldr_06",
+      "_type": "request_group",
+      "parentId": "wrk_01",
+      "name": "06 - Monitoring & Evaluation",
+      "description": "Performance, at-risk flags, interventions, visits, outcomes"
+    },
+    {
+      "_id": "req_06_01",
+      "_type": "request",
+      "parentId": "fldr_06",
+      "name": "POST Record Academic Performance",
+      "url": "{{ base_url }}/admin/me/performance",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"beneficiary_id\": \"{{ beneficiary_id }}\",\n  \"school_id\": \"{{ school_id }}\",\n  \"academic_period\": \"2026-T1\",\n  \"subjects\": {\"English\": 72, \"Mathematics\": 45, \"Science\": 68, \"Social Studies\": 81},\n  \"overall_score\": 66.5,\n  \"attendance_percentage\": 82\n}" }
+    },
+    {
+      "_id": "req_06_02",
+      "_type": "request",
+      "parentId": "fldr_06",
+      "name": "POST Auto-Flag At-Risk",
+      "url": "{{ base_url }}/admin/me/auto-flag",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"score_threshold\": 50,\n  \"attendance_threshold\": 75,\n  \"academic_period\": \"2026-T1\"\n}" }
+    },
+    {
+      "_id": "req_06_03",
+      "_type": "request",
+      "parentId": "fldr_06",
+      "name": "POST Manual At-Risk Flag",
+      "url": "{{ base_url }}/admin/me/at-risk",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"beneficiary_id\": \"{{ beneficiary_id }}\",\n  \"reason\": \"Attendance dropped to 68%\"\n}" }
+    },
+    {
+      "_id": "req_06_04",
+      "_type": "request",
+      "parentId": "fldr_06",
+      "name": "GET List At-Risk Flags",
+      "url": "{{ base_url }}/admin/me/at-risk",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_06_05",
+      "_type": "request",
+      "parentId": "fldr_06",
+      "name": "POST Create Intervention",
+      "url": "{{ base_url }}/admin/me/interventions",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"beneficiary_id\": \"{{ beneficiary_id }}\",\n  \"action\": \"Extra math tutoring 2x per week\",\n  \"assigned_to\": \"36889593-a9d4-46bf-94ac-0133818c3239\",\n  \"due_date\": \"2026-04-15T00:00:00.000Z\"\n}" }
+    },
+    {
+      "_id": "req_06_06",
+      "_type": "request",
+      "parentId": "fldr_06",
+      "name": "PATCH Close Intervention",
+      "url": "{{ base_url }}/admin/me/interventions/{{ intervention_id }}/status",
+      "method": "PATCH",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"status\": \"Closed\",\n  \"resolution_notes\": \"Tutoring completed. Math improved to 62%.\"\n}" }
+    },
+    {
+      "_id": "req_06_07",
+      "_type": "request",
+      "parentId": "fldr_06",
+      "name": "POST Record Monitoring Visit",
+      "url": "{{ base_url }}/admin/me/visits",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"entity_type\": \"beneficiary\",\n  \"entity_id\": \"{{ beneficiary_id }}\",\n  \"visit_date\": \"2026-03-15T00:00:00.000Z\",\n  \"findings\": \"Student performing well.\"\n}" }
+    },
+    {
+      "_id": "req_06_08",
+      "_type": "request",
+      "parentId": "fldr_06",
+      "name": "POST Record Outcome (Completion)",
+      "url": "{{ base_url }}/admin/me/outcomes",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"beneficiary_id\": \"{{ beneficiary_id }}\",\n  \"program_id\": \"{{ program_id }}\",\n  \"outcome_type\": \"Completion\",\n  \"outcome_date\": \"2026-12-15T00:00:00.000Z\"\n}" }
+    },
+    {
+      "_id": "req_06_09",
+      "_type": "request",
+      "parentId": "fldr_06",
+      "name": "GET Program Metrics",
+      "url": "{{ base_url }}/admin/me/metrics?program_id={{ program_id }}",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "fldr_07",
+      "_type": "request_group",
+      "parentId": "wrk_01",
+      "name": "07 - Reports & Dashboards",
+      "description": "Standard reports, dynamic builder, scheduled reports"
+    },
+    {
+      "_id": "req_07_01",
+      "_type": "request",
+      "parentId": "fldr_07",
+      "name": "GET Beneficiary Report (JSON)",
+      "url": "{{ base_url }}/admin/reports/beneficiaries",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_07_02",
+      "_type": "request",
+      "parentId": "fldr_07",
+      "name": "GET Beneficiary Report (CSV)",
+      "url": "{{ base_url }}/admin/reports/beneficiaries?format=csv",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_07_03",
+      "_type": "request",
+      "parentId": "fldr_07",
+      "name": "GET Beneficiary Report (PDF)",
+      "url": "{{ base_url }}/admin/reports/beneficiaries?format=pdf",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_07_04",
+      "_type": "request",
+      "parentId": "fldr_07",
+      "name": "GET Beneficiary Report (XLSX)",
+      "url": "{{ base_url }}/admin/reports/beneficiaries?format=xlsx",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_07_05",
+      "_type": "request",
+      "parentId": "fldr_07",
+      "name": "GET Report Sources (Dynamic Builder)",
+      "url": "{{ base_url }}/admin/report-definitions/sources",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_07_06",
+      "_type": "request",
+      "parentId": "fldr_07",
+      "name": "POST Create Report Definition",
+      "url": "{{ base_url }}/admin/report-definitions",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"name\": \"Simple Beneficiary List\",\n  \"source\": \"beneficiaries\",\n  \"fields\": [\"identifier\", \"name\", \"gender\", \"district\", \"school\", \"status\"],\n  \"filters\": {}\n}" }
+    },
+    {
+      "_id": "req_07_07",
+      "_type": "request",
+      "parentId": "fldr_07",
+      "name": "POST Execute Report Definition",
+      "url": "{{ base_url }}/admin/report-definitions/{{ report_def_id }}/execute?format=csv",
+      "method": "POST",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_07_08",
+      "_type": "request",
+      "parentId": "fldr_07",
+      "name": "POST Create Scheduled Report",
+      "url": "{{ base_url }}/admin/scheduled-reports",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"report_id\": \"{{ report_def_id }}\",\n  \"name\": \"Weekly Beneficiary Report\",\n  \"cron_expression\": \"0 8 * * 1\",\n  \"format\": \"csv\",\n  \"recipients\": [\"wongani087@gmail.com\"]\n}" }
+    },
+    {
+      "_id": "req_07_09",
+      "_type": "request",
+      "parentId": "fldr_07",
+      "name": "POST Run Scheduled Report Now",
+      "url": "{{ base_url }}/admin/scheduled-reports/{{ schedule_id }}/run-now",
+      "method": "POST",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "fldr_08",
+      "_type": "request_group",
+      "parentId": "wrk_01",
+      "name": "08 - Notifications & Triggers",
+      "description": "Templates, triggers, logs, in-app notifications"
+    },
+    {
+      "_id": "req_08_01",
+      "_type": "request",
+      "parentId": "fldr_08",
+      "name": "GET Available Events",
+      "url": "{{ base_url }}/admin/notification-triggers/events",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_08_02",
+      "_type": "request",
+      "parentId": "fldr_08",
+      "name": "GET List Notification Templates",
+      "url": "{{ base_url }}/admin/notification-templates",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_08_03",
+      "_type": "request",
+      "parentId": "fldr_08",
+      "name": "POST Create Email Template",
+      "url": "{{ base_url }}/admin/notification-templates",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"name\": \"Welcome Email\",\n  \"channel\": \"email\",\n  \"subject\": \"Welcome {{name}} to {{program}}\",\n  \"body\": \"Hello {{name}},\\n\\nWelcome to the {{program}} program!\",\n  \"variables\": [\"name\", \"program\"]\n}" }
+    },
+    {
+      "_id": "req_08_04",
+      "_type": "request",
+      "parentId": "fldr_08",
+      "name": "POST Create Notification Trigger",
+      "url": "{{ base_url }}/admin/notification-triggers",
+      "method": "POST",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"name\": \"Welcome Trigger\",\n  \"event_name\": \"beneficiary.created\",\n  \"template_id\": \"{{ notification_template_id }}\"\n}" }
+    },
+    {
+      "_id": "req_08_05",
+      "_type": "request",
+      "parentId": "fldr_08",
+      "name": "GET Notification Logs",
+      "url": "{{ base_url }}/admin/notification-logs",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_08_06",
+      "_type": "request",
+      "parentId": "fldr_08",
+      "name": "GET My In-App Notifications",
+      "url": "{{ base_url }}/admin/notifications",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_08_07",
+      "_type": "request",
+      "parentId": "fldr_08",
+      "name": "GET Unread Notification Count",
+      "url": "{{ base_url }}/admin/notifications/unread-count",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "fldr_09",
+      "_type": "request_group",
+      "parentId": "wrk_01",
+      "name": "09 - Audit & System Config",
+      "description": "Audit logs, system settings, users, roles"
+    },
+    {
+      "_id": "req_09_01",
+      "_type": "request",
+      "parentId": "fldr_09",
+      "name": "GET Audit Logs",
+      "url": "{{ base_url }}/admin/audit-logs?limit=10",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_09_02",
+      "_type": "request",
+      "parentId": "fldr_09",
+      "name": "GET Export Audit Logs (CSV)",
+      "url": "{{ base_url }}/admin/audit-logs/export?format=csv",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_09_03",
+      "_type": "request",
+      "parentId": "fldr_09",
+      "name": "GET System Config",
+      "url": "{{ base_url }}/admin/system-config",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_09_04",
+      "_type": "request",
+      "parentId": "fldr_09",
+      "name": "GET Config Categories",
+      "url": "{{ base_url }}/admin/system-config/categories",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_09_05",
+      "_type": "request",
+      "parentId": "fldr_09",
+      "name": "PUT Update SMTP Host",
+      "url": "{{ base_url }}/admin/system-config/smtp_host",
+      "method": "PUT",
+      "headers": [{ "name": "Content-Type", "value": "application/json" }, { "name": "Authorization", "value": "Bearer {{ token }}" }],
+      "body": { "mimeType": "application/json", "text": "{\n  \"value\": \"smtp.gmail.com\"\n}" }
+    },
+    {
+      "_id": "req_09_06",
+      "_type": "request",
+      "parentId": "fldr_09",
+      "name": "GET List Users",
+      "url": "{{ base_url }}/admin/users",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    },
+    {
+      "_id": "req_09_07",
+      "_type": "request",
+      "parentId": "fldr_09",
+      "name": "GET List Roles",
+      "url": "{{ base_url }}/admin/roles",
+      "method": "GET",
+      "headers": [{ "name": "Authorization", "value": "Bearer {{ token }}" }]
+    }
+  ]
+}
