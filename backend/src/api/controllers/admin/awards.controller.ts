@@ -137,10 +137,50 @@ async function checkBudgetConstraints(programId: string, amount: number, funding
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/PaginatedResponse'
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     beneficiary_id: 9c858f9a-1234-4a2b-9c3d-abcdef123456
+ *                     beneficiary: { id: 9c858f9a-1234-4a2b-9c3d-abcdef123456, first_name: Chikondi, last_name: Banda, beneficiary_identifier: PT-2026-00042 }
+ *                     program_id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                     program: { id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718, name: Secondary School Bursary 2026 }
+ *                     funding_source_id: null
+ *                     funding_source: null
+ *                     amount: 500000
+ *                     balance_remaining: 500000
+ *                     start_date: '2026-02-01T00:00:00.000Z'
+ *                     end_date: '2026-11-30T00:00:00.000Z'
+ *                     award_type: recurring
+ *                     status: Active
+ *                     status_reason: null
+ *                     parent_award_id: null
+ *                     budget_utilization_updated: true
+ *                     created_at: '2026-01-15T09:30:00.000Z'
+ *                     updated_at: '2026-01-15T09:30:00.000Z'
+ *                 meta: { page: 1, limit: 20, total: 1, totalPages: 1 }
+ *               message: Awards retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function listAwards(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
@@ -196,16 +236,82 @@ export async function listAwards(req: Request, res: Response): Promise<void> {
  *     responses:
  *       201:
  *         description: Award created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 beneficiary_id: 9c858f9a-1234-4a2b-9c3d-abcdef123456
+ *                 beneficiary: { id: 9c858f9a-1234-4a2b-9c3d-abcdef123456, first_name: Chikondi, last_name: Banda, beneficiary_identifier: PT-2026-00042 }
+ *                 program_id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                 program: { id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718, name: Secondary School Bursary 2026 }
+ *                 funding_source_id: null
+ *                 funding_source: null
+ *                 amount: 500000
+ *                 balance_remaining: 500000
+ *                 start_date: '2026-02-01T00:00:00.000Z'
+ *                 end_date: '2026-11-30T00:00:00.000Z'
+ *                 award_type: recurring
+ *                 status: Draft
+ *                 status_reason: null
+ *                 parent_award_id: null
+ *                 budget_utilization_updated: false
+ *                 created_at: '2026-01-15T09:30:00.000Z'
+ *                 updated_at: '2026-01-15T09:30:00.000Z'
+ *               message: Award created successfully
  *       400:
  *         description: Validation error or budget exceeded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: 'Amount exceeds available program budget. Available: 250000'
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Beneficiary or program not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary not found
  *       409:
  *         description: Beneficiary not active
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: 'Beneficiary must be Active to receive an award. Current status: Suspended'
  */
 export async function createAward(req: Request, res: Response): Promise<void> {
   const body = createAwardSchema.parse(req.body);
@@ -305,12 +411,64 @@ export async function createAward(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Award details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 beneficiary_id: 9c858f9a-1234-4a2b-9c3d-abcdef123456
+ *                 beneficiary: { id: 9c858f9a-1234-4a2b-9c3d-abcdef123456, first_name: Chikondi, last_name: Banda, beneficiary_identifier: PT-2026-00042, contact_email: chikondi.banda@example.com }
+ *                 program_id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                 program: { id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718, name: Secondary School Bursary 2026 }
+ *                 funding_source_id: null
+ *                 funding_source: null
+ *                 amount: 500000
+ *                 balance_remaining: 350000
+ *                 start_date: '2026-02-01T00:00:00.000Z'
+ *                 end_date: '2026-11-30T00:00:00.000Z'
+ *                 award_type: recurring
+ *                 status: Active
+ *                 status_reason: null
+ *                 parent_award_id: null
+ *                 budget_utilization_updated: true
+ *                 created_at: '2026-01-15T09:30:00.000Z'
+ *                 updated_at: '2026-02-01T08:00:00.000Z'
+ *                 parent_award: null
+ *                 renewals: []
+ *               message: Award retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Award not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Award not found
  */
 export async function getAward(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -367,16 +525,82 @@ export async function getAward(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Award updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 beneficiary_id: 9c858f9a-1234-4a2b-9c3d-abcdef123456
+ *                 beneficiary: { id: 9c858f9a-1234-4a2b-9c3d-abcdef123456, first_name: Chikondi, last_name: Banda, beneficiary_identifier: PT-2026-00042 }
+ *                 program_id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                 program: { id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718, name: Secondary School Bursary 2026 }
+ *                 funding_source_id: null
+ *                 funding_source: null
+ *                 amount: 550000
+ *                 balance_remaining: 550000
+ *                 start_date: '2026-02-01T00:00:00.000Z'
+ *                 end_date: '2026-11-30T00:00:00.000Z'
+ *                 award_type: recurring
+ *                 status: Draft
+ *                 status_reason: null
+ *                 parent_award_id: null
+ *                 budget_utilization_updated: false
+ *                 created_at: '2026-01-15T09:30:00.000Z'
+ *                 updated_at: '2026-01-16T10:00:00.000Z'
+ *               message: Award updated successfully
  *       400:
  *         description: Validation error or budget exceeded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: 'Amount exceeds available program budget. Available: 250000'
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Award not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Award not found
  *       409:
  *         description: Award is not in Draft status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Only Draft awards can be updated
  */
 export async function updateAward(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -464,16 +688,82 @@ export async function updateAward(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 beneficiary_id: 9c858f9a-1234-4a2b-9c3d-abcdef123456
+ *                 beneficiary: { id: 9c858f9a-1234-4a2b-9c3d-abcdef123456, first_name: Chikondi, last_name: Banda, beneficiary_identifier: PT-2026-00042 }
+ *                 program_id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                 program: { id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718, name: Secondary School Bursary 2026 }
+ *                 funding_source_id: null
+ *                 funding_source: null
+ *                 amount: 500000
+ *                 balance_remaining: 500000
+ *                 start_date: '2026-02-01T00:00:00.000Z'
+ *                 end_date: '2026-11-30T00:00:00.000Z'
+ *                 award_type: recurring
+ *                 status: Active
+ *                 status_reason: null
+ *                 parent_award_id: null
+ *                 budget_utilization_updated: true
+ *                 created_at: '2026-01-15T09:30:00.000Z'
+ *                 updated_at: '2026-02-01T08:00:00.000Z'
+ *               message: Award status updated to Active
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Reason is required for Suspended, Completed, or Closed status
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Award not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Award not found
  *       409:
  *         description: Invalid status transition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid status transition from Draft to Completed
  */
 export async function updateAwardStatus(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -607,14 +897,72 @@ export async function updateAwardStatus(req: Request, res: Response): Promise<vo
  *     responses:
  *       200:
  *         description: Award reinstated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 beneficiary_id: 9c858f9a-1234-4a2b-9c3d-abcdef123456
+ *                 beneficiary: { id: 9c858f9a-1234-4a2b-9c3d-abcdef123456, first_name: Chikondi, last_name: Banda, beneficiary_identifier: PT-2026-00042 }
+ *                 program_id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                 program: { id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718, name: Secondary School Bursary 2026 }
+ *                 funding_source_id: null
+ *                 funding_source: null
+ *                 amount: 500000
+ *                 balance_remaining: 500000
+ *                 start_date: '2026-02-01T00:00:00.000Z'
+ *                 end_date: '2026-11-30T00:00:00.000Z'
+ *                 award_type: recurring
+ *                 status: Active
+ *                 status_reason: null
+ *                 parent_award_id: null
+ *                 budget_utilization_updated: true
+ *                 created_at: '2026-01-15T09:30:00.000Z'
+ *                 updated_at: '2026-03-10T11:15:00.000Z'
+ *               message: Award reinstated to Active
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Award not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Award not found
  *       409:
  *         description: Award is not Suspended
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot reinstate award in status Active
  */
 export async function reinstateAward(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -703,16 +1051,82 @@ const renewAwardSchema = z.object({
  *     responses:
  *       201:
  *         description: Renewal award created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 7d1e9a2b-4c3d-4e5f-8a9b-0c1d2e3f4a5b
+ *                 beneficiary_id: 9c858f9a-1234-4a2b-9c3d-abcdef123456
+ *                 beneficiary: { id: 9c858f9a-1234-4a2b-9c3d-abcdef123456, first_name: Chikondi, last_name: Banda, beneficiary_identifier: PT-2026-00042 }
+ *                 program_id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                 program: { id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718, name: Secondary School Bursary 2026 }
+ *                 funding_source_id: null
+ *                 funding_source: null
+ *                 amount: 500000
+ *                 balance_remaining: 500000
+ *                 start_date: '2027-02-01T00:00:00.000Z'
+ *                 end_date: '2027-11-30T00:00:00.000Z'
+ *                 award_type: recurring
+ *                 status: Draft
+ *                 status_reason: null
+ *                 parent_award_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 budget_utilization_updated: false
+ *                 created_at: '2027-01-10T09:00:00.000Z'
+ *                 updated_at: '2027-01-10T09:00:00.000Z'
+ *               message: Award renewal created successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: 'Amount exceeds available program budget. Available: 250000'
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Award not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Parent award not found
  *       409:
  *         description: Parent award is not eligible for renewal
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot renew award in status Draft
  */
 export async function renewAward(req: Request, res: Response): Promise<void> {
   const parentId = req.params.id as string;
@@ -809,12 +1223,41 @@ export async function renewAward(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: PDF file stream
+ *         content:
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Award not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Award not found
  */
 export async function generateAwardLetter(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;

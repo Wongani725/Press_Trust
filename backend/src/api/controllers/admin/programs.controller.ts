@@ -72,10 +72,45 @@ const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/PaginatedResponse'
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                     name: Secondary School Bursary 2026
+ *                     description: Bursary support for secondary school students in Blantyre, Zomba, and Mzuzu districts
+ *                     status: Open
+ *                     application_open_date: '2026-01-05T00:00:00.000Z'
+ *                     application_close_date: '2026-02-28T00:00:00.000Z'
+ *                     budget_ceiling: 50000000
+ *                     budget_utilized: 12500000
+ *                     award_types: [recurring, renewable]
+ *                     beneficiary_count: 34
+ *                     award_count: 34
+ *                     created_at: '2025-12-01T08:00:00.000Z'
+ *                     updated_at: '2026-01-15T09:30:00.000Z'
+ *                 meta: { page: 1, limit: 20, total: 1, totalPages: 1 }
+ *               message: Programs retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function listPrograms(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
@@ -141,12 +176,51 @@ export async function listPrograms(req: Request, res: Response): Promise<void> {
  *     responses:
  *       201:
  *         description: Program created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                 name: Secondary School Bursary 2026
+ *                 description: Bursary support for secondary school students in Blantyre, Zomba, and Mzuzu districts
+ *                 status: Draft
+ *                 budget_ceiling: 50000000
+ *                 award_types: [recurring, renewable]
+ *                 created_at: '2025-12-01T08:00:00.000Z'
+ *               message: Program created successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: { details: [{ field: name, message: String must contain at least 1 character(s) }] }
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function createProgram(req: Request, res: Response): Promise<void> {
   const body = createProgramSchema.parse(req.body);
@@ -202,12 +276,62 @@ export async function createProgram(req: Request, res: Response): Promise<void> 
  *     responses:
  *       200:
  *         description: Program details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                 name: Secondary School Bursary 2026
+ *                 description: Bursary support for secondary school students in Blantyre, Zomba, and Mzuzu districts
+ *                 status: Open
+ *                 application_open_date: '2026-01-05T00:00:00.000Z'
+ *                 application_close_date: '2026-02-28T00:00:00.000Z'
+ *                 budget_ceiling: 50000000
+ *                 budget_utilized: 12500000
+ *                 award_types: [recurring, renewable]
+ *                 eligibility_rules: { min_age: 12, max_age: 20, max_household_income: 300000 }
+ *                 evaluation_rubric: { academic_performance: 40, financial_need: 40, interview: 20 }
+ *                 workflow_config: { requires_interview: true, approval_levels: 2 }
+ *                 form_config: { fields: [national_id, school_id, guardian_contact] }
+ *                 beneficiary_count: 34
+ *                 award_count: 34
+ *                 disbursement_count: 68
+ *                 created_at: '2025-12-01T08:00:00.000Z'
+ *                 updated_at: '2026-01-15T09:30:00.000Z'
+ *               message: Program retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Program not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Program not found
  */
 export async function getProgram(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -273,16 +397,69 @@ export async function getProgram(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Program updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                 name: Secondary School Bursary 2026 (Revised)
+ *                 description: Bursary support for secondary school students in Blantyre, Zomba, Lilongwe, and Mzuzu districts
+ *                 status: Open
+ *                 updated_at: '2026-01-20T14:00:00.000Z'
+ *               message: Program updated successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Validation error
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Program not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Program not found
  *       422:
  *         description: Cannot modify archived program
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot modify archived program
  */
 export async function updateProgram(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -362,16 +539,69 @@ export async function updateProgram(req: Request, res: Response): Promise<void> 
  *     responses:
  *       200:
  *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                 status: Open
+ *               message: Program status updated to Open
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Validation error
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Program not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Program not found
  *       422:
  *         description: Invalid status transition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 currentStatus: Draft
+ *                 requestedStatus: Closed
+ *                 allowedTransitions: [Open]
+ *               message: Invalid status transition from Draft to Closed
  */
 export async function updateProgramStatus(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -437,16 +667,66 @@ export async function updateProgramStatus(req: Request, res: Response): Promise<
  *     responses:
  *       200:
  *         description: Budget updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                 budget_ceiling: 60000000
+ *               message: Program budget updated successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Validation error
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Program not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Program not found
  *       422:
  *         description: Cannot modify archived program
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot modify archived program
  */
 export async function updateProgramBudget(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -507,16 +787,69 @@ export async function updateProgramBudget(req: Request, res: Response): Promise<
  *     responses:
  *       200:
  *         description: Configuration updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1b2c3d4e-5f60-4718-9a2b-c3d4e5f60718
+ *                 eligibility_rules: { min_age: 12, max_age: 20, max_household_income: 300000 }
+ *                 evaluation_rubric: { academic_performance: 40, financial_need: 40, interview: 20 }
+ *                 workflow_config: { requires_interview: true, approval_levels: 2 }
+ *                 form_config: { fields: [national_id, school_id, guardian_contact] }
+ *               message: Program configuration updated successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Validation error
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Program not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Program not found
  *       422:
  *         description: Cannot modify archived program
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot modify archived program
  */
 export async function updateProgramConfig(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;

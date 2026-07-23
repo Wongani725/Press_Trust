@@ -58,10 +58,58 @@ const updateStatusSchema = z.object({
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/PaginatedResponse'
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     name: Operations Manager
+ *                     email: operations@presstrust.mw
+ *                     role: { id: 6c9f2e3a-1b4d-4e5f-8a6b-2d3c4e5f6a7b, name: Operations }
+ *                     phone: '+265991234567'
+ *                     status: active
+ *                     mfa_enabled: true
+ *                     failed_login_attempts: 0
+ *                     locked_until: null
+ *                     last_login: 2026-07-22T07:15:00.000Z
+ *                     programs: [9d4e2c1a-8b7f-4a3d-9e6c-1f2a3b4c5d6e]
+ *                     created_at: 2026-01-15T09:30:00.000Z
+ *                     updated_at: 2026-07-22T07:15:00.000Z
+ *                   - id: 6f5e4d3c-2b1a-4c9d-8e7f-0a1b2c3d4e5f
+ *                     name: Finance Officer
+ *                     email: finance@presstrust.mw
+ *                     role: { id: 7d8e9f0a-2b3c-4d5e-9f0a-1b2c3d4e5f6a, name: Finance }
+ *                     phone: '+265992345678'
+ *                     status: active
+ *                     mfa_enabled: false
+ *                     failed_login_attempts: 0
+ *                     locked_until: null
+ *                     last_login: 2026-07-21T14:00:00.000Z
+ *                     programs: []
+ *                     created_at: 2026-01-15T09:30:00.000Z
+ *                     updated_at: 2026-07-21T14:00:00.000Z
+ *                 meta: { page: 1, limit: 20, total: 2, totalPages: 1 }
+ *               message: Users retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function listUsers(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
@@ -130,14 +178,77 @@ export async function listUsers(req: Request, res: Response): Promise<void> {
  *     responses:
  *       201:
  *         description: User created
- *       400:
- *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 name: New Program Officer
+ *                 email: newofficer@presstrust.mw
+ *                 role: { id: 6c9f2e3a-1b4d-4e5f-8a6b-2d3c4e5f6a7b, name: Operations }
+ *                 phone: '+265991112233'
+ *                 status: active
+ *                 programs: [9d4e2c1a-8b7f-4a3d-9e6c-1f2a3b4c5d6e]
+ *                 created_at: 2026-07-23T09:30:00.000Z
+ *               message: User created successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Role not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Role not found
  *       409:
  *         description: Email already in use
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Email already in use
+ *       422:
+ *         description: Request validation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: email
+ *                     message: Invalid email
+ *                   - field: password
+ *                     message: String must contain at least 8 character(s)
+ *               message: Request validation failed
  */
 export async function createUser(req: Request, res: Response): Promise<void> {
   const { name, email, password, role_id, phone, programIds } = createUserSchema.parse(req.body);
@@ -212,12 +323,59 @@ export async function createUser(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: User details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 name: Operations Manager
+ *                 email: operations@presstrust.mw
+ *                 role: { id: 6c9f2e3a-1b4d-4e5f-8a6b-2d3c4e5f6a7b, name: Operations }
+ *                 phone: '+265991234567'
+ *                 status: active
+ *                 mfa_enabled: true
+ *                 failed_login_attempts: 0
+ *                 locked_until: null
+ *                 last_login: 2026-07-22T07:15:00.000Z
+ *                 programs:
+ *                   - id: 9d4e2c1a-8b7f-4a3d-9e6c-1f2a3b4c5d6e
+ *                     name: Press Trust Secondary School Scholarship 2026
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-07-22T07:15:00.000Z
+ *               message: User retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: User not found
  */
 export async function getUser(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -276,16 +434,74 @@ export async function getUser(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: User updated
- *       400:
- *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 name: Operations Manager
+ *                 email: operations@presstrust.mw
+ *                 role: { id: 6c9f2e3a-1b4d-4e5f-8a6b-2d3c4e5f6a7b, name: Operations }
+ *                 phone: '+265991234567'
+ *                 status: active
+ *                 updated_at: 2026-07-23T09:30:00.000Z
+ *               message: User updated successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
- *         description: User not found
+ *         description: User or role not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: User not found
  *       409:
  *         description: Email already in use
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Email already in use
+ *       422:
+ *         description: Request validation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: email
+ *                     message: Invalid email
+ *               message: Request validation failed
  */
 export async function updateUser(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -387,14 +603,59 @@ export async function updateUser(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Status updated
- *       400:
- *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 status: blocked
+ *               message: User status updated to blocked
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: User not found
+ *       422:
+ *         description: Request validation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: status
+ *                     message: 'Invalid enum value. Expected ''active'' | ''inactive'' | ''blocked'', received ''suspended'''
+ *               message: Request validation failed
  */
 export async function updateUserStatus(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -444,12 +705,46 @@ export async function updateUserStatus(req: Request, res: Response): Promise<voi
  *     responses:
  *       200:
  *         description: Account unlocked
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 unlocked: true
+ *               message: User account unlocked successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: User not found
  */
 export async function unlockUser(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -497,12 +792,46 @@ export async function unlockUser(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: MFA reset
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 mfa_enabled: false
+ *               message: User MFA reset successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: User not found
  */
 export async function resetUserMfa(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;

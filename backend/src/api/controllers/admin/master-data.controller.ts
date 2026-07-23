@@ -128,10 +128,62 @@ function maskAccountNumber(num: string | null): string {
  *     responses:
  *       200:
  *         description: Paginated list of schools
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     name: Blantyre Secondary School
+ *                     type: secondary
+ *                     district: Blantyre
+ *                     location: Blantyre City
+ *                     contact_phone: "+265991234567"
+ *                     contact_email: info@blantyresec.edu.mw
+ *                     registration_status: registered
+ *                     status: active
+ *                     created_at: "2026-01-15T09:30:00.000Z"
+ *                     updated_at: "2026-01-15T09:30:00.000Z"
+ *                   - id: 6fa459ea-ee8a-3ca4-894e-db77e160355e
+ *                     name: Zomba Urban Secondary School
+ *                     type: secondary
+ *                     district: Zomba
+ *                     location: Zomba City
+ *                     contact_phone: "+265991234568"
+ *                     contact_email: info@zombausec.edu.mw
+ *                     registration_status: registered
+ *                     status: active
+ *                     created_at: "2026-01-10T08:00:00.000Z"
+ *                     updated_at: "2026-01-10T08:00:00.000Z"
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 2
+ *                   totalPages: 1
+ *               message: Schools retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function listSchools(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
@@ -173,12 +225,58 @@ export async function listSchools(req: Request, res: Response): Promise<void> {
  *     responses:
  *       201:
  *         description: School created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 name: Blantyre Secondary School
+ *                 type: secondary
+ *                 district: Blantyre
+ *                 location: Blantyre City
+ *                 contact_phone: "+265991234567"
+ *                 contact_email: info@blantyresec.edu.mw
+ *                 registration_status: registered
+ *                 status: active
+ *                 created_at: "2026-01-15T09:30:00.000Z"
+ *                 updated_at: "2026-01-15T09:30:00.000Z"
+ *               message: School created successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: district
+ *                     message: String must contain at least 1 character(s)
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function createSchool(req: Request, res: Response): Promise<void> {
   const body = createSchoolSchema.parse(req.body);
@@ -214,12 +312,66 @@ export async function createSchool(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: School details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 name: Blantyre Secondary School
+ *                 type: secondary
+ *                 district: Blantyre
+ *                 location: Blantyre City
+ *                 contact_phone: "+265991234567"
+ *                 contact_email: info@blantyresec.edu.mw
+ *                 registration_status: registered
+ *                 status: active
+ *                 created_at: "2026-01-15T09:30:00.000Z"
+ *                 updated_at: "2026-01-15T09:30:00.000Z"
+ *                 bank_accounts:
+ *                   - id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                     school_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     bank_name: National Bank of Malawi
+ *                     branch: Blantyre Branch
+ *                     account_number: "****7890"
+ *                     account_holder_name: Blantyre Secondary School
+ *                     status: active
+ *                     approval_status: approved
+ *                     created_at: "2026-01-15T09:35:00.000Z"
+ *                     updated_at: "2026-01-15T09:35:00.000Z"
+ *               message: School retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: School not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: School not found
  */
 export async function getSchool(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -269,14 +421,68 @@ export async function getSchool(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: School updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 name: Blantyre Secondary School
+ *                 type: secondary
+ *                 district: Blantyre
+ *                 location: Blantyre City (Ndirande)
+ *                 contact_phone: "+265991234567"
+ *                 contact_email: info@blantyresec.edu.mw
+ *                 registration_status: registered
+ *                 status: active
+ *                 created_at: "2026-01-15T09:30:00.000Z"
+ *                 updated_at: "2026-07-20T11:12:00.000Z"
+ *               message: School updated successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: contact_email
+ *                     message: Invalid email
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: School not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: School not found
  */
 export async function updateSchool(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -324,14 +530,59 @@ export async function updateSchool(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 status: inactive
+ *               message: School status updated to inactive
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: status
+ *                     message: Invalid enum value. Expected 'active' | 'inactive', received 'closed'
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: School not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: School not found
  */
 export async function updateSchoolStatus(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -375,10 +626,45 @@ export async function updateSchoolStatus(req: Request, res: Response): Promise<v
  *     responses:
  *       200:
  *         description: List of bank accounts
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                     school_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     bank_name: National Bank of Malawi
+ *                     branch: Blantyre Branch
+ *                     account_number: "****7890"
+ *                     account_holder_name: Blantyre Secondary School
+ *                     status: active
+ *                     approval_status: approved
+ *                     created_at: "2026-01-15T09:35:00.000Z"
+ *                     updated_at: "2026-01-15T09:35:00.000Z"
+ *               message: Bank accounts retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function listBankAccounts(req: Request, res: Response): Promise<void> {
   const schoolId = req.params.schoolId as string;
@@ -419,12 +705,67 @@ export async function listBankAccounts(req: Request, res: Response): Promise<voi
  *     responses:
  *       201:
  *         description: Bank account created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                 school_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 bank_name: National Bank of Malawi
+ *                 branch: Blantyre Branch
+ *                 account_number: "1234567890"
+ *                 account_holder_name: Blantyre Secondary School
+ *                 status: active
+ *                 approval_status: approved
+ *                 created_at: "2026-01-15T09:35:00.000Z"
+ *                 updated_at: "2026-01-15T09:35:00.000Z"
+ *               message: Bank account created successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: account_number
+ *                     message: String must contain at least 1 character(s)
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: School not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: School not found
  */
 export async function createBankAccount(req: Request, res: Response): Promise<void> {
   const schoolId = req.params.schoolId as string;
@@ -471,12 +812,54 @@ export async function createBankAccount(req: Request, res: Response): Promise<vo
  *     responses:
  *       200:
  *         description: Bank account details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                 school_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 bank_name: National Bank of Malawi
+ *                 branch: Blantyre Branch
+ *                 account_number: "****7890"
+ *                 account_holder_name: Blantyre Secondary School
+ *                 status: active
+ *                 approval_status: approved
+ *                 created_at: "2026-01-15T09:35:00.000Z"
+ *                 updated_at: "2026-01-15T09:35:00.000Z"
+ *               message: Bank account retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Bank account not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Bank account not found
  */
 export async function getBankAccount(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -519,14 +902,67 @@ export async function getBankAccount(req: Request, res: Response): Promise<void>
  *     responses:
  *       200:
  *         description: Bank account updated or pending approval
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                 school_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 bank_name: National Bank of Malawi
+ *                 branch: Blantyre Branch
+ *                 account_number: "9876543210"
+ *                 account_holder_name: Blantyre Secondary School
+ *                 status: active
+ *                 approval_status: pending
+ *                 created_at: "2026-01-15T09:35:00.000Z"
+ *                 updated_at: "2026-07-20T13:05:00.000Z"
+ *               message: Bank account updated and pending approval
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: account_holder_name
+ *                     message: String must contain at least 1 character(s)
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Bank account not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Bank account not found
  */
 export async function updateBankAccount(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -589,14 +1025,59 @@ export async function updateBankAccount(req: Request, res: Response): Promise<vo
  *     responses:
  *       200:
  *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                 status: inactive
+ *               message: Bank account status updated to inactive
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: status
+ *                     message: Invalid enum value. Expected 'active' | 'inactive', received 'closed'
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Bank account not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Bank account not found
  */
 export async function updateBankAccountStatus(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -642,12 +1123,46 @@ export async function updateBankAccountStatus(req: Request, res: Response): Prom
  *     responses:
  *       200:
  *         description: Bank account approved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                 approval_status: approved
+ *               message: Bank account approved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Bank account not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Bank account not found
  */
 export async function approveBankAccount(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -700,12 +1215,46 @@ export async function approveBankAccount(req: Request, res: Response): Promise<v
  *     responses:
  *       200:
  *         description: Bank account rejected
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                 approval_status: rejected
+ *               message: Bank account rejected
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Bank account not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Bank account not found
  */
 export async function rejectBankAccount(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -743,10 +1292,51 @@ export async function rejectBankAccount(req: Request, res: Response): Promise<vo
  *     responses:
  *       200:
  *         description: List of funding sources
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                     name: USAID Education Grant 2026
+ *                     description: Funding for secondary school scholarships in the Southern Region
+ *                     total_allocation: 50000000
+ *                     utilized_amount: 12500000
+ *                     status: active
+ *                     created_at: "2026-01-05T08:00:00.000Z"
+ *                     updated_at: "2026-06-01T10:00:00.000Z"
+ *                   - id: 16fd2706-8baf-433b-82eb-8c7fada847da
+ *                     name: Press Trust Endowment Fund
+ *                     description: Internal endowment supporting long-term scholarships
+ *                     total_allocation: 20000000
+ *                     utilized_amount: 4300000
+ *                     status: active
+ *                     created_at: "2026-02-01T08:00:00.000Z"
+ *                     updated_at: "2026-05-15T10:00:00.000Z"
+ *               message: Funding sources retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function listFundingSources(_req: Request, res: Response): Promise<void> {
   const sources = await prisma.fundingSource.findMany({ orderBy: { created_at: 'desc' } });
@@ -770,12 +1360,55 @@ export async function listFundingSources(_req: Request, res: Response): Promise<
  *     responses:
  *       201:
  *         description: Funding source created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                 name: USAID Education Grant 2026
+ *                 description: Funding for secondary school scholarships in the Southern Region
+ *                 total_allocation: 50000000
+ *                 utilized_amount: 0
+ *                 status: active
+ *                 created_at: "2026-01-05T08:00:00.000Z"
+ *                 updated_at: "2026-01-05T08:00:00.000Z"
+ *               message: Funding source created successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: name
+ *                     message: String must contain at least 1 character(s)
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function createFundingSource(req: Request, res: Response): Promise<void> {
   const body = createFundingSourceSchema.parse(req.body);
@@ -810,12 +1443,52 @@ export async function createFundingSource(req: Request, res: Response): Promise<
  *     responses:
  *       200:
  *         description: Funding source details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                 name: USAID Education Grant 2026
+ *                 description: Funding for secondary school scholarships in the Southern Region
+ *                 total_allocation: 50000000
+ *                 utilized_amount: 12500000
+ *                 status: active
+ *                 created_at: "2026-01-05T08:00:00.000Z"
+ *                 updated_at: "2026-06-01T10:00:00.000Z"
+ *               message: Funding source retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Funding source not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Funding source not found
  */
 export async function getFundingSource(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -849,14 +1522,65 @@ export async function getFundingSource(req: Request, res: Response): Promise<voi
  *     responses:
  *       200:
  *         description: Funding source updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                 name: USAID Education Grant 2026 (Extension)
+ *                 description: Funding for secondary school scholarships in the Southern Region
+ *                 total_allocation: 60000000
+ *                 utilized_amount: 12500000
+ *                 status: active
+ *                 created_at: "2026-01-05T08:00:00.000Z"
+ *                 updated_at: "2026-07-20T13:20:00.000Z"
+ *               message: Funding source updated successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: total_allocation
+ *                     message: Number must be greater than or equal to 0
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Funding source not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Funding source not found
  */
 export async function updateFundingSource(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -904,14 +1628,59 @@ export async function updateFundingSource(req: Request, res: Response): Promise<
  *     responses:
  *       200:
  *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                 status: inactive
+ *               message: Funding source status updated to inactive
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: status
+ *                     message: Invalid enum value. Expected 'active' | 'inactive', received 'closed'
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Funding source not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Funding source not found
  */
 export async function updateFundingSourceStatus(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -950,10 +1719,41 @@ export async function updateFundingSourceStatus(req: Request, res: Response): Pr
  *     responses:
  *       200:
  *         description: List of disbursement items
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 1
+ *                     name: Tuition Fees
+ *                     status: active
+ *                   - id: 2
+ *                     name: Boarding Fees
+ *                     status: active
+ *               message: Disbursement items retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function listDisbursementItems(_req: Request, res: Response): Promise<void> {
   const items = await prisma.disbursementItem.findMany({ orderBy: { id: 'asc' } });
@@ -977,12 +1777,60 @@ export async function listDisbursementItems(_req: Request, res: Response): Promi
  *     responses:
  *       201:
  *         description: Disbursement item created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3
+ *                 name: Examination Fees
+ *                 status: active
+ *               message: Disbursement item created successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: name
+ *                     message: String must contain at least 1 character(s)
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       409:
+ *         description: Disbursement item name already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Disbursement item name already exists
  */
 export async function createDisbursementItem(req: Request, res: Response): Promise<void> {
   const body = createDisbursementItemSchema.parse(req.body);
@@ -1032,16 +1880,70 @@ export async function createDisbursementItem(req: Request, res: Response): Promi
  *     responses:
  *       200:
  *         description: Disbursement item updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1
+ *                 name: Tuition and Boarding Fees
+ *                 status: active
+ *               message: Disbursement item updated successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: name
+ *                     message: String must contain at least 1 character(s)
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Disbursement item not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Disbursement item not found
  *       409:
  *         description: Name already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Disbursement item name already exists
  */
 export async function updateDisbursementItem(req: Request, res: Response): Promise<void> {
   const id = parseInt(req.params.id as string, 10);
@@ -1097,14 +1999,59 @@ export async function updateDisbursementItem(req: Request, res: Response): Promi
  *     responses:
  *       200:
  *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1
+ *                 status: inactive
+ *               message: Disbursement item status updated to inactive
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: status
+ *                     message: Invalid enum value. Expected 'active' | 'inactive', received 'closed'
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Disbursement item not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Disbursement item not found
  */
 export async function updateDisbursementItemStatus(req: Request, res: Response): Promise<void> {
   const id = parseInt(req.params.id as string, 10);
@@ -1151,10 +2098,45 @@ export async function updateDisbursementItemStatus(req: Request, res: Response):
  *     responses:
  *       200:
  *         description: List of reference data entries
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 5
+ *                     type: district
+ *                     code: BT
+ *                     name: Blantyre
+ *                     status: active
+ *                   - id: 6
+ *                     type: district
+ *                     code: ZA
+ *                     name: Zomba
+ *                     status: active
+ *               message: Reference data retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function listReferenceData(req: Request, res: Response): Promise<void> {
   const type = req.params.type as string;
@@ -1189,14 +2171,62 @@ export async function listReferenceData(req: Request, res: Response): Promise<vo
  *     responses:
  *       201:
  *         description: Reference data created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 7
+ *                 type: district
+ *                 code: MZ
+ *                 name: Mzuzu
+ *                 status: active
+ *               message: Reference data created successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: code
+ *                     message: String must contain at least 1 character(s)
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       409:
  *         description: Duplicate code for this type
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Code already exists for this type
  */
 export async function createReferenceData(req: Request, res: Response): Promise<void> {
   const type = req.params.type as string;
@@ -1251,16 +2281,72 @@ export async function createReferenceData(req: Request, res: Response): Promise<
  *     responses:
  *       200:
  *         description: Reference data updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 5
+ *                 type: district
+ *                 code: BT
+ *                 name: Blantyre City
+ *                 status: active
+ *               message: Reference data updated successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: name
+ *                     message: String must contain at least 1 character(s)
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Reference data not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Reference data not found
  *       409:
  *         description: Duplicate code for this type
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Code already exists for this type
  */
 export async function updateReferenceData(req: Request, res: Response): Promise<void> {
   const id = parseInt(req.params.id as string, 10);
@@ -1320,14 +2406,59 @@ export async function updateReferenceData(req: Request, res: Response): Promise<
  *     responses:
  *       200:
  *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 5
+ *                 status: inactive
+ *               message: Reference data status updated to inactive
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: status
+ *                     message: Invalid enum value. Expected 'active' | 'inactive', received 'closed'
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Reference data not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Reference data not found
  */
 export async function updateReferenceDataStatus(req: Request, res: Response): Promise<void> {
   const id = parseInt(req.params.id as string, 10);

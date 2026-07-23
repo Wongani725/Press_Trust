@@ -15,7 +15,7 @@ if (process.env.DATABASE_URL) {
   poolConfig.host = process.env.PGHOST || 'localhost';
   poolConfig.port = parseInt(process.env.PGPORT || '5432', 10);
   poolConfig.user = process.env.PGUSER || 'postgres';
-  poolConfig.password = process.env.PGPASSWORD || 'postgres';
+  poolConfig.password = process.env.PGPASSWORD || '1234';
   poolConfig.database = process.env.PGDATABASE || 'press_trust_sms';
 }
 const pool = new Pool(poolConfig);

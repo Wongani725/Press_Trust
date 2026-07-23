@@ -175,10 +175,57 @@ async function validateDisbursementCreation(awardId: string, amount: number, cat
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/PaginatedResponse'
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     award_id: 8c2e9f10-6b3a-4c1d-9e2f-1a2b3c4d5e6f
+ *                     beneficiary_id: b2f1a3c4-5d6e-7f80-9a1b-2c3d4e5f6081
+ *                     beneficiary:
+ *                       id: b2f1a3c4-5d6e-7f80-9a1b-2c3d4e5f6081
+ *                       first_name: Chisomo
+ *                       last_name: Banda
+ *                       beneficiary_identifier: PT-2026-00231
+ *                     program_id: d4e5f607-1a2b-3c4d-5e6f-708192a3b4c5
+ *                     program:
+ *                       id: d4e5f607-1a2b-3c4d-5e6f-708192a3b4c5
+ *                       name: Secondary School Bursary Programme
+ *                     amount: 150000
+ *                     category: Tuition Fees
+ *                     academic_period: 2026 Term 2
+ *                     payee_type: school
+ *                     payee_name: Blantyre Secondary School
+ *                     status: Requested
+ *                     evidence_count: 0
+ *                     created_at: 2026-01-15T09:30:00.000Z
+ *                     updated_at: 2026-01-15T09:30:00.000Z
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 46
+ *                   totalPages: 3
+ *               message: Disbursements retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function listDisbursements(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
@@ -240,16 +287,89 @@ export async function listDisbursements(req: Request, res: Response): Promise<vo
  *     responses:
  *       201:
  *         description: Disbursement created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 award_id: 8c2e9f10-6b3a-4c1d-9e2f-1a2b3c4d5e6f
+ *                 beneficiary_id: b2f1a3c4-5d6e-7f80-9a1b-2c3d4e5f6081
+ *                 beneficiary:
+ *                   id: b2f1a3c4-5d6e-7f80-9a1b-2c3d4e5f6081
+ *                   first_name: Chisomo
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PT-2026-00231
+ *                 program_id: d4e5f607-1a2b-3c4d-5e6f-708192a3b4c5
+ *                 program:
+ *                   id: d4e5f607-1a2b-3c4d-5e6f-708192a3b4c5
+ *                   name: Secondary School Bursary Programme
+ *                 amount: 150000
+ *                 category: Tuition Fees
+ *                 academic_period: 2026 Term 2
+ *                 payee_type: school
+ *                 payee_name: Blantyre Secondary School
+ *                 payee_bank_account: '1002003004'
+ *                 status: Requested
+ *                 evidence_count: 0
+ *                 created_by:
+ *                   id: e5f60718-2b3c-4d5e-6f70-8192a3b4c5d6
+ *                   name: Grace Mwale
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-15T09:30:00.000Z
+ *               message: Disbursement request created successfully
  *       400:
  *         description: Validation error or constraint violation
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: 'Amount exceeds award balance remaining. Available: 120000'
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Award not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Award not found
  *       409:
  *         description: Duplicate or insufficient balance
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Duplicate disbursement exists for this beneficiary, category, and academic period
  */
 export async function createDisbursement(req: Request, res: Response): Promise<void> {
   const body = createDisbursementSchema.parse(req.body);
@@ -342,12 +462,56 @@ const batchDisbursementSchema = z.object({
  *     responses:
  *       201:
  *         description: Batch results with successes and errors
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 created:
+ *                   - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     award_id: 8c2e9f10-6b3a-4c1d-9e2f-1a2b3c4d5e6f
+ *                     amount: 150000
+ *                     category: Tuition Fees
+ *                     academic_period: 2026 Term 2
+ *                     payee_type: school
+ *                     payee_name: Blantyre Secondary School
+ *                     status: Requested
+ *                 errors:
+ *                   - index: 1
+ *                     message: Duplicate disbursement exists for this beneficiary, category, and academic period
+ *               message: 'Batch completed: 1 created, 1 errors'
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Award not found
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function batchCreateDisbursements(req: Request, res: Response): Promise<void> {
   const { items } = batchDisbursementSchema.parse(req.body);
@@ -446,12 +610,81 @@ export async function batchCreateDisbursements(req: Request, res: Response): Pro
  *     responses:
  *       200:
  *         description: Disbursement details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 award_id: 8c2e9f10-6b3a-4c1d-9e2f-1a2b3c4d5e6f
+ *                 beneficiary_id: b2f1a3c4-5d6e-7f80-9a1b-2c3d4e5f6081
+ *                 beneficiary:
+ *                   id: b2f1a3c4-5d6e-7f80-9a1b-2c3d4e5f6081
+ *                   first_name: Chisomo
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PT-2026-00231
+ *                 program_id: d4e5f607-1a2b-3c4d-5e6f-708192a3b4c5
+ *                 program:
+ *                   id: d4e5f607-1a2b-3c4d-5e6f-708192a3b4c5
+ *                   name: Secondary School Bursary Programme
+ *                 amount: 150000
+ *                 category: Tuition Fees
+ *                 academic_period: 2026 Term 2
+ *                 payee_type: school
+ *                 payee_name: Blantyre Secondary School
+ *                 payee_bank_account: '1002003004'
+ *                 status: Paid
+ *                 evidence_count: 1
+ *                 created_by:
+ *                   id: e5f60718-2b3c-4d5e-6f70-8192a3b4c5d6
+ *                   name: Grace Mwale
+ *                 approved_by:
+ *                   id: f60718e5-3c4d-5e6f-7081-92a3b4c5d6e7
+ *                   name: Thandiwe Phiri
+ *                 approved_at: 2026-01-16T08:00:00.000Z
+ *                 paid_at: 2026-01-18T13:15:00.000Z
+ *                 evidence:
+ *                   - id: 07182e5f-4d5e-6f70-8192-a3b4c5d6e7f8
+ *                     document_id: 182e5f60-5e6f-7081-92a3-b4c5d6e7f809
+ *                     uploader:
+ *                       id: f60718e5-3c4d-5e6f-7081-92a3b4c5d6e7
+ *                       name: Thandiwe Phiri
+ *                     created_at: 2026-01-18T13:00:00.000Z
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-18T13:15:00.000Z
+ *               message: Disbursement retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Disbursement not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Disbursement not found
  */
 export async function getDisbursement(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -514,16 +747,75 @@ export async function getDisbursement(req: Request, res: Response): Promise<void
  *     responses:
  *       200:
  *         description: Disbursement updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 award_id: 8c2e9f10-6b3a-4c1d-9e2f-1a2b3c4d5e6f
+ *                 amount: 175000
+ *                 category: Tuition Fees
+ *                 academic_period: 2026 Term 2
+ *                 payee_type: school
+ *                 payee_name: Zomba Secondary School
+ *                 status: Requested
+ *                 evidence_count: 0
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-16T10:05:00.000Z
+ *               message: Disbursement updated successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Reconciled disbursements are immutable and cannot be updated
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Disbursement not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Disbursement not found
  *       409:
  *         description: Disbursement is not in Requested status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Only Requested disbursements can be updated
  */
 export async function updateDisbursement(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -606,14 +898,69 @@ export async function updateDisbursement(req: Request, res: Response): Promise<v
  *     responses:
  *       200:
  *         description: Disbursement approved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 award_id: 8c2e9f10-6b3a-4c1d-9e2f-1a2b3c4d5e6f
+ *                 amount: 150000
+ *                 category: Tuition Fees
+ *                 academic_period: 2026 Term 2
+ *                 payee_type: school
+ *                 payee_name: Blantyre Secondary School
+ *                 status: Approved
+ *                 approved_by:
+ *                   id: f60718e5-3c4d-5e6f-7081-92a3b4c5d6e7
+ *                   name: Thandiwe Phiri
+ *                 approved_at: 2026-01-16T08:00:00.000Z
+ *                 evidence_count: 0
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-16T08:00:00.000Z
+ *               message: Disbursement approved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Self-approval blocked or insufficient permissions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Self-approval is not permitted
  *       404:
  *         description: Disbursement not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Disbursement not found
  *       409:
  *         description: Disbursement is not in Requested status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot approve disbursement in status Approved
  */
 export async function approveDisbursement(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -711,16 +1058,79 @@ export async function approveDisbursement(req: Request, res: Response): Promise<
  *     responses:
  *       200:
  *         description: Disbursement rejected
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 award_id: 8c2e9f10-6b3a-4c1d-9e2f-1a2b3c4d5e6f
+ *                 amount: 150000
+ *                 category: Tuition Fees
+ *                 academic_period: 2026 Term 2
+ *                 payee_type: school
+ *                 payee_name: Blantyre Secondary School
+ *                 status: Failed
+ *                 failure_reason: Missing supporting documentation from school
+ *                 evidence_count: 0
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-16T08:10:00.000Z
+ *               message: Disbursement rejected successfully
  *       400:
  *         description: Reason is required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: reason
+ *                     message: String must contain at least 1 character(s)
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Self-rejection blocked or insufficient permissions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Self-rejection is not permitted
  *       404:
  *         description: Disbursement not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Disbursement not found
  *       409:
  *         description: Invalid status for rejection
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot reject disbursement in status Paid
  */
 export async function rejectDisbursement(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -810,14 +1220,61 @@ export async function rejectDisbursement(req: Request, res: Response): Promise<v
  *     responses:
  *       201:
  *         description: Evidence linked
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 07182e5f-4d5e-6f70-8192-a3b4c5d6e7f8
+ *                 disbursement_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 document_id: 182e5f60-5e6f-7081-92a3-b4c5d6e7f809
+ *                 uploader:
+ *                   id: f60718e5-3c4d-5e6f-7081-92a3b4c5d6e7
+ *                   name: Thandiwe Phiri
+ *                 created_at: 2026-01-18T13:00:00.000Z
+ *               message: Evidence linked successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Reconciled disbursements are immutable. Evidence cannot be linked.
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Disbursement or document not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Document not found
  */
 export async function linkEvidence(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -897,18 +1354,89 @@ export async function linkEvidence(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 award_id: 8c2e9f10-6b3a-4c1d-9e2f-1a2b3c4d5e6f
+ *                 amount: 150000
+ *                 category: Tuition Fees
+ *                 academic_period: 2026 Term 2
+ *                 payee_type: school
+ *                 payee_name: Blantyre Secondary School
+ *                 status: Paid
+ *                 paid_at: 2026-01-18T13:15:00.000Z
+ *                 evidence_count: 1
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-18T13:15:00.000Z
+ *               message: Disbursement status updated to Paid
  *       400:
  *         description: Validation error or evidence required
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Payment evidence is required before marking as Paid
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Disbursement not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Disbursement not found
  *       409:
  *         description: Invalid status transition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid status transition from Requested to Reconciled
  *       422:
  *         description: Invalid status value
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: status
+ *                     message: Invalid enum value. Expected 'Requested' | 'Approved' | 'Paid' | 'Failed' | 'Reconciled', received 'Cancelled'
+ *               message: Request validation failed
  */
 export async function updateDisbursementStatus(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -1034,14 +1562,70 @@ const reconcileSchema = z.object({
  *     responses:
  *       200:
  *         description: Disbursement reconciled
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 award_id: 8c2e9f10-6b3a-4c1d-9e2f-1a2b3c4d5e6f
+ *                 amount: 150000
+ *                 category: Tuition Fees
+ *                 academic_period: 2026 Term 2
+ *                 payee_type: school
+ *                 payee_name: Blantyre Secondary School
+ *                 status: Reconciled
+ *                 reconciled_by:
+ *                   id: f60718e5-3c4d-5e6f-7081-92a3b4c5d6e7
+ *                   name: Thandiwe Phiri
+ *                 reconciled_at: 2026-01-20T09:00:00.000Z
+ *                 paid_at: 2026-01-18T13:15:00.000Z
+ *                 evidence_count: 1
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-20T09:00:00.000Z
+ *               message: Disbursement reconciled successfully. Record is now immutable.
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Disbursement not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Disbursement not found
  *       409:
  *         description: Disbursement is not in Paid status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot reconcile disbursement in status Requested. Must be Paid.
  */
 export async function reconcileDisbursement(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -1136,16 +1720,82 @@ const reverseSchema = z.object({
  *     responses:
  *       200:
  *         description: Disbursement reversed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 disbursement:
+ *                   id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                   award_id: 8c2e9f10-6b3a-4c1d-9e2f-1a2b3c4d5e6f
+ *                   amount: 150000
+ *                   category: Tuition Fees
+ *                   academic_period: 2026 Term 2
+ *                   payee_type: school
+ *                   payee_name: Blantyre Secondary School
+ *                   status: Paid
+ *                   evidence_count: 1
+ *                 reversal:
+ *                   id: 5d6e7f80-9182-a3b4-c5d6-e7f8091a2b3c
+ *                   amount: 150000
+ *                   reason: Payment sent to incorrect bank account
+ *                   type: reverse
+ *               message: 'Disbursement reversed. MWK 150000 restored to award balance.'
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: reason
+ *                     message: String must contain at least 1 character(s)
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Disbursement not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Disbursement not found
  *       409:
  *         description: Disbursement is not eligible for reversal
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot reverse disbursement in status Requested. Must be Paid or Reconciled.
  */
 export async function reverseDisbursement(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -1241,16 +1891,82 @@ const returnSchema = z.object({
  *     responses:
  *       200:
  *         description: Returned funds recorded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 disbursement:
+ *                   id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                   award_id: 8c2e9f10-6b3a-4c1d-9e2f-1a2b3c4d5e6f
+ *                   amount: 150000
+ *                   category: Tuition Fees
+ *                   academic_period: 2026 Term 2
+ *                   payee_type: school
+ *                   payee_name: Blantyre Secondary School
+ *                   status: Reconciled
+ *                   evidence_count: 1
+ *                 reversal:
+ *                   id: 6e7f8091-a2b3-c4d5-e6f7-08192a3b4c5d
+ *                   amount: 45000
+ *                   reason: Unused portion of tuition allowance returned by school
+ *                   type: return
+ *               message: 'Returned funds recorded. MWK 45000 restored to award balance.'
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: amount
+ *                     message: Number must be greater than or equal to 0.01
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Disbursement not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Disbursement not found
  *       409:
  *         description: Disbursement is not eligible for return
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot record return for disbursement in status Requested. Must be Paid or Reconciled.
  */
 export async function returnDisbursement(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;

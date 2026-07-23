@@ -49,6 +49,92 @@ function formatAuditRow(entry: any): Record<string, unknown> {
   };
 }
 
+/**
+ * @openapi
+ * /admin/audit-logs:
+ *   get:
+ *     tags: [Audit]
+ *     summary: List audit log entries with pagination and filters
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: user_id
+ *         schema: { type: string, format: uuid }
+ *       - in: query
+ *         name: action
+ *         schema: { type: string }
+ *       - in: query
+ *         name: entity_type
+ *         schema: { type: string }
+ *       - in: query
+ *         name: entity_id
+ *         schema: { type: string, format: uuid }
+ *       - in: query
+ *         name: from_date
+ *         schema: { type: string, format: date-time }
+ *       - in: query
+ *         name: to_date
+ *         schema: { type: string, format: date-time }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 20 }
+ *     responses:
+ *       200:
+ *         description: Paginated list of audit log entries
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/PaginatedResponse'
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 9c8b7a6f-5e4d-3c2b-1a09-8f7e6d5c4b3a
+ *                     user_id: e5f60718-2b3c-4d5e-6f70-8192a3b4c5d6
+ *                     action: approve
+ *                     entity_type: Disbursement
+ *                     entity_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     old_values:
+ *                       status: Requested
+ *                     new_values:
+ *                       status: Approved
+ *                     ip_address: 196.216.223.10
+ *                     created_at: 2026-01-16T08:00:00.000Z
+ *                     user:
+ *                       id: e5f60718-2b3c-4d5e-6f70-8192a3b4c5d6
+ *                       name: Grace Mwale
+ *                       email: grace.mwale@presstrust.mw
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 312
+ *                   totalPages: 16
+ *               message: Audit logs retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ */
 export async function listAuditLogs(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
   const where = parseAuditFilters(req);
@@ -71,6 +157,76 @@ export async function listAuditLogs(req: Request, res: Response): Promise<void> 
   });
 }
 
+/**
+ * @openapi
+ * /admin/audit-logs/{id}:
+ *   get:
+ *     tags: [Audit]
+ *     summary: Get a single audit log entry by id
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Audit log entry retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 9c8b7a6f-5e4d-3c2b-1a09-8f7e6d5c4b3a
+ *                 user_id: e5f60718-2b3c-4d5e-6f70-8192a3b4c5d6
+ *                 action: approve
+ *                 entity_type: Disbursement
+ *                 entity_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 old_values:
+ *                   status: Requested
+ *                 new_values:
+ *                   status: Approved
+ *                 ip_address: 196.216.223.10
+ *                 created_at: 2026-01-16T08:00:00.000Z
+ *                 user:
+ *                   id: e5f60718-2b3c-4d5e-6f70-8192a3b4c5d6
+ *                   name: Grace Mwale
+ *                   email: grace.mwale@presstrust.mw
+ *               message: Audit log retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Audit log not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Audit log not found
+ */
 export async function getAuditLog(req: Request, res: Response): Promise<void> {
   const record = await prisma.auditLog.findUnique({
     where: { id: req.params.id },
@@ -85,6 +241,73 @@ export async function getAuditLog(req: Request, res: Response): Promise<void> {
   res.json({ status: 'success', data: record, message: 'Audit log retrieved successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/audit-logs/export:
+ *   get:
+ *     tags: [Audit]
+ *     summary: Export audit log entries as CSV, PDF, or XLSX
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: format
+ *         schema: { type: string, enum: [csv, pdf, xlsx], default: csv }
+ *       - in: query
+ *         name: user_id
+ *         schema: { type: string, format: uuid }
+ *       - in: query
+ *         name: action
+ *         schema: { type: string }
+ *       - in: query
+ *         name: entity_type
+ *         schema: { type: string }
+ *       - in: query
+ *         name: entity_id
+ *         schema: { type: string, format: uuid }
+ *       - in: query
+ *         name: from_date
+ *         schema: { type: string, format: date-time }
+ *       - in: query
+ *         name: to_date
+ *         schema: { type: string, format: date-time }
+ *     responses:
+ *       200:
+ *         description: Exported audit log file
+ *         content:
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *             example: "Timestamp,User,Action,Entity Type,Entity ID,IP Address,Previous Values,New Values\n2026-01-16T08:00:00.000Z,Grace Mwale (grace.mwale@presstrust.mw),approve,Disbursement,3fa85f64-5717-4562-b3fc-2c963f66afa6,196.216.223.10,\"{\"\"status\"\":\"\"Requested\"\"}\",\"{\"\"status\"\":\"\"Approved\"\"}\""
+ *           application/pdf:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema:
+ *               type: string
+ *               format: binary
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ */
 export async function exportAuditLogs(req: Request, res: Response): Promise<void> {
   const format = (req.query.format as string || 'csv') as ExportFormat;
   const where = parseAuditFilters(req);

@@ -71,6 +71,49 @@ function applyCommonFilters(
  *     responses:
  *       200:
  *         description: Dashboard KPIs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 active_beneficiaries: 1240
+ *                 pending_onboarding: 38
+ *                 programs:
+ *                   total: 6
+ *                   active: 4
+ *                 at_risk_count: 52
+ *                 disbursements:
+ *                   requested: 120
+ *                   approved: 340
+ *                   paid: 890
+ *                   reconciled: 760
+ *                 budget:
+ *                   utilized: 182500000
+ *                   ceiling: 250000000
+ *                   percentage: 73
+ *               message: Dashboard KPIs retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function getDashboard(req: Request, res: Response): Promise<void> {
   const [
@@ -190,7 +233,58 @@ async function handleExport(
  *         schema: { type: string, format: date-time }
  *     responses:
  *       200:
- *         description: Report data or file
+ *         description: Report data (JSON) when `format=json`, or an exported file when `format` is csv/pdf/xlsx
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     identifier: PT-2024-00123
+ *                     name: Chikondi Banda
+ *                     gender: Female
+ *                     district: Zomba
+ *                     school: Zomba Community Day Secondary School
+ *                     program: Girls Education Support Program
+ *                     status: Active
+ *                     national_id: MW1234567
+ *                     academic_year: '2026'
+ *                     created_at: 2026-01-15T09:30:00.000Z
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 1
+ *                   totalPages: 1
+ *               message: Beneficiary report retrieved successfully
+ *           text/csv:
+ *             schema: { type: string, format: binary }
+ *           application/pdf:
+ *             schema: { type: string, format: binary }
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema: { type: string, format: binary }
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function reportBeneficiaries(req: Request, res: Response): Promise<void> {
   const filters = parseReportFilters(req);
@@ -280,7 +374,58 @@ export async function reportBeneficiaries(req: Request, res: Response): Promise<
  *         schema: { type: string, format: date-time }
  *     responses:
  *       200:
- *         description: Report data or file
+ *         description: Report data (JSON) when `format=json`, or an exported file when `format` is csv/pdf/xlsx
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 4a1b6e2c-8d3f-4a5b-9c1d-2e3f4a5b6c7d
+ *                     beneficiary: Chikondi Banda
+ *                     identifier: PT-2024-00123
+ *                     program: Girls Education Support Program
+ *                     amount: 450000
+ *                     balance_remaining: 225000
+ *                     award_type: Tuition
+ *                     status: Active
+ *                     start_date: 2026-01-10T00:00:00.000Z
+ *                     end_date: 2026-12-10T00:00:00.000Z
+ *                     created_at: 2026-01-15T09:30:00.000Z
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 1
+ *                   totalPages: 1
+ *               message: Awards report retrieved successfully
+ *           text/csv:
+ *             schema: { type: string, format: binary }
+ *           application/pdf:
+ *             schema: { type: string, format: binary }
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema: { type: string, format: binary }
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function reportAwards(req: Request, res: Response): Promise<void> {
   const filters = parseReportFilters(req);
@@ -373,7 +518,60 @@ export async function reportAwards(req: Request, res: Response): Promise<void> {
  *         schema: { type: string, format: date-time }
  *     responses:
  *       200:
- *         description: Report data or file
+ *         description: Report data (JSON) when `format=json`, or an exported file when `format` is csv/pdf/xlsx
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 6f2a1b3c-4d5e-4f6a-8b9c-0d1e2f3a4b5c
+ *                     beneficiary: Chikondi Banda
+ *                     identifier: PT-2024-00123
+ *                     amount: 150000
+ *                     category: Tuition Fees
+ *                     academic_period: 2026-T2
+ *                     payee_type: School
+ *                     payee_name: Zomba Community Day Secondary School
+ *                     status: Paid
+ *                     approved_at: 2026-05-01T10:00:00.000Z
+ *                     paid_at: 2026-05-03T14:20:00.000Z
+ *                     reconciled_at: null
+ *                     created_at: 2026-04-28T08:15:00.000Z
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 1
+ *                   totalPages: 1
+ *               message: Disbursements report retrieved successfully
+ *           text/csv:
+ *             schema: { type: string, format: binary }
+ *           application/pdf:
+ *             schema: { type: string, format: binary }
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema: { type: string, format: binary }
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function reportDisbursements(req: Request, res: Response): Promise<void> {
   const filters = parseReportFilters(req);
@@ -456,7 +654,49 @@ export async function reportDisbursements(req: Request, res: Response): Promise<
  *         schema: { type: string, enum: [json, csv, pdf, xlsx], default: json }
  *     responses:
  *       200:
- *         description: Report data or file
+ *         description: Report data (JSON) when `format=json`, or an exported file when `format` is csv/pdf/xlsx
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 1f2e3d4c-5b6a-4978-8c9d-0e1f2a3b4c5d
+ *                     name: Girls Education Support Program
+ *                     status: Open
+ *                     budget_ceiling: 50000000
+ *                     budget_utilized: 32500000
+ *                     remaining: 17500000
+ *                     percentage: 65
+ *               message: Budget utilization report retrieved successfully
+ *           text/csv:
+ *             schema: { type: string, format: binary }
+ *           application/pdf:
+ *             schema: { type: string, format: binary }
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema: { type: string, format: binary }
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function reportBudget(req: Request, res: Response): Promise<void> {
   const filters = parseReportFilters(req);
@@ -519,7 +759,46 @@ export async function reportBudget(req: Request, res: Response): Promise<void> {
  *         schema: { type: string }
  *     responses:
  *       200:
- *         description: Report data or file
+ *         description: Report data (JSON) when `format=json`, or an exported file when `format` is csv/pdf/xlsx
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - school: Zomba Community Day Secondary School
+ *                     district: Zomba
+ *                     count: 42
+ *                     total: 6300000
+ *               message: Payments by school report retrieved successfully
+ *           text/csv:
+ *             schema: { type: string, format: binary }
+ *           application/pdf:
+ *             schema: { type: string, format: binary }
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema: { type: string, format: binary }
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function reportPaymentsBySchool(req: Request, res: Response): Promise<void> {
   const filters = parseReportFilters(req);
@@ -599,7 +878,55 @@ export async function reportPaymentsBySchool(req: Request, res: Response): Promi
  *         schema: { type: string, format: date-time }
  *     responses:
  *       200:
- *         description: Report data or file
+ *         description: Report data (JSON) when `format=json`, or an exported file when `format` is csv/pdf/xlsx
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 2b3c4d5e-6f7a-4b8c-9d0e-1f2a3b4c5d6e
+ *                     beneficiary: Chikondi Banda
+ *                     identifier: PT-2024-00123
+ *                     program: Girls Education Support Program
+ *                     outcome_type: Graduated
+ *                     outcome_date: 2026-06-30T00:00:00.000Z
+ *                     reason: ''
+ *                     created_at: 2026-07-02T11:00:00.000Z
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 1
+ *                   totalPages: 1
+ *               message: M&E outcomes report retrieved successfully
+ *           text/csv:
+ *             schema: { type: string, format: binary }
+ *           application/pdf:
+ *             schema: { type: string, format: binary }
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema: { type: string, format: binary }
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function reportMeOutcomes(req: Request, res: Response): Promise<void> {
   const filters = parseReportFilters(req);
@@ -688,7 +1015,56 @@ export async function reportMeOutcomes(req: Request, res: Response): Promise<voi
  *         schema: { type: string, format: date-time }
  *     responses:
  *       200:
- *         description: Report data or file
+ *         description: Report data (JSON) when `format=json`, or an exported file when `format` is csv/pdf/xlsx
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 7a8b9c0d-1e2f-4a3b-8c9d-0e1f2a3b4c5d
+ *                     beneficiary: Chikondi Banda
+ *                     identifier: PT-2024-00123
+ *                     amount: 150000
+ *                     category: Tuition Fees
+ *                     academic_period: 2026-T2
+ *                     payee_name: Zomba Community Day Secondary School
+ *                     reconciled_at: 2026-05-10T09:00:00.000Z
+ *                     created_at: 2026-04-28T08:15:00.000Z
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 1
+ *                   totalPages: 1
+ *               message: Reconciliation report retrieved successfully
+ *           text/csv:
+ *             schema: { type: string, format: binary }
+ *           application/pdf:
+ *             schema: { type: string, format: binary }
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema: { type: string, format: binary }
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function reportReconciliation(req: Request, res: Response): Promise<void> {
   const filters = parseReportFilters(req);

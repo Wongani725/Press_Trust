@@ -13,6 +13,45 @@ const TEMPLATE_HEADERS = [
   'academic_year', 'guardian_name', 'guardian_relationship', 'guardian_phone',
 ];
 
+/**
+ * @openapi
+ * /admin/imports/templates/beneficiary:
+ *   get:
+ *     tags: [Beneficiaries]
+ *     summary: Download a sample CSV template for bulk beneficiary import
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: CSV template file with header row and one sample row
+ *         content:
+ *           text/csv:
+ *             schema:
+ *               type: string
+ *             example: |
+ *               first_name,last_name,gender,district,school_id,program_id,date_of_birth,national_id,exams_id,contact_email,contact_phone,academic_year,guardian_name,guardian_relationship,guardian_phone
+ *               Example,Student,Male,Lilongwe,a1b2c3d4-1111-4a2b-9b0a-4a2b6c1e0001,c9d8e7f6-2222-4a2b-9b0a-4a2b6c1e0002,,,,,,2026-T1,John Doe,Father,+265991234567
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ */
 export async function downloadBeneficiaryTemplate(req: Request, res: Response): Promise<void> {
   const [schools, programs, districts] = await Promise.all([
     prisma.school.findMany({ where: { status: 'active' }, select: { id: true, name: true, district: true } }),
@@ -41,6 +80,60 @@ export async function downloadBeneficiaryTemplate(req: Request, res: Response): 
   res.send(csv);
 }
 
+/**
+ * @openapi
+ * /admin/imports/templates/beneficiary/metadata:
+ *   get:
+ *     tags: [Beneficiaries]
+ *     summary: Get reference metadata (headers, schools, programs, districts) for the beneficiary import template
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Template metadata retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 headers: [first_name, last_name, gender, district, school_id, program_id, date_of_birth, national_id, exams_id, contact_email, contact_phone, academic_year, guardian_name, guardian_relationship, guardian_phone]
+ *                 required: [first_name, last_name, gender, district, school_id, program_id]
+ *                 optional: [date_of_birth, national_id, exams_id, contact_email, contact_phone, academic_year, guardian_name, guardian_relationship, guardian_phone]
+ *                 schools:
+ *                   - id: a1b2c3d4-1111-4a2b-9b0a-4a2b6c1e0001
+ *                     name: Kamuzu Academy
+ *                     district: Lilongwe
+ *                 programs:
+ *                   - id: c9d8e7f6-2222-4a2b-9b0a-4a2b6c1e0002
+ *                     name: Secondary School Bursary Program
+ *                 districts:
+ *                   - code: LL
+ *                     name: Lilongwe
+ *                 sample_academic_periods: ["2026-T1", "2026-T2", "2026-T3", "2027-T1", "2027-T2", "2027-T3"]
+ *               message: Template metadata retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ */
 export async function getTemplateMetadata(req: Request, res: Response): Promise<void> {
   const [schools, programs, districts] = await Promise.all([
     prisma.school.findMany({ where: { status: 'active' }, select: { id: true, name: true, district: true } }),
@@ -90,6 +183,72 @@ interface ImportError {
   message: string;
 }
 
+/**
+ * @openapi
+ * /admin/imports/beneficiaries:
+ *   post:
+ *     tags: [Beneficiaries]
+ *     summary: Bulk import beneficiaries from a CSV file
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             $ref: '#/components/schemas/ImportCreate'
+ *     responses:
+ *       201:
+ *         description: Import completed (individual row failures are reported in the errors array, not as an HTTP failure)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ImportSummary'
+ *             example:
+ *               status: success
+ *               data:
+ *                 total_rows: 3
+ *                 created: 2
+ *                 created_ids: [6b1f3b8e-2e35-4a2b-9b0a-4a2b6c1e7f21, 7c2f4c9f-3f46-4b3c-ac1b-5b3c7d2f8a32]
+ *                 skipped_duplicates: 1
+ *                 errors:
+ *                   - row: 4
+ *                     field: school_id
+ *                     value: 00000000-0000-0000-0000-000000000000
+ *                     message: School not found or inactive
+ *                 error_log_csv: "row,field,value,message\n4,school_id,00000000-0000-0000-0000-000000000000,School not found or inactive\n"
+ *               message: "Import completed: 2 created, 1 duplicates skipped, 1 errors"
+ *       400:
+ *         description: Missing file, unparsable CSV, or CSV with no data rows
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: CSV file is required
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ */
 export async function importBeneficiaries(req: Request, res: Response): Promise<void> {
   const file = (req as any).file;
   if (!file) {
@@ -270,6 +429,68 @@ function generateErrorCsv(errors: ImportError[]): string {
 
 // ── Import history ──
 
+/**
+ * @openapi
+ * /admin/imports:
+ *   get:
+ *     tags: [Beneficiaries]
+ *     summary: List beneficiary bulk import history (derived from the audit log)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 20 }
+ *     responses:
+ *       200:
+ *         description: Paginated import history
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: b4c3d2e1-5555-4a2b-9b0a-4a2b6c1e0005
+ *                     action: import
+ *                     entity_type: Beneficiary
+ *                     new_values:
+ *                       total_rows: 3
+ *                       created: 2
+ *                       skipped_duplicates: 1
+ *                       errors: 1
+ *                     user:
+ *                       id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                       name: Grace Banda
+ *                       email: grace.banda@presstrust.mw
+ *                     created_at: 2026-01-16T09:00:00.000Z
+ *                 meta: { page: 1, limit: 20, total: 1, totalPages: 1 }
+ *               message: Import history retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ */
 export async function listImports(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
 
@@ -300,6 +521,74 @@ export async function listImports(req: Request, res: Response): Promise<void> {
   });
 }
 
+/**
+ * @openapi
+ * /admin/imports/{importId}:
+ *   get:
+ *     tags: [Beneficiaries]
+ *     summary: Get a single beneficiary bulk import summary by its audit log ID
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: importId
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Import summary retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: b4c3d2e1-5555-4a2b-9b0a-4a2b6c1e0005
+ *                 action: import
+ *                 entity_type: Beneficiary
+ *                 new_values:
+ *                   total_rows: 3
+ *                   created: 2
+ *                   skipped_duplicates: 1
+ *                   errors: 1
+ *                 user:
+ *                   id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                   name: Grace Banda
+ *                   email: grace.banda@presstrust.mw
+ *                 created_at: 2026-01-16T09:00:00.000Z
+ *               message: Import summary retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Import record not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Import record not found
+ */
 export async function getImportSummary(req: Request, res: Response): Promise<void> {
   const id = req.params.importId as string;
 

@@ -38,6 +38,72 @@ const triggerUpdateSchema = z.object({
 
 // ── Templates ──
 
+/**
+ * @openapi
+ * /admin/notification-templates:
+ *   get:
+ *     tags: [Notifications]
+ *     summary: List notification templates with pagination and filters
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: channel
+ *         schema: { type: string, enum: [email, in_app] }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 20 }
+ *     responses:
+ *       200:
+ *         description: Paginated list of notification templates
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: d1e2f3a4-1111-4a2b-9b0a-4a2b6c1e0001
+ *                     name: Award Approval Email
+ *                     channel: email
+ *                     subject: Your scholarship award has been approved
+ *                     body: "Dear {{first_name}}, your award for {{program}} has been approved."
+ *                     variables: [first_name, program]
+ *                     created_by: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     creator:
+ *                       id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                       name: Grace Banda
+ *                       email: grace.banda@presstrust.mw
+ *                     _count: { triggers: 2 }
+ *                     created_at: 2026-01-15T09:30:00.000Z
+ *                     updated_at: 2026-01-15T09:30:00.000Z
+ *                 meta: { page: 1, limit: 20, total: 1, totalPages: 1 }
+ *               message: Notification templates retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ */
 export async function listTemplates(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
 
@@ -62,6 +128,84 @@ export async function listTemplates(req: Request, res: Response): Promise<void> 
   });
 }
 
+/**
+ * @openapi
+ * /admin/notification-templates:
+ *   post:
+ *     tags: [Notifications]
+ *     summary: Create a notification template
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, channel, subject, body]
+ *             properties:
+ *               name: { type: string, maxLength: 200 }
+ *               channel: { type: string, enum: [email, in_app] }
+ *               subject: { type: string, maxLength: 500 }
+ *               body: { type: string }
+ *               variables: { type: array, items: { type: string } }
+ *           example:
+ *             name: Award Approval Email
+ *             channel: email
+ *             subject: Your scholarship award has been approved
+ *             body: "Dear {{first_name}}, your award for {{program}} has been approved."
+ *             variables: [first_name, program]
+ *     responses:
+ *       201:
+ *         description: Notification template created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: d1e2f3a4-1111-4a2b-9b0a-4a2b6c1e0001
+ *                 name: Award Approval Email
+ *                 channel: email
+ *                 subject: Your scholarship award has been approved
+ *                 body: "Dear {{first_name}}, your award for {{program}} has been approved."
+ *                 variables: [first_name, program]
+ *                 created_by: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-15T09:30:00.000Z
+ *               message: Notification template created successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       500:
+ *         description: Invalid payload or unexpected server error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: An unexpected error occurred
+ */
 export async function createTemplate(req: Request, res: Response): Promise<void> {
   const body = templateCreateSchema.parse(req.body);
 
@@ -87,6 +231,74 @@ export async function createTemplate(req: Request, res: Response): Promise<void>
   res.status(201).json({ status: 'success', data: record, message: 'Notification template created successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/notification-templates/{id}:
+ *   get:
+ *     tags: [Notifications]
+ *     summary: Get a notification template by ID
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Notification template retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: d1e2f3a4-1111-4a2b-9b0a-4a2b6c1e0001
+ *                 name: Award Approval Email
+ *                 channel: email
+ *                 subject: Your scholarship award has been approved
+ *                 body: "Dear {{first_name}}, your award for {{program}} has been approved."
+ *                 variables: [first_name, program]
+ *                 created_by: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 creator:
+ *                   id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                   name: Grace Banda
+ *                   email: grace.banda@presstrust.mw
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-15T09:30:00.000Z
+ *               message: Notification template retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Notification template not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Notification template not found
+ */
 export async function getTemplate(req: Request, res: Response): Promise<void> {
   const record = await prisma.notificationTemplate.findUnique({
     where: { id: req.params.id },
@@ -101,6 +313,84 @@ export async function getTemplate(req: Request, res: Response): Promise<void> {
   res.json({ status: 'success', data: record, message: 'Notification template retrieved successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/notification-templates/{id}:
+ *   put:
+ *     tags: [Notifications]
+ *     summary: Update a notification template
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string, maxLength: 200 }
+ *               channel: { type: string, enum: [email, in_app] }
+ *               subject: { type: string, maxLength: 500 }
+ *               body: { type: string }
+ *               variables: { type: array, items: { type: string } }
+ *           example:
+ *             subject: Your scholarship award has been approved!
+ *     responses:
+ *       200:
+ *         description: Notification template updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: d1e2f3a4-1111-4a2b-9b0a-4a2b6c1e0001
+ *                 name: Award Approval Email
+ *                 channel: email
+ *                 subject: Your scholarship award has been approved!
+ *                 body: "Dear {{first_name}}, your award for {{program}} has been approved."
+ *                 variables: [first_name, program]
+ *                 created_by: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-20T11:05:00.000Z
+ *               message: Notification template updated successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Notification template not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Notification template not found
+ */
 export async function updateTemplate(req: Request, res: Response): Promise<void> {
   const body = templateUpdateSchema.parse(req.body);
 
@@ -131,6 +421,61 @@ export async function updateTemplate(req: Request, res: Response): Promise<void>
   res.json({ status: 'success', data: updated, message: 'Notification template updated successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/notification-templates/{id}:
+ *   delete:
+ *     tags: [Notifications]
+ *     summary: Delete a notification template (and its logs and triggers)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Notification template deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data: null
+ *               message: Notification template deleted successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Notification template not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Notification template not found
+ */
 export async function deleteTemplate(req: Request, res: Response): Promise<void> {
   const existing = await prisma.notificationTemplate.findUnique({ where: { id: req.params.id } });
   if (!existing) {
@@ -153,6 +498,71 @@ export async function deleteTemplate(req: Request, res: Response): Promise<void>
   res.json({ status: 'success', data: null, message: 'Notification template deleted successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/notification-templates/{id}/test:
+ *   post:
+ *     tags: [Notifications]
+ *     summary: Send a test notification (email or in-app) using this template to the current user
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Test notification sent or created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data: null
+ *               message: Test email sent successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Notification template or user not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Notification template not found
+ *       500:
+ *         description: Failed to send the test email
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: "Failed to send test email: SMTP connection timed out"
+ */
 export async function testTemplate(req: Request, res: Response): Promise<void> {
   const template = await prisma.notificationTemplate.findUnique({ where: { id: req.params.id } });
   if (!template) {
@@ -195,6 +605,75 @@ export async function testTemplate(req: Request, res: Response): Promise<void> {
 
 // ── Triggers ──
 
+/**
+ * @openapi
+ * /admin/notification-triggers:
+ *   get:
+ *     tags: [Notifications]
+ *     summary: List notification triggers with pagination and filters
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: event_name
+ *         schema: { type: string }
+ *       - in: query
+ *         name: enabled
+ *         schema: { type: boolean }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 20 }
+ *     responses:
+ *       200:
+ *         description: Paginated list of notification triggers
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: e5f6a7b8-2222-4a2b-9b0a-4a2b6c1e0002
+ *                     name: Notify on Award Activation
+ *                     event_name: award.activated
+ *                     template_id: d1e2f3a4-1111-4a2b-9b0a-4a2b6c1e0001
+ *                     conditions: null
+ *                     enabled: true
+ *                     created_by: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     template: { id: d1e2f3a4-1111-4a2b-9b0a-4a2b6c1e0001, name: Award Approval Email, channel: email }
+ *                     creator:
+ *                       id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                       name: Grace Banda
+ *                       email: grace.banda@presstrust.mw
+ *                     created_at: 2026-01-15T09:40:00.000Z
+ *                     updated_at: 2026-01-15T09:40:00.000Z
+ *                 meta: { page: 1, limit: 20, total: 1, totalPages: 1 }
+ *               message: Notification triggers retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ */
 export async function listTriggers(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
 
@@ -220,6 +699,91 @@ export async function listTriggers(req: Request, res: Response): Promise<void> {
   });
 }
 
+/**
+ * @openapi
+ * /admin/notification-triggers:
+ *   post:
+ *     tags: [Notifications]
+ *     summary: Create a notification trigger for an application event
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, event_name, template_id]
+ *             properties:
+ *               name: { type: string, maxLength: 200 }
+ *               event_name: { type: string }
+ *               template_id: { type: string, format: uuid }
+ *               conditions: { type: object }
+ *           example:
+ *             name: Notify on Award Activation
+ *             event_name: award.activated
+ *             template_id: d1e2f3a4-1111-4a2b-9b0a-4a2b6c1e0001
+ *     responses:
+ *       201:
+ *         description: Notification trigger created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: e5f6a7b8-2222-4a2b-9b0a-4a2b6c1e0002
+ *                 name: Notify on Award Activation
+ *                 event_name: award.activated
+ *                 template_id: d1e2f3a4-1111-4a2b-9b0a-4a2b6c1e0001
+ *                 conditions: null
+ *                 enabled: true
+ *                 created_by: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 created_at: 2026-01-15T09:40:00.000Z
+ *                 updated_at: 2026-01-15T09:40:00.000Z
+ *               message: Notification trigger created successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Notification template not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Notification template not found
+ *       422:
+ *         description: Invalid event name
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: "Invalid event name. Available: beneficiary.created, beneficiary.imported, beneficiary.status_changed, award.created, award.activated, award.closed, disbursement.approved, disbursement.paid, disbursement.reconciled, disbursement.failed, me.performance_recorded, me.at_risk_flagged, me.at_risk_resolved, me.intervention_closed"
+ */
 export async function createTrigger(req: Request, res: Response): Promise<void> {
   const body = triggerCreateSchema.parse(req.body);
 
@@ -255,6 +819,75 @@ export async function createTrigger(req: Request, res: Response): Promise<void> 
   res.status(201).json({ status: 'success', data: record, message: 'Notification trigger created successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/notification-triggers/{id}:
+ *   get:
+ *     tags: [Notifications]
+ *     summary: Get a notification trigger by ID
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Notification trigger retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: e5f6a7b8-2222-4a2b-9b0a-4a2b6c1e0002
+ *                 name: Notify on Award Activation
+ *                 event_name: award.activated
+ *                 template_id: d1e2f3a4-1111-4a2b-9b0a-4a2b6c1e0001
+ *                 conditions: null
+ *                 enabled: true
+ *                 created_by: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 template: { id: d1e2f3a4-1111-4a2b-9b0a-4a2b6c1e0001, name: Award Approval Email, channel: email }
+ *                 creator:
+ *                   id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                   name: Grace Banda
+ *                   email: grace.banda@presstrust.mw
+ *                 created_at: 2026-01-15T09:40:00.000Z
+ *                 updated_at: 2026-01-15T09:40:00.000Z
+ *               message: Notification trigger retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Notification trigger not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Notification trigger not found
+ */
 export async function getTrigger(req: Request, res: Response): Promise<void> {
   const record = await prisma.notificationTrigger.findUnique({
     where: { id: req.params.id },
@@ -269,6 +902,93 @@ export async function getTrigger(req: Request, res: Response): Promise<void> {
   res.json({ status: 'success', data: record, message: 'Notification trigger retrieved successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/notification-triggers/{id}:
+ *   put:
+ *     tags: [Notifications]
+ *     summary: Update a notification trigger
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string, maxLength: 200 }
+ *               event_name: { type: string }
+ *               template_id: { type: string, format: uuid }
+ *               conditions: { type: object }
+ *           example:
+ *             name: Notify Ops on Award Activation
+ *     responses:
+ *       200:
+ *         description: Notification trigger updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: e5f6a7b8-2222-4a2b-9b0a-4a2b6c1e0002
+ *                 name: Notify Ops on Award Activation
+ *                 event_name: award.activated
+ *                 template_id: d1e2f3a4-1111-4a2b-9b0a-4a2b6c1e0001
+ *                 conditions: null
+ *                 enabled: true
+ *                 created_by: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 created_at: 2026-01-15T09:40:00.000Z
+ *                 updated_at: 2026-01-20T12:00:00.000Z
+ *               message: Notification trigger updated successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Notification trigger or template not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Notification trigger not found
+ *       422:
+ *         description: Invalid event name
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: "Invalid event name. Available: beneficiary.created, beneficiary.imported, beneficiary.status_changed, award.created, award.activated, award.closed, disbursement.approved, disbursement.paid, disbursement.reconciled, disbursement.failed, me.performance_recorded, me.at_risk_flagged, me.at_risk_resolved, me.intervention_closed"
+ */
 export async function updateTrigger(req: Request, res: Response): Promise<void> {
   const body = triggerUpdateSchema.parse(req.body);
 
@@ -311,6 +1031,61 @@ export async function updateTrigger(req: Request, res: Response): Promise<void> 
   res.json({ status: 'success', data: updated, message: 'Notification trigger updated successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/notification-triggers/{id}:
+ *   delete:
+ *     tags: [Notifications]
+ *     summary: Delete a notification trigger
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Notification trigger deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data: null
+ *               message: Notification trigger deleted successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Notification trigger not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Notification trigger not found
+ */
 export async function deleteTrigger(req: Request, res: Response): Promise<void> {
   const existing = await prisma.notificationTrigger.findUnique({ where: { id: req.params.id } });
   if (!existing) {
@@ -331,6 +1106,70 @@ export async function deleteTrigger(req: Request, res: Response): Promise<void> 
   res.json({ status: 'success', data: null, message: 'Notification trigger deleted successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/notification-triggers/{id}/toggle:
+ *   patch:
+ *     tags: [Notifications]
+ *     summary: Enable or disable a notification trigger
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Notification trigger toggled
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: e5f6a7b8-2222-4a2b-9b0a-4a2b6c1e0002
+ *                 name: Notify on Award Activation
+ *                 event_name: award.activated
+ *                 template_id: d1e2f3a4-1111-4a2b-9b0a-4a2b6c1e0001
+ *                 conditions: null
+ *                 enabled: false
+ *                 created_by: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 created_at: 2026-01-15T09:40:00.000Z
+ *                 updated_at: 2026-01-20T12:10:00.000Z
+ *               message: Trigger disabled successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Notification trigger not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Notification trigger not found
+ */
 export async function toggleTrigger(req: Request, res: Response): Promise<void> {
   const existing = await prisma.notificationTrigger.findUnique({ where: { id: req.params.id } });
   if (!existing) {
@@ -346,12 +1185,135 @@ export async function toggleTrigger(req: Request, res: Response): Promise<void> 
   res.json({ status: 'success', data: updated, message: `Trigger ${updated.enabled ? 'enabled' : 'disabled'} successfully` });
 }
 
+/**
+ * @openapi
+ * /admin/notification-triggers/events:
+ *   get:
+ *     tags: [Notifications]
+ *     summary: List the application event names available for trigger configuration
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Available events retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 events:
+ *                   - beneficiary.created
+ *                   - beneficiary.imported
+ *                   - beneficiary.status_changed
+ *                   - award.created
+ *                   - award.activated
+ *                   - award.closed
+ *                   - disbursement.approved
+ *                   - disbursement.paid
+ *                   - disbursement.reconciled
+ *                   - disbursement.failed
+ *                   - me.performance_recorded
+ *                   - me.at_risk_flagged
+ *                   - me.at_risk_resolved
+ *                   - me.intervention_closed
+ *               message: Available events retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ */
 export async function listAvailableEvents(_req: Request, res: Response): Promise<void> {
   res.json({ status: 'success', data: { events: AVAILABLE_EVENTS }, message: 'Available events retrieved successfully' });
 }
 
 // ── Notification Logs ──
 
+/**
+ * @openapi
+ * /admin/notification-logs:
+ *   get:
+ *     tags: [Notifications]
+ *     summary: List notification delivery logs with pagination and filters
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema: { type: string, enum: [sent, failed] }
+ *       - in: query
+ *         name: channel
+ *         schema: { type: string, enum: [email, in_app] }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 20 }
+ *     responses:
+ *       200:
+ *         description: Paginated list of notification logs
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: f1a2b3c4-3333-4a2b-9b0a-4a2b6c1e0003
+ *                     user_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     recipient: grace.banda@presstrust.mw
+ *                     channel: email
+ *                     template_id: d1e2f3a4-1111-4a2b-9b0a-4a2b6c1e0001
+ *                     subject: Your scholarship award has been approved
+ *                     status: sent
+ *                     error_message: null
+ *                     sent_at: 2026-01-16T08:00:00.000Z
+ *                     user:
+ *                       id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                       name: Grace Banda
+ *                       email: grace.banda@presstrust.mw
+ *                 meta: { page: 1, limit: 20, total: 1, totalPages: 1 }
+ *               message: Notification logs retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ */
 export async function listNotificationLogs(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
 
@@ -379,6 +1341,51 @@ export async function listNotificationLogs(req: Request, res: Response): Promise
 
 // ── In-App Notifications (user-facing) ──
 
+/**
+ * @openapi
+ * /admin/notifications:
+ *   get:
+ *     tags: [Notifications]
+ *     summary: List in-app notifications for the current user
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 20 }
+ *     responses:
+ *       200:
+ *         description: Paginated list of the current user's notifications
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 9c8b7a6d-4444-4a2b-9b0a-4a2b6c1e0004
+ *                     user_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     title: Award Approved
+ *                     body: Your scholarship award has been approved
+ *                     read: false
+ *                     created_at: 2026-01-16T08:00:00.000Z
+ *                 meta: { page: 1, limit: 20, total: 1, totalPages: 1 }
+ *               message: Notifications retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ */
 export async function listMyNotifications(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
 
@@ -401,6 +1408,51 @@ export async function listMyNotifications(req: Request, res: Response): Promise<
   });
 }
 
+/**
+ * @openapi
+ * /admin/notifications/{id}/read:
+ *   patch:
+ *     tags: [Notifications]
+ *     summary: Mark one of the current user's notifications as read
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Notification marked as read
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data: null
+ *               message: Notification marked as read
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       404:
+ *         description: Notification not found (or does not belong to the current user)
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Notification not found
+ */
 export async function markNotificationRead(req: Request, res: Response): Promise<void> {
   const existing = await prisma.inAppNotification.findUnique({ where: { id: req.params.id } });
   if (!existing || existing.user_id !== req.user!.userId) {
@@ -413,6 +1465,37 @@ export async function markNotificationRead(req: Request, res: Response): Promise
   res.json({ status: 'success', data: null, message: 'Notification marked as read' });
 }
 
+/**
+ * @openapi
+ * /admin/notifications/unread-count:
+ *   get:
+ *     tags: [Notifications]
+ *     summary: Get the count of unread notifications for the current user
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Unread count retrieved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 count: 3
+ *               message: Unread count retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ */
 export async function unreadCount(req: Request, res: Response): Promise<void> {
   const count = await prisma.inAppNotification.count({
     where: { user_id: req.user!.userId, read: false },

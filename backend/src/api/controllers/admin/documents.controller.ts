@@ -106,10 +106,64 @@ function maskDocument(d: any) {
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/PaginatedResponse'
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 4c5d6e7f-8a9b-0c1d-2e3f-4a5b6c7d8e9f
+ *                     documentable_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     documentable_type: Beneficiary
+ *                     file_path: /app/uploads/Beneficiary_3fa85f64-5717-4562-b3fc-2c963f66afa6_v1_1768470000000.pdf
+ *                     original_name: grace_banda_report_card_2026.pdf
+ *                     mime_type: application/pdf
+ *                     file_size: 245760
+ *                     document_type: report_card
+ *                     status: Pending
+ *                     rejection_reason: null
+ *                     version: 1
+ *                     expiry_date: null
+ *                     virus_scan_status: clean
+ *                     uploaded_by: { id: 2f4e6a8c-1b3d-5f7e-9a0c-2b4d6f8e0a1c, name: Thoko Phiri }
+ *                     created_at: 2026-01-15T09:30:00.000Z
+ *                     updated_at: 2026-01-15T09:30:00.000Z
+ *                   - id: 6e2a4c8d-3b5f-4a7c-9d1e-8f2b6a4c0e3d
+ *                     documentable_id: 8c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                     documentable_type: Beneficiary
+ *                     file_path: /app/uploads/Beneficiary_8c9e6679-7425-40de-944b-e07fc1f90ae7_v2_1768471200000.jpg
+ *                     original_name: chikondi_mwale_id_copy.jpg
+ *                     mime_type: image/jpeg
+ *                     file_size: 98304
+ *                     document_type: id_copy
+ *                     status: Verified
+ *                     rejection_reason: null
+ *                     version: 2
+ *                     expiry_date: null
+ *                     virus_scan_status: clean
+ *                     uploaded_by: { id: 2f4e6a8c-1b3d-5f7e-9a0c-2b4d6f8e0a1c, name: Thoko Phiri }
+ *                     created_at: 2026-01-16T10:00:00.000Z
+ *                     updated_at: 2026-01-17T08:30:00.000Z
+ *                 meta: { page: 1, limit: 20, total: 32, totalPages: 2 }
+ *               message: Documents retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function listDocuments(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
@@ -163,12 +217,60 @@ export async function listDocuments(req: Request, res: Response): Promise<void> 
  *     responses:
  *       201:
  *         description: Document uploaded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 4c5d6e7f-8a9b-0c1d-2e3f-4a5b6c7d8e9f
+ *                 documentable_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 documentable_type: Beneficiary
+ *                 file_path: /app/uploads/Beneficiary_3fa85f64-5717-4562-b3fc-2c963f66afa6_v1_1768470000000.pdf
+ *                 original_name: grace_banda_report_card_2026.pdf
+ *                 mime_type: application/pdf
+ *                 file_size: 245760
+ *                 document_type: report_card
+ *                 status: Pending
+ *                 rejection_reason: null
+ *                 version: 1
+ *                 expiry_date: null
+ *                 virus_scan_status: clean
+ *                 uploaded_by: { id: 2f4e6a8c-1b3d-5f7e-9a0c-2b4d6f8e0a1c, name: Thoko Phiri }
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-15T09:30:00.000Z
+ *               message: Document uploaded successfully
  *       400:
  *         description: Validation error or invalid file
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: File is required
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function uploadDocument(req: Request, res: Response): Promise<void> {
   const file = (req as any).file;
@@ -271,12 +373,60 @@ export async function uploadDocument(req: Request, res: Response): Promise<void>
  *     responses:
  *       200:
  *         description: Document metadata
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 4c5d6e7f-8a9b-0c1d-2e3f-4a5b6c7d8e9f
+ *                 documentable_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 documentable_type: Beneficiary
+ *                 file_path: /app/uploads/Beneficiary_3fa85f64-5717-4562-b3fc-2c963f66afa6_v1_1768470000000.pdf
+ *                 original_name: grace_banda_report_card_2026.pdf
+ *                 mime_type: application/pdf
+ *                 file_size: 245760
+ *                 document_type: report_card
+ *                 status: Verified
+ *                 rejection_reason: null
+ *                 version: 1
+ *                 expiry_date: null
+ *                 virus_scan_status: clean
+ *                 uploaded_by: { id: 2f4e6a8c-1b3d-5f7e-9a0c-2b4d6f8e0a1c, name: Thoko Phiri }
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-16T11:00:00.000Z
+ *               message: Document retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Document not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Document not found
  */
 export async function getDocument(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -316,12 +466,51 @@ export async function getDocument(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: File stream
+ *         content:
+ *           application/octet-stream:
+ *             schema:
+ *               type: string
+ *               format: binary
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Document not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Document not found
+ *       500:
+ *         description: Invalid file path
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid file path
  */
 export async function downloadDocument(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -377,14 +566,70 @@ export async function downloadDocument(req: Request, res: Response): Promise<voi
  *     responses:
  *       200:
  *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 4c5d6e7f-8a9b-0c1d-2e3f-4a5b6c7d8e9f
+ *                 documentable_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 documentable_type: Beneficiary
+ *                 file_path: /app/uploads/Beneficiary_3fa85f64-5717-4562-b3fc-2c963f66afa6_v1_1768470000000.pdf
+ *                 original_name: grace_banda_report_card_2026.pdf
+ *                 mime_type: application/pdf
+ *                 file_size: 245760
+ *                 document_type: report_card
+ *                 status: Rejected
+ *                 rejection_reason: Document image is illegible, please re-upload a clearer scan
+ *                 version: 1
+ *                 expiry_date: null
+ *                 virus_scan_status: clean
+ *                 uploaded_by: { id: 2f4e6a8c-1b3d-5f7e-9a0c-2b4d6f8e0a1c, name: Thoko Phiri }
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-24T15:20:00.000Z
+ *               message: Document status updated to Rejected
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: rejection_reason is required when rejecting a document
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Document not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Document not found
  */
 export async function updateDocumentStatus(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -448,14 +693,70 @@ export async function updateDocumentStatus(req: Request, res: Response): Promise
  *     responses:
  *       201:
  *         description: New version uploaded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 7a1b3c5d-9e2f-4a6b-8c0d-1e3f5a7b9c2d
+ *                 documentable_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 documentable_type: Beneficiary
+ *                 file_path: /app/uploads/Beneficiary_3fa85f64-5717-4562-b3fc-2c963f66afa6_v2_1768560000000.pdf
+ *                 original_name: grace_banda_report_card_2026_v2.pdf
+ *                 mime_type: application/pdf
+ *                 file_size: 251904
+ *                 document_type: report_card
+ *                 status: Pending
+ *                 rejection_reason: null
+ *                 version: 2
+ *                 expiry_date: null
+ *                 virus_scan_status: clean
+ *                 uploaded_by: { id: 2f4e6a8c-1b3d-5f7e-9a0c-2b4d6f8e0a1c, name: Thoko Phiri }
+ *                 created_at: 2026-01-25T09:00:00.000Z
+ *                 updated_at: 2026-01-25T09:00:00.000Z
+ *               message: Document version 2 uploaded successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: File is required
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Document not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Parent document not found
  */
 export async function uploadDocumentVersion(req: Request, res: Response): Promise<void> {
   const parentId = req.params.id as string;
@@ -555,14 +856,56 @@ export async function uploadDocumentVersion(req: Request, res: Response): Promis
  *     responses:
  *       200:
  *         description: Document deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 4c5d6e7f-8a9b-0c1d-2e3f-4a5b6c7d8e9f
+ *                 deleted: true
+ *               message: Document deleted successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Document not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Document not found
  *       409:
  *         description: Document linked to approved financial transaction
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot delete document linked to an approved, paid, or reconciled disbursement
  */
 export async function deleteDocument(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;

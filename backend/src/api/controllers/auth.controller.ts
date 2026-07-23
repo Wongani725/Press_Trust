@@ -37,10 +37,45 @@ import { config } from '../../shared/config';
  *     responses:
  *       200:
  *         description: Login successful
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzZmE4NWY2NC01NzE3LTQ1NjItYjNmYy0yYzk2M2Y2NmFmYTYiLCJyb2xlIjoiT3BlcmF0aW9ucyJ9.7YfQ2K9x8mZ1vN3pL6qR4sT8uW0aB2cD4eF6gH8iJ0k
+ *                 refreshToken: 8f14e45fceea167a5a36dedd4bea2543f2d6a1c9b7e0d4a3c8f1b2e5d7a9c0f
+ *                 expiresIn: 3600
+ *                 mfaRequired: false
+ *                 user:
+ *                   id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                   name: Operations Manager
+ *                   email: operations@presstrust.mw
+ *                   role: Operations
+ *                   programs: []
+ *               message: Login successful
  *       401:
  *         description: Invalid credentials
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid email or password
  *       423:
  *         description: Account locked
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 remainingMinutes: 14
+ *               message: 'Account locked. Try again in 14 minutes'
  */
 export async function login(req: Request, res: Response): Promise<void> {
   const { email, password } = req.body;
@@ -164,8 +199,37 @@ export async function login(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: MFA verified
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzZmE4NWY2NC01NzE3LTQ1NjItYjNmYy0yYzk2M2Y2NmFmYTYiLCJyb2xlIjoiT3BlcmF0aW9ucyJ9.7YfQ2K9x8mZ1vN3pL6qR4sT8uW0aB2cD4eF6gH8iJ0k
+ *                 refreshToken: 8f14e45fceea167a5a36dedd4bea2543f2d6a1c9b7e0d4a3c8f1b2e5d7a9c0f
+ *                 expiresIn: 3600
+ *               message: MFA verified successfully
+ *       400:
+ *         description: MFA is not configured for this account
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: MFA is not configured
  *       401:
  *         description: Invalid MFA code
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid MFA code
  */
 export async function verifyMfa(req: Request, res: Response): Promise<void> {
   const { token } = req.body;
@@ -245,8 +309,27 @@ export async function verifyMfa(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Token refreshed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 accessToken: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIzZmE4NWY2NC01NzE3LTQ1NjItYjNmYy0yYzk2M2Y2NmFmYTYiLCJyb2xlIjoiT3BlcmF0aW9ucyJ9.9NxR3mQ7lA1oP5kV2sT6uW8aB0cD2eF4gH6iJ8k
+ *                 refreshToken: c1a2b3d4e5f60718293a4b5c6d7e8f9012a3b4c5d6e7f8091a2b3c4d5e6f7a8
+ *                 expiresIn: 3600
+ *               message: Token refreshed successfully
  *       401:
  *         description: Invalid refresh token
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid or expired refresh token
  */
 export async function refresh(req: Request, res: Response): Promise<void> {
   const { refreshToken } = req.body;
@@ -288,6 +371,14 @@ export async function refresh(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Logged out successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data: null
+ *               message: Logged out successfully
  */
 export async function logout(req: Request, res: Response): Promise<void> {
   res.json({ status: 'success', data: null, message: 'Logged out successfully' });
@@ -314,8 +405,34 @@ export async function logout(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Password changed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data: null
+ *               message: Password changed successfully
  *       401:
- *         description: Current password incorrect
+ *         description: Not authenticated, or current password incorrect
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Current password is incorrect
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: User not found
  */
 export async function changePassword(req: Request, res: Response): Promise<void> {
   if (!req.user) {
@@ -353,6 +470,42 @@ export async function changePassword(req: Request, res: Response): Promise<void>
  *     responses:
  *       200:
  *         description: Current session info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 name: Operations Manager
+ *                 email: operations@presstrust.mw
+ *                 role: Operations
+ *                 status: active
+ *                 mfa_enabled: true
+ *                 mfa_method: totp
+ *                 programs: []
+ *               message: Session retrieved successfully
+ *       401:
+ *         description: Not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Not authenticated
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: User not found
  */
 export async function getSession(req: Request, res: Response): Promise<void> {
   if (!req.user) {
@@ -397,6 +550,26 @@ export async function getSession(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: MFA setup info
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 qrCode: data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAAB...
+ *                 method: totp
+ *               message: 'Scan QR code with authenticator app, then verify with /auth/mfa/verify-setup'
+ *       401:
+ *         description: Not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Not authenticated
  */
 export async function setupMfa(req: Request, res: Response): Promise<void> {
   if (!req.user) {
@@ -467,8 +640,44 @@ export async function setupMfa(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: MFA enabled
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data: null
+ *               message: TOTP MFA enabled successfully
  *       400:
  *         description: Invalid code
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid verification code
+ *       401:
+ *         description: Not authenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Not authenticated
+ *       404:
+ *         description: User not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: User not found
  */
 export async function verifyAndEnableMfa(req: Request, res: Response): Promise<void> {
   if (!req.user) {

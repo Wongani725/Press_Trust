@@ -30,10 +30,51 @@ const updateStatusSchema = z.object({
  *     responses:
  *       200:
  *         description: List of roles
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     name: SuperAdmin
+ *                     description: 'Full system access; user management, role assignment, system config, audit logs'
+ *                     permissions: {}
+ *                     status: active
+ *                     user_count: 1
+ *                     created_at: 2026-01-15T09:30:00.000Z
+ *                     updated_at: 2026-01-15T09:30:00.000Z
+ *                   - id: 6c9f2e3a-1b4d-4e5f-8a6b-2d3c4e5f6a7b
+ *                     name: Operations
+ *                     description: 'Program management, beneficiary intake, onboarding, awards, documents'
+ *                     permissions: {}
+ *                     status: active
+ *                     user_count: 3
+ *                     created_at: 2026-01-15T09:30:00.000Z
+ *                     updated_at: 2026-01-15T09:30:00.000Z
+ *               message: Roles retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function listRoles(_req: Request, res: Response): Promise<void> {
   const roles = await prisma.role.findMany({
@@ -76,14 +117,63 @@ export async function listRoles(_req: Request, res: Response): Promise<void> {
  *     responses:
  *       201:
  *         description: Role created
- *       400:
- *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 9d4e2c1a-8b7f-4a3d-9e6c-1f2a3b4c5d6e
+ *                 name: Program Coordinator
+ *                 description: Manages beneficiary onboarding for a single program
+ *                 permissions: {}
+ *                 status: active
+ *                 created_at: 2026-07-23T09:30:00.000Z
+ *               message: Role created successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       409:
  *         description: Role name already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Role name already exists
+ *       422:
+ *         description: Request validation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: name
+ *                     message: String must contain at least 1 character(s)
+ *               message: Request validation failed
  */
 export async function createRole(req: Request, res: Response): Promise<void> {
   const { name, description, permissions } = createRoleSchema.parse(req.body);
@@ -136,12 +226,52 @@ export async function createRole(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Role details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 6c9f2e3a-1b4d-4e5f-8a6b-2d3c4e5f6a7b
+ *                 name: Operations
+ *                 description: 'Program management, beneficiary intake, onboarding, awards, documents'
+ *                 permissions: {}
+ *                 status: active
+ *                 user_count: 3
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-15T09:30:00.000Z
+ *               message: Role retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Role not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Role not found
  */
 export async function getRole(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -195,16 +325,73 @@ export async function getRole(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Role updated
- *       400:
- *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 6c9f2e3a-1b4d-4e5f-8a6b-2d3c4e5f6a7b
+ *                 name: Operations
+ *                 description: 'Program management, beneficiary intake, onboarding, awards, documents'
+ *                 permissions: {}
+ *                 status: active
+ *                 updated_at: 2026-07-23T09:30:00.000Z
+ *               message: Role updated successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Role not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Role not found
  *       409:
  *         description: Role name already exists
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Role name already exists
+ *       422:
+ *         description: Request validation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: name
+ *                     message: String must contain at least 1 character(s)
+ *               message: Request validation failed
  */
 export async function updateRole(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -280,14 +467,59 @@ export async function updateRole(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Status updated
- *       400:
- *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 6c9f2e3a-1b4d-4e5f-8a6b-2d3c4e5f6a7b
+ *                 status: inactive
+ *               message: Role status updated to inactive
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Role not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Role not found
+ *       422:
+ *         description: Request validation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: status
+ *                     message: 'Invalid enum value. Expected ''active'' | ''inactive'', received ''suspended'''
+ *               message: Request validation failed
  */
 export async function updateRoleStatus(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -342,14 +574,61 @@ export async function updateRoleStatus(req: Request, res: Response): Promise<voi
  *     responses:
  *       200:
  *         description: Permissions updated
- *       400:
- *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 6c9f2e3a-1b4d-4e5f-8a6b-2d3c4e5f6a7b
+ *                 permissions:
+ *                   beneficiaries: [read, create, update]
+ *                   disbursements: [read]
+ *               message: Role permissions updated successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Role not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Role not found
+ *       422:
+ *         description: Request validation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: permissions
+ *                     message: Required
+ *               message: Request validation failed
  */
 export async function updateRolePermissions(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -399,14 +678,54 @@ export async function updateRolePermissions(req: Request, res: Response): Promis
  *     responses:
  *       200:
  *         description: Role deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data: null
+ *               message: Role deleted successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Role not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Role not found
  *       422:
  *         description: Cannot delete role assigned to users
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot delete role assigned to users
  */
 export async function deleteRole(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;

@@ -105,6 +105,39 @@ async function isPerformanceImmutable(beneficiaryId: string, academicPeriod: str
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/PaginatedResponse'
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     beneficiary:
+ *                       id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                       first_name: Grace
+ *                       last_name: Banda
+ *                       beneficiary_identifier: PTS-2024-00123
+ *                     school:
+ *                       id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                       name: Blantyre Secondary School
+ *                     academic_period: 2026-T1
+ *                     subjects:
+ *                       Mathematics: 68
+ *                       English: 74
+ *                       Biology: 61
+ *                     overall_score: 67.5
+ *                     attendance_percentage: 92.3
+ *                     progression: Promoted
+ *                     notes: Improved steadily since last term.
+ *                     recorder:
+ *                       id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                       name: Thoko Phiri
+ *                     created_at: 2026-01-15T09:30:00.000Z
+ *                     updated_at: 2026-01-15T09:30:00.000Z
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 1
+ *                   totalPages: 1
+ *               message: Performance records retrieved successfully
  */
 export async function listPerformance(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
@@ -171,6 +204,55 @@ export async function listPerformance(req: Request, res: Response): Promise<void
  *     responses:
  *       201:
  *         description: Performance recorded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 beneficiary:
+ *                   id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                   first_name: Grace
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PTS-2024-00123
+ *                 school:
+ *                   id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                   name: Blantyre Secondary School
+ *                 academic_period: 2026-T1
+ *                 subjects:
+ *                   Mathematics: 68
+ *                   English: 74
+ *                   Biology: 61
+ *                 overall_score: 67.5
+ *                 attendance_percentage: 92.3
+ *                 progression: Promoted
+ *                 notes: Improved steadily since last term.
+ *                 recorder:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *               message: Performance recorded successfully
+ *       404:
+ *         description: Beneficiary or school not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             examples:
+ *               beneficiaryNotFound:
+ *                 summary: Beneficiary not found
+ *                 value:
+ *                   status: error
+ *                   data: null
+ *                   message: Beneficiary not found
+ *               schoolNotFound:
+ *                 summary: School not found
+ *                 value:
+ *                   status: error
+ *                   data: null
+ *                   message: School not found
  */
 export async function createPerformance(req: Request, res: Response): Promise<void> {
   const body = createPerformanceSchema.parse(req.body);
@@ -258,6 +340,47 @@ export async function createPerformance(req: Request, res: Response): Promise<vo
  *     responses:
  *       200:
  *         description: Performance record details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 beneficiary:
+ *                   id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                   first_name: Grace
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PTS-2024-00123
+ *                 school:
+ *                   id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                   name: Blantyre Secondary School
+ *                 academic_period: 2026-T1
+ *                 subjects:
+ *                   Mathematics: 68
+ *                   English: 74
+ *                   Biology: 61
+ *                 overall_score: 67.5
+ *                 attendance_percentage: 92.3
+ *                 progression: Promoted
+ *                 notes: Improved steadily since last term.
+ *                 recorder:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-15T09:30:00.000Z
+ *               message: Performance record retrieved successfully
+ *       404:
+ *         description: Performance record not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Performance record not found
  */
 export async function getPerformance(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -318,8 +441,56 @@ export async function getPerformance(req: Request, res: Response): Promise<void>
  *     responses:
  *       200:
  *         description: Performance updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 beneficiary:
+ *                   id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                   first_name: Grace
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PTS-2024-00123
+ *                 school:
+ *                   id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                   name: Blantyre Secondary School
+ *                 academic_period: 2026-T1
+ *                 subjects:
+ *                   Mathematics: 71
+ *                   English: 76
+ *                   Biology: 65
+ *                 overall_score: 70.7
+ *                 attendance_percentage: 94.0
+ *                 progression: Promoted
+ *                 notes: Updated after end-of-term review.
+ *                 recorder:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 updated_at: 2026-02-10T11:05:00.000Z
+ *               message: Performance record updated successfully
+ *       404:
+ *         description: Performance record not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Performance record not found
  *       409:
  *         description: Record is immutable due to linked disbursement
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Performance record is immutable because a disbursement has been paid or reconciled for this period
  */
 export async function updatePerformance(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -397,8 +568,36 @@ export async function updatePerformance(req: Request, res: Response): Promise<vo
  *     responses:
  *       200:
  *         description: Performance deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 deleted: true
+ *               message: Performance record deleted successfully
+ *       404:
+ *         description: Performance record not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Performance record not found
  *       409:
  *         description: Record is immutable
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Performance record is immutable because a disbursement has been paid or reconciled for this period
  */
 export async function deletePerformance(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -455,6 +654,34 @@ export async function deletePerformance(req: Request, res: Response): Promise<vo
  *     responses:
  *       200:
  *         description: Paginated list of at-risk flags
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 550e8400-e29b-41d4-a716-446655440000
+ *                     beneficiary:
+ *                       id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                       first_name: Grace
+ *                       last_name: Banda
+ *                       beneficiary_identifier: PTS-2024-00123
+ *                     reason: 'Low attendance: 68% (threshold: 75%)'
+ *                     flagged_by:
+ *                       id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                       name: Thoko Phiri
+ *                     resolved: false
+ *                     resolved_at: null
+ *                     resolved_by: null
+ *                     created_at: 2026-02-01T08:00:00.000Z
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 1
+ *                   totalPages: 1
+ *               message: At-risk flags retrieved successfully
  */
 export async function listAtRiskFlags(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
@@ -513,8 +740,46 @@ export async function listAtRiskFlags(req: Request, res: Response): Promise<void
  *     responses:
  *       201:
  *         description: Flag created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 550e8400-e29b-41d4-a716-446655440000
+ *                 beneficiary:
+ *                   id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                   first_name: Grace
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PTS-2024-00123
+ *                 reason: Repeated absences reported by guardian
+ *                 flagged_by:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 resolved: false
+ *                 created_at: 2026-02-01T08:00:00.000Z
+ *               message: At-risk flag created successfully
+ *       404:
+ *         description: Beneficiary not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary not found
  *       409:
  *         description: Active flag already exists for beneficiary
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: An active at-risk flag already exists for this beneficiary. Resolve it before creating a new one.
  */
 export async function createAtRiskFlag(req: Request, res: Response): Promise<void> {
   const body = createAtRiskSchema.parse(req.body);
@@ -600,6 +865,49 @@ export async function createAtRiskFlag(req: Request, res: Response): Promise<voi
  *     responses:
  *       200:
  *         description: Flag resolved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 550e8400-e29b-41d4-a716-446655440000
+ *                 beneficiary:
+ *                   id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                   first_name: Grace
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PTS-2024-00123
+ *                 reason: Repeated absences reported by guardian
+ *                 flagged_by:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 resolved: true
+ *                 resolved_at: 2026-02-15T13:20:00.000Z
+ *                 resolved_by:
+ *                   id: 6d0a9a9e-2b5d-4e4b-9f2e-2c9d3a1b7e5f
+ *                   name: Chisomo Nyirenda
+ *               message: At-risk flag resolved successfully
+ *       404:
+ *         description: At-risk flag not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: At-risk flag not found
+ *       409:
+ *         description: Flag is already resolved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: At-risk flag is already resolved
  */
 export async function resolveAtRiskFlag(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -683,6 +991,24 @@ export async function resolveAtRiskFlag(req: Request, res: Response): Promise<vo
  *     responses:
  *       200:
  *         description: Auto-flagging results
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 flagged:
+ *                   - id: 550e8400-e29b-41d4-a716-446655440000
+ *                     beneficiary_id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                     reason: 'Low overall score: 42% (threshold: 50%)'
+ *                     flagged_by: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                     resolved: false
+ *                     created_at: 2026-02-01T08:00:00.000Z
+ *                 skipped:
+ *                   - beneficiary_id: 1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed
+ *                     reason: Already has active flag
+ *               message: 'Auto-flagging complete: 1 flagged, 1 skipped'
  */
 export async function autoFlagBeneficiaries(req: Request, res: Response): Promise<void> {
   const { score_threshold, attendance_threshold, academic_period } = autoFlagSchema.parse(req.body);
@@ -778,6 +1104,38 @@ export async function autoFlagBeneficiaries(req: Request, res: Response): Promis
  *     responses:
  *       200:
  *         description: Paginated list of interventions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 16fd2706-8baf-433b-82eb-8c7fada847da
+ *                     beneficiary:
+ *                       id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                       first_name: Grace
+ *                       last_name: Banda
+ *                       beneficiary_identifier: PTS-2024-00123
+ *                     action: Arrange remedial mathematics tutoring
+ *                     assigned_to:
+ *                       id: 6d0a9a9e-2b5d-4e4b-9f2e-2c9d3a1b7e5f
+ *                       name: Chisomo Nyirenda
+ *                     due_date: 2026-03-01T00:00:00.000Z
+ *                     status: Open
+ *                     resolution_notes: null
+ *                     creator:
+ *                       id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                       name: Thoko Phiri
+ *                     created_at: 2026-02-01T08:30:00.000Z
+ *                     updated_at: 2026-02-01T08:30:00.000Z
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 1
+ *                   totalPages: 1
+ *               message: Interventions retrieved successfully
  */
 export async function listInterventions(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
@@ -842,6 +1200,59 @@ export async function listInterventions(req: Request, res: Response): Promise<vo
  *     responses:
  *       201:
  *         description: Intervention created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 16fd2706-8baf-433b-82eb-8c7fada847da
+ *                 beneficiary:
+ *                   id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                   first_name: Grace
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PTS-2024-00123
+ *                 action: Arrange remedial mathematics tutoring
+ *                 assigned_to:
+ *                   id: 6d0a9a9e-2b5d-4e4b-9f2e-2c9d3a1b7e5f
+ *                   name: Chisomo Nyirenda
+ *                 due_date: 2026-03-01T00:00:00.000Z
+ *                 status: Open
+ *                 creator:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 created_at: 2026-02-01T08:30:00.000Z
+ *               message: Intervention created successfully
+ *       400:
+ *         description: Invalid due_date format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid due_date format
+ *       404:
+ *         description: Beneficiary or assigned user not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             examples:
+ *               beneficiaryNotFound:
+ *                 summary: Beneficiary not found
+ *                 value:
+ *                   status: error
+ *                   data: null
+ *                   message: Beneficiary not found
+ *               assigneeNotFound:
+ *                 summary: Assigned user not found
+ *                 value:
+ *                   status: error
+ *                   data: null
+ *                   message: Assigned user not found
  */
 export async function createIntervention(req: Request, res: Response): Promise<void> {
   const body = createInterventionSchema.parse(req.body);
@@ -919,6 +1330,42 @@ export async function createIntervention(req: Request, res: Response): Promise<v
  *     responses:
  *       200:
  *         description: Intervention details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 16fd2706-8baf-433b-82eb-8c7fada847da
+ *                 beneficiary:
+ *                   id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                   first_name: Grace
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PTS-2024-00123
+ *                 action: Arrange remedial mathematics tutoring
+ *                 assigned_to:
+ *                   id: 6d0a9a9e-2b5d-4e4b-9f2e-2c9d3a1b7e5f
+ *                   name: Chisomo Nyirenda
+ *                 due_date: 2026-03-01T00:00:00.000Z
+ *                 status: Open
+ *                 resolution_notes: null
+ *                 creator:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 created_at: 2026-02-01T08:30:00.000Z
+ *                 updated_at: 2026-02-01T08:30:00.000Z
+ *               message: Intervention retrieved successfully
+ *       404:
+ *         description: Intervention not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Intervention not found
  */
 export async function getIntervention(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -977,6 +1424,69 @@ export async function getIntervention(req: Request, res: Response): Promise<void
  *     responses:
  *       200:
  *         description: Intervention updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 16fd2706-8baf-433b-82eb-8c7fada847da
+ *                 beneficiary:
+ *                   id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                   first_name: Grace
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PTS-2024-00123
+ *                 action: Arrange biweekly remedial mathematics tutoring
+ *                 assigned_to:
+ *                   id: 6d0a9a9e-2b5d-4e4b-9f2e-2c9d3a1b7e5f
+ *                   name: Chisomo Nyirenda
+ *                 due_date: 2026-03-15T00:00:00.000Z
+ *                 status: Open
+ *                 creator:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 updated_at: 2026-02-20T10:00:00.000Z
+ *               message: Intervention updated successfully
+ *       400:
+ *         description: Invalid due_date format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid due_date format
+ *       404:
+ *         description: Intervention or assigned user not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             examples:
+ *               interventionNotFound:
+ *                 summary: Intervention not found
+ *                 value:
+ *                   status: error
+ *                   data: null
+ *                   message: Intervention not found
+ *               assigneeNotFound:
+ *                 summary: Assigned user not found
+ *                 value:
+ *                   status: error
+ *                   data: null
+ *                   message: Assigned user not found
+ *       409:
+ *         description: Closed interventions cannot be updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Closed interventions cannot be updated
  */
 export async function updateIntervention(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -1068,10 +1578,61 @@ export async function updateIntervention(req: Request, res: Response): Promise<v
  *     responses:
  *       200:
  *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 16fd2706-8baf-433b-82eb-8c7fada847da
+ *                 beneficiary:
+ *                   id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                   first_name: Grace
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PTS-2024-00123
+ *                 action: Arrange biweekly remedial mathematics tutoring
+ *                 assigned_to:
+ *                   id: 6d0a9a9e-2b5d-4e4b-9f2e-2c9d3a1b7e5f
+ *                   name: Chisomo Nyirenda
+ *                 due_date: 2026-03-15T00:00:00.000Z
+ *                 status: Closed
+ *                 resolution_notes: Tutoring completed; beneficiary's overall score improved to 70%.
+ *                 creator:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 updated_at: 2026-03-20T14:00:00.000Z
+ *               message: Intervention status updated to Closed
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: resolution_notes is required when closing an intervention
+ *       404:
+ *         description: Intervention not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Intervention not found
  *       409:
  *         description: Invalid status transition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid status transition from Closed to Open
  */
 export async function updateInterventionStatus(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -1206,6 +1767,31 @@ const updateVisitSchema = z.object({
  *     responses:
  *       200:
  *         description: Paginated list of visits
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed
+ *                     entity_type: school
+ *                     entity_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                     visit_date: 2026-02-05T09:00:00.000Z
+ *                     findings: School has adequate classroom facilities but limited library resources.
+ *                     follow_up_actions: Coordinate with district office to supply additional textbooks.
+ *                     conductor:
+ *                       id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                       name: Thoko Phiri
+ *                     created_at: 2026-02-05T15:00:00.000Z
+ *                     updated_at: 2026-02-05T15:00:00.000Z
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 1
+ *                   totalPages: 1
+ *               message: Monitoring visits retrieved successfully
  */
 export async function listVisits(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
@@ -1260,6 +1846,36 @@ export async function listVisits(req: Request, res: Response): Promise<void> {
  *     responses:
  *       201:
  *         description: Visit recorded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed
+ *                 entity_type: school
+ *                 entity_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                 visit_date: 2026-02-05T09:00:00.000Z
+ *                 findings: School has adequate classroom facilities but limited library resources.
+ *                 follow_up_actions: Coordinate with district office to supply additional textbooks.
+ *                 conducted_by: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                 conductor:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 created_at: 2026-02-05T15:00:00.000Z
+ *                 updated_at: 2026-02-05T15:00:00.000Z
+ *               message: Monitoring visit recorded successfully
+ *       400:
+ *         description: Invalid visit_date format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid visit_date format
  */
 export async function createVisit(req: Request, res: Response): Promise<void> {
   const body = createVisitSchema.parse(req.body);
@@ -1315,6 +1931,36 @@ export async function createVisit(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Visit details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed
+ *                 entity_type: school
+ *                 entity_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                 visit_date: 2026-02-05T09:00:00.000Z
+ *                 findings: School has adequate classroom facilities but limited library resources.
+ *                 follow_up_actions: Coordinate with district office to supply additional textbooks.
+ *                 conducted_by: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                 conductor:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 created_at: 2026-02-05T15:00:00.000Z
+ *                 updated_at: 2026-02-05T15:00:00.000Z
+ *               message: Monitoring visit retrieved successfully
+ *       404:
+ *         description: Monitoring visit not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Monitoring visit not found
  */
 export async function getVisit(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -1360,6 +2006,45 @@ export async function getVisit(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Visit updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed
+ *                 entity_type: school
+ *                 entity_id: 7c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                 visit_date: 2026-02-06T09:00:00.000Z
+ *                 findings: Follow-up visit confirmed library resources have been supplemented.
+ *                 follow_up_actions: null
+ *                 conducted_by: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                 conductor:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 updated_at: 2026-02-20T09:00:00.000Z
+ *               message: Monitoring visit updated successfully
+ *       400:
+ *         description: Invalid visit_date format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid visit_date format
+ *       404:
+ *         description: Monitoring visit not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Monitoring visit not found
  */
 export async function updateVisit(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -1424,6 +2109,26 @@ export async function updateVisit(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Visit deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1b9d6bcd-bbfd-4b2d-9b5d-ab8dfbbd4bed
+ *                 deleted: true
+ *               message: Monitoring visit deleted successfully
+ *       404:
+ *         description: Monitoring visit not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Monitoring visit not found
  */
 export async function deleteVisit(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -1498,6 +2203,40 @@ const updateOutcomeSchema = z.object({
  *     responses:
  *       200:
  *         description: Paginated list of outcomes
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 0c95b4c6-8f7e-4c1a-9e3d-3f5e2a1b9c4d
+ *                     beneficiary_id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                     program_id: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+ *                     outcome_type: Graduation
+ *                     outcome_date: 2026-11-30T00:00:00.000Z
+ *                     reason: null
+ *                     recorded_by: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                     beneficiary:
+ *                       id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                       first_name: Grace
+ *                       last_name: Banda
+ *                       beneficiary_identifier: PTS-2024-00123
+ *                     program:
+ *                       id: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+ *                       name: STEM Scholarship Programme
+ *                     recorder:
+ *                       id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                       name: Thoko Phiri
+ *                     created_at: 2026-11-30T10:00:00.000Z
+ *                     updated_at: 2026-11-30T10:00:00.000Z
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 1
+ *                   totalPages: 1
+ *               message: Outcomes retrieved successfully
  */
 export async function listOutcomes(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
@@ -1549,6 +2288,63 @@ export async function listOutcomes(req: Request, res: Response): Promise<void> {
  *     responses:
  *       201:
  *         description: Outcome recorded
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 0c95b4c6-8f7e-4c1a-9e3d-3f5e2a1b9c4d
+ *                 beneficiary_id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                 program_id: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+ *                 outcome_type: Graduation
+ *                 outcome_date: 2026-11-30T00:00:00.000Z
+ *                 reason: null
+ *                 recorded_by: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                 beneficiary:
+ *                   id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                   first_name: Grace
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PTS-2024-00123
+ *                 program:
+ *                   id: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+ *                   name: STEM Scholarship Programme
+ *                 recorder:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 created_at: 2026-11-30T10:00:00.000Z
+ *                 updated_at: 2026-11-30T10:00:00.000Z
+ *               message: Outcome recorded successfully
+ *       400:
+ *         description: Invalid outcome_date format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid outcome_date format
+ *       404:
+ *         description: Beneficiary or program not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             examples:
+ *               beneficiaryNotFound:
+ *                 summary: Beneficiary not found
+ *                 value:
+ *                   status: error
+ *                   data: null
+ *                   message: Beneficiary not found
+ *               programNotFound:
+ *                 summary: Program not found
+ *                 value:
+ *                   status: error
+ *                   data: null
+ *                   message: Program not found
  */
 export async function createOutcome(req: Request, res: Response): Promise<void> {
   const body = createOutcomeSchema.parse(req.body);
@@ -1618,6 +2414,44 @@ export async function createOutcome(req: Request, res: Response): Promise<void> 
  *     responses:
  *       200:
  *         description: Outcome details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 0c95b4c6-8f7e-4c1a-9e3d-3f5e2a1b9c4d
+ *                 beneficiary_id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                 program_id: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+ *                 outcome_type: Graduation
+ *                 outcome_date: 2026-11-30T00:00:00.000Z
+ *                 reason: null
+ *                 recorded_by: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                 beneficiary:
+ *                   id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                   first_name: Grace
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PTS-2024-00123
+ *                 program:
+ *                   id: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+ *                   name: STEM Scholarship Programme
+ *                 recorder:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 created_at: 2026-11-30T10:00:00.000Z
+ *                 updated_at: 2026-11-30T10:00:00.000Z
+ *               message: Outcome retrieved successfully
+ *       404:
+ *         description: Outcome not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Outcome not found
  */
 export async function getOutcome(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -1665,6 +2499,68 @@ export async function getOutcome(req: Request, res: Response): Promise<void> {
  *     responses:
  *       200:
  *         description: Outcome updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 0c95b4c6-8f7e-4c1a-9e3d-3f5e2a1b9c4d
+ *                 beneficiary_id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                 program_id: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+ *                 outcome_type: Graduation
+ *                 outcome_date: 2026-12-05T00:00:00.000Z
+ *                 reason: Corrected outcome date after registry confirmation.
+ *                 recorded_by: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                 beneficiary:
+ *                   id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                   first_name: Grace
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PTS-2024-00123
+ *                 program:
+ *                   id: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+ *                   name: STEM Scholarship Programme
+ *                 recorder:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 updated_at: 2026-12-06T09:00:00.000Z
+ *               message: Outcome updated successfully
+ *       400:
+ *         description: Invalid outcome_date format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid outcome_date format
+ *       404:
+ *         description: Outcome, beneficiary, or program not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             examples:
+ *               outcomeNotFound:
+ *                 summary: Outcome not found
+ *                 value:
+ *                   status: error
+ *                   data: null
+ *                   message: Outcome not found
+ *               beneficiaryNotFound:
+ *                 summary: Beneficiary not found
+ *                 value:
+ *                   status: error
+ *                   data: null
+ *                   message: Beneficiary not found
+ *               programNotFound:
+ *                 summary: Program not found
+ *                 value:
+ *                   status: error
+ *                   data: null
+ *                   message: Program not found
  */
 export async function updateOutcome(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -1745,6 +2641,26 @@ export async function updateOutcome(req: Request, res: Response): Promise<void> 
  *     responses:
  *       200:
  *         description: Outcome deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 0c95b4c6-8f7e-4c1a-9e3d-3f5e2a1b9c4d
+ *                 deleted: true
+ *               message: Outcome deleted successfully
+ *       404:
+ *         description: Outcome not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Outcome not found
  */
 export async function deleteOutcome(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -1798,6 +2714,32 @@ export async function deleteOutcome(req: Request, res: Response): Promise<void> 
  *     responses:
  *       200:
  *         description: Aggregated metrics
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 total_active_beneficiaries: 248
+ *                 completion:
+ *                   count: 31
+ *                   rate: 12.5
+ *                 graduation:
+ *                   count: 18
+ *                   rate: 7.26
+ *                 dropout:
+ *                   count: 9
+ *                   rate: 3.63
+ *                 progression:
+ *                   count: 176
+ *                   rate: 82.24
+ *                 filters:
+ *                   program_id: 6ba7b810-9dad-11d1-80b4-00c04fd430c8
+ *                   academic_period: 2026-T1
+ *                   district: Blantyre
+ *                   school_id: null
+ *               message: Program metrics retrieved successfully
  */
 export async function getMetrics(req: Request, res: Response): Promise<void> {
   const programId = req.query.program_id as string | undefined;

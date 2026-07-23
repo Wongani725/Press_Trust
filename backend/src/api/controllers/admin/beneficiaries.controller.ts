@@ -139,10 +139,75 @@ async function checkDuplicate(nationalId: string | undefined, examsId: string | 
  *           application/json:
  *             schema:
  *               $ref: '#/components/schemas/PaginatedResponse'
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     beneficiary_identifier: PT-1768470000000-4821
+ *                     first_name: Grace
+ *                     last_name: Banda
+ *                     date_of_birth: 2008-03-14T00:00:00.000Z
+ *                     gender: Female
+ *                     national_id: BM4501234
+ *                     exams_id: EX-2023-88213
+ *                     contact_email: grace.banda@presstrust.mw
+ *                     contact_phone: "+265991234567"
+ *                     district: Zomba
+ *                     school: { id: 5b1b9e0a-6c3d-4a2e-9f8b-2d6a1e7c4f30, name: Zomba Girls Secondary School, district: Zomba }
+ *                     program: { id: 9d3e2f1a-4b5c-6d7e-8f9a-0b1c2d3e4f5a, name: Press Trust Scholarship Program }
+ *                     status: Active
+ *                     status_reason: null
+ *                     academic_year: "2026"
+ *                     guardians:
+ *                       - id: 1a2b3c4d-5e6f-7890-abcd-ef1234567890
+ *                         name: Thoko Phiri
+ *                         relationship: Aunt
+ *                         contact_phone: "+265888654321"
+ *                         contact_email: thoko.phiri@presstrust.mw
+ *                     created_at: 2026-01-15T09:30:00.000Z
+ *                     updated_at: 2026-01-20T11:00:00.000Z
+ *                   - id: 8c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                     beneficiary_identifier: PT-1768470500000-1122
+ *                     first_name: Chikondi
+ *                     last_name: Mwale
+ *                     date_of_birth: 2009-07-02T00:00:00.000Z
+ *                     gender: Male
+ *                     national_id: BM4509981
+ *                     exams_id: EX-2023-91045
+ *                     contact_email: ''
+ *                     contact_phone: "+265995551234"
+ *                     district: Lilongwe
+ *                     school: { id: 6a2c8e1b-7d4f-4b3a-9e0c-3f7b2d1a8c56, name: Lilongwe Boys Secondary School, district: Lilongwe }
+ *                     program: { id: 9d3e2f1a-4b5c-6d7e-8f9a-0b1c2d3e4f5a, name: Press Trust Scholarship Program }
+ *                     status: Imported
+ *                     status_reason: null
+ *                     academic_year: "2026"
+ *                     guardians: []
+ *                     created_at: 2026-01-18T14:05:00.000Z
+ *                     updated_at: 2026-01-18T14:05:00.000Z
+ *                 meta: { page: 1, limit: 20, total: 47, totalPages: 3 }
+ *               message: Beneficiaries retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function listBeneficiaries(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
@@ -209,14 +274,88 @@ export async function listBeneficiaries(req: Request, res: Response): Promise<vo
  *     responses:
  *       201:
  *         description: Beneficiary created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 beneficiary_identifier: PT-1768470000000-4821
+ *                 first_name: Grace
+ *                 last_name: Banda
+ *                 date_of_birth: 2008-03-14T00:00:00.000Z
+ *                 gender: Female
+ *                 national_id: BM4501234
+ *                 exams_id: EX-2023-88213
+ *                 contact_email: grace.banda@presstrust.mw
+ *                 contact_phone: "+265991234567"
+ *                 district: Zomba
+ *                 school: { id: 5b1b9e0a-6c3d-4a2e-9f8b-2d6a1e7c4f30, name: Zomba Girls Secondary School, district: Zomba }
+ *                 program: { id: 9d3e2f1a-4b5c-6d7e-8f9a-0b1c2d3e4f5a, name: Press Trust Scholarship Program }
+ *                 status: Imported
+ *                 status_reason: null
+ *                 academic_year: "2026"
+ *                 guardians:
+ *                   - id: 1a2b3c4d-5e6f-7890-abcd-ef1234567890
+ *                     name: Thoko Phiri
+ *                     relationship: Aunt
+ *                     contact_phone: "+265888654321"
+ *                     contact_email: thoko.phiri@presstrust.mw
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-15T09:30:00.000Z
+ *               message: Beneficiary created successfully
  *       400:
- *         description: Validation error
+ *         description: Invalid date_of_birth format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid date_of_birth format
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: School or program not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: School not found
  *       409:
  *         description: Duplicate beneficiary
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Duplicate beneficiary found with same national_id or exams_id for this program
  */
 export async function createBeneficiary(req: Request, res: Response): Promise<void> {
   const body = createBeneficiarySchema.parse(req.body);
@@ -336,12 +475,68 @@ export async function createBeneficiary(req: Request, res: Response): Promise<vo
  *     responses:
  *       200:
  *         description: Beneficiary details
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 beneficiary_identifier: PT-1768470000000-4821
+ *                 first_name: Grace
+ *                 last_name: Banda
+ *                 date_of_birth: 2008-03-14T00:00:00.000Z
+ *                 gender: Female
+ *                 national_id: BM4501234
+ *                 exams_id: EX-2023-88213
+ *                 contact_email: grace.banda@presstrust.mw
+ *                 contact_phone: "+265991234567"
+ *                 district: Zomba
+ *                 school: { id: 5b1b9e0a-6c3d-4a2e-9f8b-2d6a1e7c4f30, name: Zomba Girls Secondary School, district: Zomba }
+ *                 program: { id: 9d3e2f1a-4b5c-6d7e-8f9a-0b1c2d3e4f5a, name: Press Trust Scholarship Program }
+ *                 status: Active
+ *                 status_reason: null
+ *                 academic_year: "2026"
+ *                 guardians:
+ *                   - id: 1a2b3c4d-5e6f-7890-abcd-ef1234567890
+ *                     name: Thoko Phiri
+ *                     relationship: Aunt
+ *                     contact_phone: "+265888654321"
+ *                     contact_email: thoko.phiri@presstrust.mw
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-20T11:00:00.000Z
+ *               message: Beneficiary retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Beneficiary not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary not found
  */
 export async function getBeneficiary(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -391,16 +586,88 @@ export async function getBeneficiary(req: Request, res: Response): Promise<void>
  *     responses:
  *       200:
  *         description: Beneficiary updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 beneficiary_identifier: PT-1768470000000-4821
+ *                 first_name: Grace
+ *                 last_name: Banda
+ *                 date_of_birth: 2008-03-14T00:00:00.000Z
+ *                 gender: Female
+ *                 national_id: BM4501234
+ *                 exams_id: EX-2023-88213
+ *                 contact_email: grace.banda@presstrust.mw
+ *                 contact_phone: "+265991234567"
+ *                 district: Blantyre
+ *                 school: { id: 5b1b9e0a-6c3d-4a2e-9f8b-2d6a1e7c4f30, name: Blantyre Secondary School, district: Blantyre }
+ *                 program: { id: 9d3e2f1a-4b5c-6d7e-8f9a-0b1c2d3e4f5a, name: Press Trust Scholarship Program }
+ *                 status: Active
+ *                 status_reason: null
+ *                 academic_year: "2026"
+ *                 guardians:
+ *                   - id: 1a2b3c4d-5e6f-7890-abcd-ef1234567890
+ *                     name: Thoko Phiri
+ *                     relationship: Aunt
+ *                     contact_phone: "+265888654321"
+ *                     contact_email: thoko.phiri@presstrust.mw
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-21T08:15:00.000Z
+ *               message: Beneficiary updated successfully
  *       400:
- *         description: Validation error
+ *         description: Invalid date_of_birth format
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid date_of_birth format
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
- *         description: Beneficiary not found
+ *         description: Beneficiary, school, or program not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary not found
  *       409:
  *         description: Duplicate beneficiary
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Duplicate beneficiary found with same national_id or exams_id for this program
  */
 export async function updateBeneficiary(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -524,16 +791,83 @@ export async function updateBeneficiary(req: Request, res: Response): Promise<vo
  *     responses:
  *       200:
  *         description: Status updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 beneficiary_identifier: PT-1768470000000-4821
+ *                 first_name: Grace
+ *                 last_name: Banda
+ *                 date_of_birth: 2008-03-14T00:00:00.000Z
+ *                 gender: Female
+ *                 national_id: BM4501234
+ *                 exams_id: EX-2023-88213
+ *                 contact_email: grace.banda@presstrust.mw
+ *                 contact_phone: "+265991234567"
+ *                 district: Zomba
+ *                 school: { id: 5b1b9e0a-6c3d-4a2e-9f8b-2d6a1e7c4f30, name: Zomba Girls Secondary School, district: Zomba }
+ *                 program: { id: 9d3e2f1a-4b5c-6d7e-8f9a-0b1c2d3e4f5a, name: Press Trust Scholarship Program }
+ *                 status: Suspended
+ *                 status_reason: Failed to submit required academic report
+ *                 academic_year: "2026"
+ *                 guardians: []
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-22T10:00:00.000Z
+ *               message: Beneficiary status updated to Suspended
  *       400:
- *         description: Validation error
+ *         description: Reason is required for Suspended or Closed status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Reason is required for Suspended or Closed status
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Beneficiary not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary not found
  *       409:
  *         description: Invalid status transition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid status transition from Active to Imported
  */
 export async function updateBeneficiaryStatus(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -616,14 +950,73 @@ export async function updateBeneficiaryStatus(req: Request, res: Response): Prom
  *     responses:
  *       200:
  *         description: Beneficiary reinstated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 beneficiary_identifier: PT-1768470000000-4821
+ *                 first_name: Grace
+ *                 last_name: Banda
+ *                 date_of_birth: 2008-03-14T00:00:00.000Z
+ *                 gender: Female
+ *                 national_id: BM4501234
+ *                 exams_id: EX-2023-88213
+ *                 contact_email: grace.banda@presstrust.mw
+ *                 contact_phone: "+265991234567"
+ *                 district: Zomba
+ *                 school: { id: 5b1b9e0a-6c3d-4a2e-9f8b-2d6a1e7c4f30, name: Zomba Girls Secondary School, district: Zomba }
+ *                 program: { id: 9d3e2f1a-4b5c-6d7e-8f9a-0b1c2d3e4f5a, name: Press Trust Scholarship Program }
+ *                 status: Active
+ *                 status_reason: null
+ *                 academic_year: "2026"
+ *                 guardians: []
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-23T13:45:00.000Z
+ *               message: Beneficiary reinstated to Active
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Beneficiary not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary not found
  *       409:
  *         description: Beneficiary is already Active
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary is already Active
  */
 export async function reinstateBeneficiary(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -691,12 +1084,53 @@ export async function reinstateBeneficiary(req: Request, res: Response): Promise
  *     responses:
  *       200:
  *         description: List of guardians
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 - id: 1a2b3c4d-5e6f-7890-abcd-ef1234567890
+ *                   beneficiary_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                   name: Thoko Phiri
+ *                   relationship: Aunt
+ *                   contact_phone: "+265888654321"
+ *                   contact_email: thoko.phiri@presstrust.mw
+ *                   consent_provided: true
+ *                   created_at: 2026-01-15T09:35:00.000Z
+ *                   updated_at: 2026-01-15T09:35:00.000Z
+ *               message: Guardians retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Beneficiary not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary not found
  */
 export async function listGuardians(req: Request, res: Response): Promise<void> {
   const beneficiaryId = req.params.id as string;
@@ -741,14 +1175,66 @@ export async function listGuardians(req: Request, res: Response): Promise<void> 
  *     responses:
  *       201:
  *         description: Guardian created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1a2b3c4d-5e6f-7890-abcd-ef1234567890
+ *                 beneficiary_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 name: Thoko Phiri
+ *                 relationship: Aunt
+ *                 contact_phone: "+265888654321"
+ *                 contact_email: thoko.phiri@presstrust.mw
+ *                 consent_provided: false
+ *                 created_at: 2026-01-23T13:45:00.000Z
+ *                 updated_at: 2026-01-23T13:45:00.000Z
+ *               message: Guardian created successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: contact_phone
+ *                     message: String must contain at least 1 character(s)
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Beneficiary not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary not found
  */
 export async function createGuardian(req: Request, res: Response): Promise<void> {
   const beneficiaryId = req.params.id as string;
@@ -811,14 +1297,66 @@ export async function createGuardian(req: Request, res: Response): Promise<void>
  *     responses:
  *       200:
  *         description: Guardian updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1a2b3c4d-5e6f-7890-abcd-ef1234567890
+ *                 beneficiary_id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 name: Thoko Phiri
+ *                 relationship: Grandmother
+ *                 contact_phone: "+265888654321"
+ *                 contact_email: thoko.phiri@presstrust.mw
+ *                 consent_provided: false
+ *                 created_at: 2026-01-23T13:45:00.000Z
+ *                 updated_at: 2026-01-24T09:10:00.000Z
+ *               message: Guardian updated successfully
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data:
+ *                 details:
+ *                   - field: contact_email
+ *                     message: Invalid email
+ *               message: Request validation failed
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Guardian not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Guardian not found
  */
 export async function updateGuardian(req: Request, res: Response): Promise<void> {
   const beneficiaryId = req.params.id as string;
@@ -880,12 +1418,46 @@ export async function updateGuardian(req: Request, res: Response): Promise<void>
  *     responses:
  *       200:
  *         description: Guardian deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 1a2b3c4d-5e6f-7890-abcd-ef1234567890
+ *                 deleted: true
+ *               message: Guardian deleted successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Guardian not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Guardian not found
  */
 export async function deleteGuardian(req: Request, res: Response): Promise<void> {
   const beneficiaryId = req.params.id as string;

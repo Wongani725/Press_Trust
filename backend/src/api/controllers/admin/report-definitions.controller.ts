@@ -27,6 +27,83 @@ const updateSchema = z.object({
   sort_order: z.enum(['asc', 'desc']).optional(),
 });
 
+/**
+ * @openapi
+ * /admin/report-definitions:
+ *   get:
+ *     tags: [Reports]
+ *     summary: List report definitions with pagination
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: source
+ *         schema: { type: string, enum: [beneficiaries, awards, disbursements, budget, payments_by_school, me_outcomes, reconciliation] }
+ *       - in: query
+ *         name: page
+ *         schema: { type: integer, default: 1 }
+ *       - in: query
+ *         name: limit
+ *         schema: { type: integer, default: 20 }
+ *     responses:
+ *       200:
+ *         description: Paginated list of report definitions
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                     name: Quarterly Disbursement Summary
+ *                     description: Disbursements by district and program for Q2 2026
+ *                     source: disbursements
+ *                     fields:
+ *                       - identifier
+ *                       - beneficiary
+ *                       - amount
+ *                       - status
+ *                       - academic_period
+ *                     filters:
+ *                       period: 2026-T2
+ *                     sort_by: created_at
+ *                     sort_order: desc
+ *                     created_by: 8c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                     creator:
+ *                       id: 8c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                       name: Grace Mwale
+ *                       email: grace.mwale@presstrust.org
+ *                     created_at: 2026-01-15T09:30:00.000Z
+ *                     updated_at: 2026-01-15T09:30:00.000Z
+ *                 meta:
+ *                   page: 1
+ *                   limit: 20
+ *                   total: 1
+ *                   totalPages: 1
+ *               message: Report definitions retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ */
 export async function listReportDefinitions(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
 
@@ -51,6 +128,126 @@ export async function listReportDefinitions(req: Request, res: Response): Promis
   });
 }
 
+/**
+ * @openapi
+ * /admin/report-definitions:
+ *   post:
+ *     tags: [Reports]
+ *     summary: Create a new report definition
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required: [name, source, fields]
+ *             properties:
+ *               name: { type: string, maxLength: 200 }
+ *               description: { type: string, maxLength: 500 }
+ *               source: { type: string, enum: [beneficiaries, awards, disbursements, budget, payments_by_school, me_outcomes, reconciliation] }
+ *               fields:
+ *                 type: array
+ *                 items: { type: string }
+ *               filters:
+ *                 type: object
+ *                 additionalProperties: true
+ *               sort_by: { type: string }
+ *               sort_order: { type: string, enum: [asc, desc] }
+ *           example:
+ *             name: Quarterly Disbursement Summary
+ *             description: Disbursements by district and program for Q2 2026
+ *             source: disbursements
+ *             fields:
+ *               - identifier
+ *               - beneficiary
+ *               - amount
+ *               - status
+ *               - academic_period
+ *             filters:
+ *               period: 2026-T2
+ *             sort_by: created_at
+ *             sort_order: desc
+ *     responses:
+ *       201:
+ *         description: Report definition created
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 name: Quarterly Disbursement Summary
+ *                 description: Disbursements by district and program for Q2 2026
+ *                 source: disbursements
+ *                 fields:
+ *                   - identifier
+ *                   - beneficiary
+ *                   - amount
+ *                   - status
+ *                   - academic_period
+ *                 filters:
+ *                   period: 2026-T2
+ *                 sort_by: created_at
+ *                 sort_order: desc
+ *                 created_by: 8c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-15T09:30:00.000Z
+ *               message: Report definition created successfully
+ *       400:
+ *         description: Unknown report source
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid report source
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       422:
+ *         description: One or more requested fields are not valid columns for the chosen source
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: 'Invalid fields: gpa_score, invalid_column'
+ *       500:
+ *         description: Unexpected error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: An unexpected error occurred
+ */
 export async function createReportDefinition(req: Request, res: Response): Promise<void> {
   const body = createSchema.parse(req.body);
 
@@ -90,6 +287,82 @@ export async function createReportDefinition(req: Request, res: Response): Promi
   res.status(201).json({ status: 'success', data: record, message: 'Report definition created successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/report-definitions/{id}:
+ *   get:
+ *     tags: [Reports]
+ *     summary: Get a report definition by ID
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Report definition detail
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 name: Quarterly Disbursement Summary
+ *                 description: Disbursements by district and program for Q2 2026
+ *                 source: disbursements
+ *                 fields:
+ *                   - identifier
+ *                   - beneficiary
+ *                   - amount
+ *                   - status
+ *                   - academic_period
+ *                 filters:
+ *                   period: 2026-T2
+ *                 sort_by: created_at
+ *                 sort_order: desc
+ *                 created_by: 8c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                 creator:
+ *                   id: 8c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                   name: Grace Mwale
+ *                   email: grace.mwale@presstrust.org
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-01-15T09:30:00.000Z
+ *               message: Report definition retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Report definition not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Report definition not found
+ */
 export async function getReportDefinition(req: Request, res: Response): Promise<void> {
   const record = await prisma.reportDefinition.findUnique({
     where: { id: req.params.id },
@@ -104,6 +377,129 @@ export async function getReportDefinition(req: Request, res: Response): Promise<
   res.json({ status: 'success', data: record, message: 'Report definition retrieved successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/report-definitions/{id}:
+ *   put:
+ *     tags: [Reports]
+ *     summary: Update a report definition
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               name: { type: string, maxLength: 200 }
+ *               description: { type: string, maxLength: 500 }
+ *               source: { type: string, enum: [beneficiaries, awards, disbursements, budget, payments_by_school, me_outcomes, reconciliation] }
+ *               fields:
+ *                 type: array
+ *                 items: { type: string }
+ *               filters:
+ *                 type: object
+ *                 additionalProperties: true
+ *               sort_by: { type: string }
+ *               sort_order: { type: string, enum: [asc, desc] }
+ *           example:
+ *             name: Quarterly Disbursement Summary (Revised)
+ *             sort_order: asc
+ *     responses:
+ *       200:
+ *         description: Report definition updated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                 name: Quarterly Disbursement Summary (Revised)
+ *                 description: Disbursements by district and program for Q2 2026
+ *                 source: disbursements
+ *                 fields:
+ *                   - identifier
+ *                   - beneficiary
+ *                   - amount
+ *                   - status
+ *                   - academic_period
+ *                 filters:
+ *                   period: 2026-T2
+ *                 sort_by: created_at
+ *                 sort_order: asc
+ *                 created_by: 8c9e6679-7425-40de-944b-e07fc1f90ae7
+ *                 created_at: 2026-01-15T09:30:00.000Z
+ *                 updated_at: 2026-07-23T08:00:00.000Z
+ *               message: Report definition updated successfully
+ *       400:
+ *         description: Unknown report source
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Invalid report source
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Report definition not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Report definition not found
+ *       422:
+ *         description: One or more requested fields are not valid columns for the chosen source
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: 'Invalid fields: gpa_score, invalid_column'
+ *       500:
+ *         description: Unexpected error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: An unexpected error occurred
+ */
 export async function updateReportDefinition(req: Request, res: Response): Promise<void> {
   const body = updateSchema.parse(req.body);
 
@@ -153,6 +549,61 @@ export async function updateReportDefinition(req: Request, res: Response): Promi
   res.json({ status: 'success', data: updated, message: 'Report definition updated successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/report-definitions/{id}:
+ *   delete:
+ *     tags: [Reports]
+ *     summary: Delete a report definition (also removes its run logs and schedules)
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Report definition deleted
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data: null
+ *               message: Report definition deleted successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Report definition not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Report definition not found
+ */
 export async function deleteReportDefinition(req: Request, res: Response): Promise<void> {
   const existing = await prisma.reportDefinition.findUnique({ where: { id: req.params.id } });
   if (!existing) {
@@ -175,11 +626,150 @@ export async function deleteReportDefinition(req: Request, res: Response): Promi
   res.json({ status: 'success', data: null, message: 'Report definition deleted successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/report-definitions/sources:
+ *   get:
+ *     tags: [Reports]
+ *     summary: List available report data sources and their selectable fields
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Available report sources
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 sources:
+ *                   - key: beneficiaries
+ *                     name: Beneficiaries
+ *                     description: Beneficiary register with demographic and program details
+ *                     columns:
+ *                       - { key: identifier, header: Beneficiary ID }
+ *                       - { key: name, header: Full Name }
+ *                       - { key: district, header: District }
+ *                     filterFields:
+ *                       - { key: program_id, label: Program, type: string }
+ *                       - { key: district, label: District, type: string }
+ *                   - key: budget
+ *                     name: Budget Utilization
+ *                     description: Program budget ceilings, utilized amounts, and remaining balances
+ *                     columns:
+ *                       - { key: name, header: Program }
+ *                       - { key: budget_ceiling, header: Budget Ceiling }
+ *                       - { key: percentage, header: Utilization % }
+ *                     filterFields: []
+ *               message: Report sources retrieved successfully
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ */
 export async function getReportSources(req: Request, res: Response): Promise<void> {
   const sources = getAllReportSources();
   res.json({ status: 'success', data: { sources }, message: 'Report sources retrieved successfully' });
 }
 
+/**
+ * @openapi
+ * /admin/report-definitions/{id}/execute:
+ *   post:
+ *     tags: [Reports]
+ *     summary: Execute a report definition immediately and download the generated file
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *       - in: query
+ *         name: format
+ *         schema: { type: string, enum: [csv, pdf, xlsx], default: csv }
+ *     requestBody:
+ *       required: false
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               filters:
+ *                 type: object
+ *                 additionalProperties: true
+ *           example:
+ *             filters:
+ *               period: 2026-T3
+ *     responses:
+ *       200:
+ *         description: Generated report file in the requested format
+ *         content:
+ *           text/csv:
+ *             schema: { type: string, format: binary }
+ *           application/pdf:
+ *             schema: { type: string, format: binary }
+ *           application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+ *             schema: { type: string, format: binary }
+ *       401:
+ *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
+ *       403:
+ *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
+ *       404:
+ *         description: Report definition not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Report definition not found
+ *       500:
+ *         description: Report generation failed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: 'Unknown report source: invalid_source'
+ */
 export async function executeReportDefinitionHandler(req: Request, res: Response): Promise<void> {
   const format = (req.query.format as string || 'csv') as ExportFormat;
   const filtersOverride = req.body?.filters || undefined;

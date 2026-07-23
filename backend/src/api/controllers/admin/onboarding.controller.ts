@@ -34,11 +34,55 @@ const onboadingActionSchema = z.object({
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/PaginatedResponse'
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 items:
+ *                   - id: 6b1f3b8e-2e35-4a2b-9b0a-4a2b6c1e7f21
+ *                     beneficiary_identifier: PT-1737532800000-4821
+ *                     first_name: Chimwemwe
+ *                     last_name: Phiri
+ *                     gender: Female
+ *                     district: Lilongwe
+ *                     school: { id: a1b2c3d4-1111-4a2b-9b0a-4a2b6c1e0001, name: Kamuzu Academy, district: Lilongwe }
+ *                     program: { id: c9d8e7f6-2222-4a2b-9b0a-4a2b6c1e0002, name: Secondary School Bursary Program }
+ *                     status: PendingOnboarding
+ *                     status_reason: null
+ *                     national_id: "MW-2009-1183"
+ *                     exams_id: "EX-2024-88213"
+ *                     contact_email: chimwemwe.phiri@presstrust.mw
+ *                     contact_phone: "+265991234567"
+ *                     academic_year: 2026-T1
+ *                     guardians:
+ *                       - id: 8a7b6c5d-3333-4a2b-9b0a-4a2b6c1e0006
+ *                         name: Grace Banda
+ *                         relationship: Mother
+ *                         contact_phone: "+265888654321"
+ *                     created_at: 2026-01-14T10:00:00.000Z
+ *                     updated_at: 2026-01-14T10:00:00.000Z
+ *                 meta: { page: 1, limit: 20, total: 1, totalPages: 1 }
+ *               message: Pending beneficiaries retrieved successfully
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  */
 export async function listPendingBeneficiaries(req: Request, res: Response): Promise<void> {
   const { page, limit, skip } = parsePagination(req.query);
@@ -113,14 +157,56 @@ export async function listPendingBeneficiaries(req: Request, res: Response): Pro
  *     responses:
  *       200:
  *         description: Beneficiary validated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 6b1f3b8e-2e35-4a2b-9b0a-4a2b6c1e7f21
+ *                 status: PendingOnboarding
+ *               message: Beneficiary validated and moved to Pending Onboarding
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Beneficiary not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary not found
  *       409:
  *         description: Invalid status transition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot validate beneficiary in status Active
  */
 export async function validateBeneficiary(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -175,14 +261,56 @@ export async function validateBeneficiary(req: Request, res: Response): Promise<
  *     responses:
  *       200:
  *         description: Beneficiary approved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 6b1f3b8e-2e35-4a2b-9b0a-4a2b6c1e7f21
+ *                 status: Active
+ *               message: Beneficiary approved and activated
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Beneficiary not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary not found
  *       409:
  *         description: Invalid status transition
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot approve beneficiary in status Imported
  */
 export async function approveBeneficiary(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -243,14 +371,57 @@ export async function approveBeneficiary(req: Request, res: Response): Promise<v
  *     responses:
  *       200:
  *         description: Exception flagged
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 6b1f3b8e-2e35-4a2b-9b0a-4a2b6c1e7f21
+ *                 status: Suspended
+ *                 status_reason: Missing national ID document
+ *               message: Beneficiary flagged with exception
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: An unexpected error occurred
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Beneficiary not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary not found
  */
 export async function flagException(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
@@ -307,16 +478,67 @@ export async function flagException(req: Request, res: Response): Promise<void> 
  *     responses:
  *       200:
  *         description: Exception resolved
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 6b1f3b8e-2e35-4a2b-9b0a-4a2b6c1e7f21
+ *                 status: PendingOnboarding
+ *                 status_reason: null
+ *               message: Beneficiary exception resolved
  *       400:
  *         description: Validation error
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: An unexpected error occurred
  *       401:
  *         description: Unauthenticated
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Missing or invalid authorization header
  *       403:
  *         description: Forbidden
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Insufficient permissions
  *       404:
  *         description: Beneficiary not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary not found
  *       409:
  *         description: Beneficiary is not in Suspended status
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot resolve exception for beneficiary in status PendingOnboarding
  */
 export async function resolveException(req: Request, res: Response): Promise<void> {
   const id = req.params.id as string;
