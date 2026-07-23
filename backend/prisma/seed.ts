@@ -8,13 +8,17 @@ import fs from 'fs';
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
 
-const pool = new Pool({
-  host: process.env.PGHOST || 'localhost',
-  port: parseInt(process.env.PGPORT || '5432', 10),
-  user: process.env.PGUSER || 'postgres',
-  password: process.env.PGPASSWORD || 'postgres',
-  database: process.env.PGDATABASE || 'press_trust_sms',
-});
+const poolConfig: any = {};
+if (process.env.DATABASE_URL) {
+  poolConfig.connectionString = process.env.DATABASE_URL;
+} else {
+  poolConfig.host = process.env.PGHOST || 'localhost';
+  poolConfig.port = parseInt(process.env.PGPORT || '5432', 10);
+  poolConfig.user = process.env.PGUSER || 'postgres';
+  poolConfig.password = process.env.PGPASSWORD || 'postgres';
+  poolConfig.database = process.env.PGDATABASE || 'press_trust_sms';
+}
+const pool = new Pool(poolConfig);
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
@@ -55,12 +59,12 @@ const ROLES: { name: UserRole; description: string; permissions: object }[] = [
 ];
 
 const SEED_USERS: { name: string; email: string; role: UserRole }[] = [
-  { name: 'Super Admin', email: 'wmsumba@imosys.mw', role: 'SuperAdmin' },
-  { name: 'Operations Manager', email: 'wongani087@gmail.com', role: 'Operations' },
-  { name: 'Finance Officer', email: 'wonganimsumba0@gmail.com', role: 'Finance' },
-  { name: 'M&E Coordinator', email: 'tayamuthola@gmail.com', role: 'ME' },
-  { name: 'Auditor', email: 'wonganimsumba@oldmutual.co.mw', role: 'Auditor' },
-  { name: 'Sponsor', email: 'takondwampoya6@gmail.com', role: 'Sponsor' },
+  { name: 'Super Admin', email: 'superadmin@presstrust.mw', role: 'SuperAdmin' },
+  { name: 'Operations Manager', email: 'operations@presstrust.mw', role: 'Operations' },
+  { name: 'Finance Officer', email: 'finance@presstrust.mw', role: 'Finance' },
+  { name: 'M&E Coordinator', email: 'me@presstrust.mw', role: 'ME' },
+  { name: 'Auditor', email: 'auditor@presstrust.mw', role: 'Auditor' },
+  { name: 'Sponsor', email: 'sponsor@presstrust.mw', role: 'Sponsor' },
 ];
 
 // ── Malawi Reference Data ──
@@ -247,7 +251,7 @@ async function main() {
 
     for (const b of beneficiaries) {
       if (!b.school_id) continue;
-      const existing = await prisma.beneficiary.findUnique({ where: { national_id: b.national_id } });
+      const existing = await prisma.beneficiary.findFirst({ where: { national_id: b.national_id } });
       if (existing) {
         console.log(`Beneficiary already exists: ${b.national_id}`);
         continue;
