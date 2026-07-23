@@ -151,8 +151,10 @@ model User {
   created_interventions   Intervention[]        @relation("InterventionCreator")
   flagged_at_risk         AtRiskFlag[]          @relation("AtRiskFlagger")
   resolved_at_risk        AtRiskFlag[]          @relation("AtRiskResolver")
+  warned_at_risk          AtRiskFlag[]          @relation("AtRiskWarner")
   conducted_visits        MonitoringVisit[]     @relation("VisitConductor")
   recorded_outcomes       Outcome[]             @relation("OutcomeRecorder")
+  termination_recommendations Beneficiary[]     @relation("TerminationRecommender")
   report_definitions      ReportDefinition[]
   scheduled_reports       ScheduledReport[]
   notification_templates  NotificationTemplate[]
@@ -340,18 +342,20 @@ model Program {
   budget_ceiling       Decimal       @default(0)
   budget_utilized      Decimal       @default(0)
   award_types          AwardType[]
+  required_documents   Json          @default("[]")
   eligibility_rules    Json?
   evaluation_rubric    Json?
   workflow_config      Json?
   form_config          Json?
 
-  users       UserProgram[]
-  awards      Award[]
-  beneficiaries Beneficiary[]
-  disbursements Disbursement[]
-  outcomes    Outcome[]
-  created_at  DateTime @default(now())
-  updated_at  DateTime @updatedAt
+  users           UserProgram[]
+  awards          Award[]
+  beneficiaries   Beneficiary[]
+  disbursements   Disbursement[]
+  outcomes        Outcome[]
+  funding_sources ProgramFundingSource[]
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
 }
 
 model FundingSource {
@@ -362,10 +366,21 @@ model FundingSource {
   utilized_amount  Decimal  @default(0)
   status           String   @default("active")
 
-  awards Award[]
+  awards   Award[]
+  programs ProgramFundingSource[]
 
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
+}
+
+model ProgramFundingSource {
+  program_id        String @db.Uuid
+  funding_source_id String @db.Uuid
+
+  program        Program       @relation(fields: [program_id], references: [id], onDelete: Cascade)
+  funding_source FundingSource @relation(fields: [funding_source_id], references: [id], onDelete: Cascade)
+
+  @@id([program_id, funding_source_id])
 }
 
 model School {
@@ -441,9 +456,13 @@ model Beneficiary {
   status                 BeneficiaryStatus @default(Imported)
   status_reason          String?
   academic_year          String?
+  termination_reason     String?
+  termination_recommended_by String?       @db.Uuid
+  termination_recommended_at DateTime?
 
   school  School   @relation(fields: [school_id], references: [id])
   program Program  @relation(fields: [program_id], references: [id])
+  termination_recommender User? @relation("TerminationRecommender", fields: [termination_recommended_by], references: [id])
 
   guardians        Guardian[]
   awards           Award[]
@@ -633,10 +652,15 @@ model AtRiskFlag {
   resolved       Boolean  @default(false)
   resolved_at    DateTime?
   resolved_by    String?  @db.Uuid
+  warning_issued Boolean  @default(false)
+  warning_reason String?
+  warning_at     DateTime?
+  warning_by     String?  @db.Uuid
 
   beneficiary Beneficiary @relation(fields: [beneficiary_id], references: [id])
   flagger     User        @relation("AtRiskFlagger", fields: [flagged_by], references: [id])
   resolver    User?       @relation("AtRiskResolver", fields: [resolved_by], references: [id])
+  warner      User?       @relation("AtRiskWarner", fields: [warning_by], references: [id])
 
   created_at DateTime @default(now())
 
