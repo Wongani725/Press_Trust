@@ -10,6 +10,8 @@ import {
   updateBeneficiary,
   updateBeneficiaryStatus,
   reinstateBeneficiary,
+  recommendTermination,
+  dismissTerminationRecommendation,
   listGuardians,
   createGuardian,
   updateGuardian,
@@ -80,6 +82,8 @@ router.get('/admin/beneficiaries/:id', authenticate, authorize('SuperAdmin', 'Op
 router.put('/admin/beneficiaries/:id', authenticate, authorize('SuperAdmin', 'Operations'), validate(updateBeneficiarySchema), updateBeneficiary);
 router.patch('/admin/beneficiaries/:id/status', authenticate, authorize('SuperAdmin', 'Operations'), validate(updateStatusSchema), updateBeneficiaryStatus);
 router.post('/admin/beneficiaries/:id/reinstate', authenticate, authorize('SuperAdmin', 'Operations'), reinstateBeneficiary);
+router.post('/admin/beneficiaries/:id/termination-recommendation', authenticate, authorize('SuperAdmin', 'Operations', 'ME'), recommendTermination);
+router.delete('/admin/beneficiaries/:id/termination-recommendation', authenticate, authorize('SuperAdmin', 'Operations', 'ME'), dismissTerminationRecommendation);
 
 // ── Guardians ──
 router.get('/admin/beneficiaries/:id/guardians', authenticate, authorize('SuperAdmin', 'Operations', 'Finance', 'ME'), listGuardians);

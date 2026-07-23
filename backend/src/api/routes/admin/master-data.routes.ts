@@ -16,6 +16,7 @@ import {
   updateBankAccountStatus,
   approveBankAccount,
   rejectBankAccount,
+  revealBankAccount,
   listFundingSources,
   createFundingSource,
   getFundingSource,
@@ -90,6 +91,7 @@ router.put('/admin/schools/:schoolId/bank-accounts/:id', authenticate, authorize
 router.patch('/admin/schools/:schoolId/bank-accounts/:id/status', authenticate, authorize('SuperAdmin', 'Finance'), validate(updateBankAccountStatusSchema), updateBankAccountStatus);
 router.post('/admin/schools/:schoolId/bank-accounts/:id/approve', authenticate, authorize('SuperAdmin', 'Finance'), approveBankAccount);
 router.post('/admin/schools/:schoolId/bank-accounts/:id/reject', authenticate, authorize('SuperAdmin', 'Finance'), rejectBankAccount);
+router.post('/admin/schools/:schoolId/bank-accounts/:id/reveal', authenticate, authorize('SuperAdmin', 'Finance', 'Operations'), revealBankAccount);
 
 // ── Funding Sources ──
 const createFundingSourceSchema = z.object({

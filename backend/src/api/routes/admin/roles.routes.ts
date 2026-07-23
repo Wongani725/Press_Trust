@@ -11,6 +11,7 @@ import {
   updateRoleStatus,
   updateRolePermissions,
   deleteRole,
+  listPermissionsCatalog,
 } from '../../controllers/admin/roles.controller';
 
 const router = Router();
@@ -36,6 +37,7 @@ const permissionsSchema = z.object({
 });
 
 router.get('/admin/roles', authenticate, authorize('SuperAdmin'), listRoles);
+router.get('/admin/roles/permissions-catalog', authenticate, authorize('SuperAdmin'), listPermissionsCatalog);
 router.post('/admin/roles', authenticate, authorize('SuperAdmin'), validate(createRoleSchema), createRole);
 router.get('/admin/roles/:id', authenticate, authorize('SuperAdmin'), getRole);
 router.put('/admin/roles/:id', authenticate, authorize('SuperAdmin'), validate(updateRoleSchema), updateRole);

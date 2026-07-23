@@ -9,6 +9,7 @@ import {
   deletePerformance,
   listAtRiskFlags,
   createAtRiskFlag,
+  warnAtRiskFlag,
   resolveAtRiskFlag,
   autoFlagBeneficiaries,
   listInterventions,
@@ -41,6 +42,7 @@ router.delete('/admin/me/performance/:id', authenticate, authorize('SuperAdmin',
 // ── At-Risk Flags ──
 router.get('/admin/me/at-risk', authenticate, authorize('SuperAdmin', 'Operations', 'ME'), listAtRiskFlags);
 router.post('/admin/me/at-risk', authenticate, authorize('SuperAdmin', 'Operations', 'ME'), createAtRiskFlag);
+router.post('/admin/me/at-risk/:id/warn', authenticate, authorize('SuperAdmin', 'Operations', 'ME'), warnAtRiskFlag);
 router.post('/admin/me/at-risk/:id/resolve', authenticate, authorize('SuperAdmin', 'Operations', 'ME'), resolveAtRiskFlag);
 
 // ── Auto-Flagging ──

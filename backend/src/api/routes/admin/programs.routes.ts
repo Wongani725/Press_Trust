@@ -22,6 +22,8 @@ const createProgramSchema = z.object({
   application_close_date: z.string().datetime().optional(),
   budget_ceiling: z.number().min(0).optional(),
   award_types: z.array(z.enum(['one_off', 'recurring', 'renewable'])).optional(),
+  funding_source_ids: z.array(z.string().uuid()).optional(),
+  required_documents: z.array(z.string().min(1)).optional(),
 });
 
 const updateProgramSchema = z.object({
@@ -30,6 +32,8 @@ const updateProgramSchema = z.object({
   application_open_date: z.string().datetime().optional(),
   application_close_date: z.string().datetime().optional(),
   award_types: z.array(z.enum(['one_off', 'recurring', 'renewable'])).optional(),
+  funding_source_ids: z.array(z.string().uuid()).optional(),
+  required_documents: z.array(z.string().min(1)).optional(),
 });
 
 const updateStatusSchema = z.object({
