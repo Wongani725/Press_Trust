@@ -35,6 +35,10 @@ const resolveAtRiskSchema = z.object({
   justification: z.string().min(1),
 });
 
+const warnAtRiskSchema = z.object({
+  reason: z.string().min(1),
+});
+
 const autoFlagSchema = z.object({
   score_threshold: z.number().min(0).max(100).default(50),
   attendance_threshold: z.number().min(0).max(100).default(75),
@@ -700,6 +704,7 @@ export async function listAtRiskFlags(req: Request, res: Response): Promise<void
         beneficiary: { select: { id: true, first_name: true, last_name: true, beneficiary_identifier: true } },
         flagger: { select: { id: true, name: true } },
         resolver: { select: { id: true, name: true } },
+        warner: { select: { id: true, name: true } },
       },
     }),
     prisma.atRiskFlag.count({ where }),
@@ -713,6 +718,10 @@ export async function listAtRiskFlags(req: Request, res: Response): Promise<void
     resolved: f.resolved,
     resolved_at: f.resolved_at,
     resolved_by: f.resolver,
+    warning_issued: f.warning_issued,
+    warning_reason: f.warning_reason,
+    warning_at: f.warning_at,
+    warning_by: f.warner,
     created_at: f.created_at,
   }));
 
@@ -837,9 +846,149 @@ export async function createAtRiskFlag(req: Request, res: Response): Promise<voi
       reason: flag.reason,
       flagged_by: flag.flagger,
       resolved: flag.resolved,
+      warning_issued: flag.warning_issued,
+      warning_reason: flag.warning_reason,
+      warning_at: flag.warning_at,
       created_at: flag.created_at,
     },
     message: 'At-risk flag created successfully',
+  });
+}
+
+/**
+ * @openapi
+ * /admin/me/at-risk/{id}/warn:
+ *   post:
+ *     tags: [M&E]
+ *     summary: Issue a formal warning on an active at-risk flag
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/AtRiskFlagWarn'
+ *           example:
+ *             reason: Performance did not improve after re-check period
+ *     responses:
+ *       200:
+ *         description: Warning issued
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: e5f6a7b8-2222-4a2b-9b0a-4a2b6c1e0002
+ *                 beneficiary:
+ *                   id: c56a4180-65aa-42ec-a945-5fd21dec0538
+ *                   first_name: Grace
+ *                   last_name: Banda
+ *                   beneficiary_identifier: PTS-2024-00123
+ *                 reason: Average score 42% — below 50% continuation threshold
+ *                 flagged_by:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Thoko Phiri
+ *                 resolved: false
+ *                 warning_issued: true
+ *                 warning_reason: Performance did not improve after re-check period
+ *                 warning_at: 2026-07-23T10:00:00.000Z
+ *                 created_at: 2026-06-01T08:00:00.000Z
+ *               message: Warning issued
+ *       404:
+ *         description: At-risk flag not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: At-risk flag not found
+ *       409:
+ *         description: Flag already resolved or warning already issued
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Cannot issue a warning on a resolved at-risk flag
+ */
+export async function warnAtRiskFlag(req: Request, res: Response): Promise<void> {
+  const id = req.params.id as string;
+  const { reason } = warnAtRiskSchema.parse(req.body);
+
+  const flag = await prisma.atRiskFlag.findUnique({
+    where: { id },
+    include: {
+      beneficiary: { select: { id: true, first_name: true, last_name: true, beneficiary_identifier: true } },
+      flagger: { select: { id: true, name: true } },
+    },
+  });
+
+  if (!flag) {
+    res.status(404).json({ status: 'error', data: null, message: 'At-risk flag not found' });
+    return;
+  }
+
+  if (flag.resolved) {
+    res.status(409).json({ status: 'error', data: null, message: 'Cannot issue a warning on a resolved at-risk flag' });
+    return;
+  }
+
+  if (flag.warning_issued) {
+    res.status(409).json({ status: 'error', data: null, message: 'A formal warning has already been issued for this at-risk flag' });
+    return;
+  }
+
+  const updated = await prisma.atRiskFlag.update({
+    where: { id },
+    data: {
+      warning_issued: true,
+      warning_reason: reason,
+      warning_at: new Date(),
+      warning_by: req.user!.userId,
+    },
+    include: {
+      beneficiary: { select: { id: true, first_name: true, last_name: true, beneficiary_identifier: true } },
+      flagger: { select: { id: true, name: true } },
+      warner: { select: { id: true, name: true } },
+    },
+  });
+
+  await logAudit({
+    user_id: req.user?.userId,
+    action: 'warn',
+    entity_type: 'AtRiskFlag',
+    entity_id: id,
+    old_values: { warning_issued: false },
+    new_values: { warning_issued: true, warning_reason: reason },
+  });
+
+  res.json({
+    status: 'success',
+    data: {
+      id: updated.id,
+      beneficiary: updated.beneficiary,
+      reason: updated.reason,
+      flagged_by: updated.flagger,
+      resolved: updated.resolved,
+      warning_issued: updated.warning_issued,
+      warning_reason: updated.warning_reason,
+      warning_at: updated.warning_at,
+      warning_by: updated.warner,
+      created_at: updated.created_at,
+    },
+    message: 'Warning issued',
   });
 }
 
@@ -967,6 +1116,9 @@ export async function resolveAtRiskFlag(req: Request, res: Response): Promise<vo
       resolved: updated.resolved,
       resolved_at: updated.resolved_at,
       resolved_by: updated.resolver,
+      warning_issued: updated.warning_issued,
+      warning_reason: updated.warning_reason,
+      warning_at: updated.warning_at,
     },
     message: 'At-risk flag resolved successfully',
   });

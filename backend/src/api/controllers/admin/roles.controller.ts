@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { z } from 'zod';
 import prisma from '../../../infrastructure/database/prisma';
 import { logAudit } from '../../../shared/utils/audit';
+import { PERMISSION_CATALOG } from '../../../modules/roles/permissions';
 
 const createRoleSchema = z.object({
   name: z.string().min(1),
@@ -18,6 +19,52 @@ const updateRoleSchema = z.object({
 const updateStatusSchema = z.object({
   status: z.enum(['active', 'inactive']),
 });
+
+/**
+ * @openapi
+ * /admin/roles/permissions-catalog:
+ *   get:
+ *     tags: [Users]
+ *     summary: List canonical permission resource/action keys for the Roles matrix
+ *     description: |
+ *       Returns the documented resource → action map used by `PUT /admin/roles/{id}/permissions`.
+ *       Route-level access control is still enforced via UserRole enums in `authorize()`, but
+ *       `bank_accounts.unmask` is also checked by `POST /admin/schools/{schoolId}/bank-accounts/{id}/reveal`.
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Canonical permissions catalog
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 permissions:
+ *                   programs: [read, create, update]
+ *                   beneficiaries: [read, create, update]
+ *                   onboarding: [read, update]
+ *                   awards: [read, create, update]
+ *                   schools: [read, create, update]
+ *                   bank_accounts: [read, unmask]
+ *                   disbursements: [read, create, approve]
+ *                   reconciliation: [read, update]
+ *                   me: [read, create]
+ *                   reports: [read]
+ *                   admin_settings: [read, update]
+ *                   users: [read, create, update]
+ *                   roles: [read, update]
+ *               message: Permissions catalog retrieved successfully
+ */
+export async function listPermissionsCatalog(_req: Request, res: Response): Promise<void> {
+  res.json({
+    status: 'success',
+    data: { permissions: PERMISSION_CATALOG },
+    message: 'Permissions catalog retrieved successfully',
+  });
+}
 
 /**
  * @openapi

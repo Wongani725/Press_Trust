@@ -3,6 +3,7 @@ import { z } from 'zod';
 import prisma from '../../../infrastructure/database/prisma';
 import { logAudit } from '../../../shared/utils/audit';
 import { parsePagination, buildMeta } from '../../../shared/utils/pagination';
+import { roleHasPermission } from '../../../modules/roles/permissions';
 
 // ── Schools ──
 
@@ -97,6 +98,17 @@ const updateReferenceDataStatusSchema = z.object({
 function maskAccountNumber(num: string | null): string {
   if (!num || num.length <= 4) return '****';
   return '****' + num.slice(-4);
+}
+
+async function canUnmaskBankAccounts(userId: string | undefined, roleName: string | undefined): Promise<boolean> {
+  if (!userId) return false;
+  // SuperAdmin / Finance remain permitted by role; also honour bank_accounts:unmask on Role.permissions
+  if (roleName === 'SuperAdmin' || roleName === 'Finance') return true;
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    include: { role: { select: { permissions: true } } },
+  });
+  return roleHasPermission(user?.role?.permissions, 'bank_accounts', 'unmask');
 }
 
 // ── Schools Controller ──
@@ -386,10 +398,9 @@ export async function getSchool(req: Request, res: Response): Promise<void> {
     return;
   }
 
-  const canViewUnmasked = req.user?.role === 'SuperAdmin' || req.user?.role === 'Finance';
   const maskedAccounts = school.bank_accounts.map((ba: any) => ({
     ...ba,
-    account_number: canViewUnmasked ? ba.account_number : maskAccountNumber(ba.account_number),
+    account_number: maskAccountNumber(ba.account_number),
   }));
 
   res.json({
@@ -674,10 +685,10 @@ export async function listBankAccounts(req: Request, res: Response): Promise<voi
     orderBy: { created_at: 'desc' },
   });
 
-  const canViewUnmasked = req.user?.role === 'SuperAdmin' || req.user?.role === 'Finance';
+  // Always mask by default — only POST .../reveal returns the full number
   const masked = accounts.map((ba: any) => ({
     ...ba,
-    account_number: canViewUnmasked ? ba.account_number : maskAccountNumber(ba.account_number),
+    account_number: maskAccountNumber(ba.account_number),
   }));
 
   res.json({ status: 'success', data: { items: masked }, message: 'Bank accounts retrieved successfully' });
@@ -870,8 +881,8 @@ export async function getBankAccount(req: Request, res: Response): Promise<void>
     return;
   }
 
-  const canViewUnmasked = req.user?.role === 'SuperAdmin' || req.user?.role === 'Finance';
-  const masked = { ...account, account_number: canViewUnmasked ? account.account_number : maskAccountNumber(account.account_number) };
+  // Always mask by default — only POST .../reveal returns the full number
+  const masked = { ...account, account_number: maskAccountNumber(account.account_number) };
 
   res.json({ status: 'success', data: masked, message: 'Bank account retrieved successfully' });
 }
@@ -1277,6 +1288,112 @@ export async function rejectBankAccount(req: Request, res: Response): Promise<vo
   });
 
   res.json({ status: 'success', data: { id: updated.id, approval_status: updated.approval_status }, message: 'Bank account rejected' });
+}
+
+/**
+ * @openapi
+ * /admin/schools/{schoolId}/bank-accounts/{id}/reveal:
+ *   post:
+ *     tags: [Master Data]
+ *     summary: Reveal a full bank account number (audited; requires unmask permission)
+ *     description: |
+ *       List and detail endpoints always return a masked account number.
+ *       Call this endpoint to obtain the real number. Access is granted to
+ *       SuperAdmin / Finance roles, or any role whose permissions include
+ *       `bank_accounts: ["unmask"]`. Every successful reveal is written to the audit log.
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: schoolId
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Full account number revealed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                 account_number: "1234567890123"
+ *                 revealed_by:
+ *                   id: 3fa85f64-5717-4562-b3fc-2c963f66afa6
+ *                   name: Ruth Nkhoma
+ *                 revealed_at: 2026-07-23T10:10:00.000Z
+ *               message: Bank account number revealed
+ *       403:
+ *         description: Caller is not permitted to unmask
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: You do not have permission to view unmasked bank account numbers.
+ *       404:
+ *         description: Bank account not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Bank account not found
+ */
+export async function revealBankAccount(req: Request, res: Response): Promise<void> {
+  const schoolId = req.params.schoolId as string;
+  const id = req.params.id as string;
+
+  const permitted = await canUnmaskBankAccounts(req.user?.userId, req.user?.role);
+  if (!permitted) {
+    res.status(403).json({
+      status: 'error',
+      data: null,
+      message: 'You do not have permission to view unmasked bank account numbers.',
+    });
+    return;
+  }
+
+  const account = await prisma.schoolBankAccount.findFirst({ where: { id, school_id: schoolId } });
+  if (!account) {
+    res.status(404).json({ status: 'error', data: null, message: 'Bank account not found' });
+    return;
+  }
+
+  const revealedAt = new Date();
+  const user = await prisma.user.findUnique({
+    where: { id: req.user!.userId },
+    select: { id: true, name: true },
+  });
+
+  await logAudit({
+    user_id: req.user?.userId,
+    action: 'reveal',
+    entity_type: 'SchoolBankAccount',
+    entity_id: id,
+    new_values: { school_id: schoolId, revealed_at: revealedAt.toISOString() },
+  });
+
+  res.json({
+    status: 'success',
+    data: {
+      id: account.id,
+      account_number: account.account_number,
+      revealed_by: user ? { id: user.id, name: user.name } : { id: req.user!.userId, name: null },
+      revealed_at: revealedAt,
+    },
+    message: 'Bank account number revealed',
+  });
 }
 
 // ── Funding Sources Controller ──
@@ -2085,6 +2202,13 @@ export async function updateDisbursementItemStatus(req: Request, res: Response):
  *   get:
  *     tags: [Master Data]
  *     summary: List reference data entries by type
+ *     description: |
+ *       Supported `type` values seeded by default:
+ *       `district`, `academic_period`, `school_type`, `relationship`,
+ *       `document_type`, `disbursement_category`, `program_type`.
+ *       `academic_period` values (e.g. `2026-T1`) are the recommended source for
+ *       dropdowns; disbursement/performance `academic_period` fields remain free-text
+ *       for flexibility but should typically match these codes.
  *     security:
  *       - bearerAuth: []
  *     parameters:

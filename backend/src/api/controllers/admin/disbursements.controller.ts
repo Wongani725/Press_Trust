@@ -1041,7 +1041,12 @@ export async function approveDisbursement(req: Request, res: Response): Promise<
  * /admin/disbursements/{id}/reject:
  *   post:
  *     tags: [Disbursements]
- *     summary: Reject a disbursement request
+ *     summary: Reject a Requested disbursement (checker deny)
+ *     description: |
+ *       Use this endpoint for the **Requested → Failed** stage when a Finance checker
+ *       declines a request (maker-checker; the maker cannot self-reject).
+ *       For later-stage failures (Approved/Paid → Failed), use
+ *       `PATCH /admin/disbursements/{id}/status` with `{ "status": "Failed", "failure_reason": "..." }`.
  *     security:
  *       - bearerAuth: []
  *     parameters:

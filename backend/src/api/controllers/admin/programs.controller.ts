@@ -11,6 +11,8 @@ const createProgramSchema = z.object({
   application_close_date: z.string().datetime().optional(),
   budget_ceiling: z.number().min(0).optional(),
   award_types: z.array(z.enum(['one_off', 'recurring', 'renewable'])).optional(),
+  funding_source_ids: z.array(z.string().uuid()).optional(),
+  required_documents: z.array(z.string().min(1)).optional(),
 });
 
 const updateProgramSchema = z.object({
@@ -19,6 +21,8 @@ const updateProgramSchema = z.object({
   application_open_date: z.string().datetime().optional(),
   application_close_date: z.string().datetime().optional(),
   award_types: z.array(z.enum(['one_off', 'recurring', 'renewable'])).optional(),
+  funding_source_ids: z.array(z.string().uuid()).optional(),
+  required_documents: z.array(z.string().min(1)).optional(),
 });
 
 const updateStatusSchema = z.object({
@@ -43,6 +47,31 @@ const VALID_STATUS_TRANSITIONS: Record<string, string[]> = {
   Closed: ['Archived', 'Open'],
   Archived: [],
 };
+
+async function syncProgramFundingSources(programId: string, fundingSourceIds: string[]): Promise<void> {
+  if (fundingSourceIds.length > 0) {
+    const sources = await prisma.fundingSource.findMany({ where: { id: { in: fundingSourceIds } } });
+    if (sources.length !== fundingSourceIds.length) {
+      const found = new Set(sources.map((s) => s.id));
+      const missing = fundingSourceIds.filter((id) => !found.has(id));
+      throw Object.assign(new Error(`Unknown funding source id(s): ${missing.join(', ')}`), { statusCode: 400 });
+    }
+  }
+
+  await prisma.programFundingSource.deleteMany({ where: { program_id: programId } });
+  if (fundingSourceIds.length > 0) {
+    await prisma.programFundingSource.createMany({
+      data: fundingSourceIds.map((funding_source_id) => ({ program_id: programId, funding_source_id })),
+    });
+  }
+}
+
+function mapFundingSources(program: any) {
+  return (program.funding_sources || []).map((link: any) => ({
+    id: link.funding_source.id,
+    name: link.funding_source.name,
+  }));
+}
 
 /**
  * @openapi
@@ -120,7 +149,10 @@ export async function listPrograms(req: Request, res: Response): Promise<void> {
   const where: Record<string, unknown> = {};
   if (status) where.status = status;
   if (fundingSourceId) {
-    where.awards = { some: { funding_source_id: fundingSourceId } };
+    where.OR = [
+      { awards: { some: { funding_source_id: fundingSourceId } } },
+      { funding_sources: { some: { funding_source_id: fundingSourceId } } },
+    ];
   }
 
   const [programs, total] = await Promise.all([
@@ -131,6 +163,7 @@ export async function listPrograms(req: Request, res: Response): Promise<void> {
       orderBy: { created_at: 'desc' },
       include: {
         _count: { select: { beneficiaries: true, awards: true } },
+        funding_sources: { include: { funding_source: { select: { id: true, name: true } } } },
       },
     }),
     prisma.program.count({ where }),
@@ -146,6 +179,8 @@ export async function listPrograms(req: Request, res: Response): Promise<void> {
     budget_ceiling: p.budget_ceiling,
     budget_utilized: p.budget_utilized,
     award_types: p.award_types,
+    funding_sources: mapFundingSources(p),
+    required_documents: p.required_documents || [],
     beneficiary_count: p._count.beneficiaries,
     award_count: p._count.awards,
     created_at: p.created_at,
@@ -233,8 +268,24 @@ export async function createProgram(req: Request, res: Response): Promise<void> 
       application_close_date: body.application_close_date ? new Date(body.application_close_date) : null,
       budget_ceiling: body.budget_ceiling ?? 0,
       award_types: body.award_types ?? [],
+      required_documents: body.required_documents ?? [],
       status: 'Draft',
     },
+  });
+
+  if (body.funding_source_ids) {
+    try {
+      await syncProgramFundingSources(program.id, body.funding_source_ids);
+    } catch (e: any) {
+      await prisma.program.delete({ where: { id: program.id } });
+      res.status(e.statusCode || 400).json({ status: 'error', data: null, message: e.message });
+      return;
+    }
+  }
+
+  const withSources = await prisma.program.findUnique({
+    where: { id: program.id },
+    include: { funding_sources: { include: { funding_source: { select: { id: true, name: true } } } } },
   });
 
   await logAudit({
@@ -254,6 +305,8 @@ export async function createProgram(req: Request, res: Response): Promise<void> 
       status: program.status,
       budget_ceiling: program.budget_ceiling,
       award_types: program.award_types,
+      funding_sources: mapFundingSources(withSources),
+      required_documents: program.required_documents || [],
       created_at: program.created_at,
     },
     message: 'Program created successfully',
@@ -340,6 +393,7 @@ export async function getProgram(req: Request, res: Response): Promise<void> {
     where: { id },
     include: {
       _count: { select: { beneficiaries: true, awards: true, disbursements: true } },
+      funding_sources: { include: { funding_source: { select: { id: true, name: true } } } },
     },
   });
 
@@ -361,6 +415,8 @@ export async function getProgram(req: Request, res: Response): Promise<void> {
       budget_ceiling: p.budget_ceiling,
       budget_utilized: p.budget_utilized,
       award_types: p.award_types,
+      funding_sources: mapFundingSources(p),
+      required_documents: p.required_documents || [],
       eligibility_rules: p.eligibility_rules,
       evaluation_rubric: p.evaluation_rubric,
       workflow_config: p.workflow_config,
@@ -492,7 +548,22 @@ export async function updateProgram(req: Request, res: Response): Promise<void> 
       application_open_date: body.application_open_date ? new Date(body.application_open_date) : undefined,
       application_close_date: body.application_close_date ? new Date(body.application_close_date) : undefined,
       award_types: body.award_types,
+      ...(body.required_documents !== undefined ? { required_documents: body.required_documents } : {}),
     },
+  });
+
+  if (body.funding_source_ids) {
+    try {
+      await syncProgramFundingSources(id, body.funding_source_ids);
+    } catch (e: any) {
+      res.status(e.statusCode || 400).json({ status: 'error', data: null, message: e.message });
+      return;
+    }
+  }
+
+  const withSources = await prisma.program.findUnique({
+    where: { id },
+    include: { funding_sources: { include: { funding_source: { select: { id: true, name: true } } } } },
   });
 
   await logAudit({
@@ -511,6 +582,8 @@ export async function updateProgram(req: Request, res: Response): Promise<void> 
       name: updated.name,
       description: updated.description,
       status: updated.status,
+      funding_sources: mapFundingSources(withSources),
+      required_documents: updated.required_documents || [],
       updated_at: updated.updated_at,
     },
     message: 'Program updated successfully',

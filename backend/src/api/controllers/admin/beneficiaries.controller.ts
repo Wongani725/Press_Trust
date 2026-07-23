@@ -83,6 +83,17 @@ function maskBeneficiary(b: any) {
     status_reason: b.status_reason,
     academic_year: b.academic_year,
     guardians: b.guardians || [],
+    termination_recommendation: b.termination_reason
+      ? {
+          reason: b.termination_reason,
+          recommended_by: b.termination_recommender
+            ? { id: b.termination_recommender.id, name: b.termination_recommender.name }
+            : b.termination_recommended_by
+              ? { id: b.termination_recommended_by, name: null }
+              : null,
+          recommended_at: b.termination_recommended_at,
+        }
+      : null,
     created_at: b.created_at,
     updated_at: b.updated_at,
   };
@@ -241,6 +252,7 @@ export async function listBeneficiaries(req: Request, res: Response): Promise<vo
         school: { select: { id: true, name: true, district: true } },
         program: { select: { id: true, name: true } },
         guardians: { select: { id: true, name: true, relationship: true, contact_phone: true, contact_email: true } },
+        termination_recommender: { select: { id: true, name: true } },
       },
     }),
     prisma.beneficiary.count({ where }),
@@ -547,6 +559,7 @@ export async function getBeneficiary(req: Request, res: Response): Promise<void>
       school: { select: { id: true, name: true, district: true } },
       program: { select: { id: true, name: true } },
       guardians: { select: { id: true, name: true, relationship: true, contact_phone: true, contact_email: true } },
+      termination_recommender: { select: { id: true, name: true } },
     },
   });
 
@@ -900,11 +913,22 @@ export async function updateBeneficiaryStatus(req: Request, res: Response): Prom
 
   const updated = await prisma.beneficiary.update({
     where: { id },
-    data: { status, status_reason: reason || null },
+    data: {
+      status,
+      status_reason: reason || null,
+      ...(status === 'Closed'
+        ? {
+            termination_reason: null,
+            termination_recommended_by: null,
+            termination_recommended_at: null,
+          }
+        : {}),
+    },
     include: {
       school: { select: { id: true, name: true, district: true } },
       program: { select: { id: true, name: true } },
       guardians: { select: { id: true, name: true, relationship: true, contact_phone: true, contact_email: true } },
+      termination_recommender: { select: { id: true, name: true } },
     },
   });
 
@@ -1063,6 +1087,197 @@ export async function reinstateBeneficiary(req: Request, res: Response): Promise
     status: 'success',
     data: maskBeneficiary(updated),
     message: 'Beneficiary reinstated to Active',
+  });
+}
+
+const terminationRecommendationSchema = z.object({
+  reason: z.string().min(1),
+});
+
+/**
+ * @openapi
+ * /admin/beneficiaries/{id}/termination-recommendation:
+ *   post:
+ *     tags: [Beneficiaries]
+ *     summary: Recommend termination for an at-risk / continuation-workflow beneficiary
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/TerminationRecommendationCreate'
+ *           example:
+ *             reason: Repeated academic failure despite formal warning
+ *     responses:
+ *       200:
+ *         description: Termination recommendation logged
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data:
+ *                 beneficiary_id: 6b1f3b8e-2e35-4a2b-9b0a-4a2b6c1e7f21
+ *                 reason: Repeated academic failure despite formal warning
+ *                 recommended_by:
+ *                   id: 9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d
+ *                   name: Precious Gondwe
+ *                 recommended_at: 2026-07-23T10:05:00.000Z
+ *               message: Termination recommendation logged
+ *       404:
+ *         description: Beneficiary not found
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: Beneficiary not found
+ *       409:
+ *         description: Recommendation already exists or beneficiary is Closed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: A termination recommendation already exists for this beneficiary
+ */
+export async function recommendTermination(req: Request, res: Response): Promise<void> {
+  const id = req.params.id as string;
+  const { reason } = terminationRecommendationSchema.parse(req.body);
+
+  const beneficiary = await prisma.beneficiary.findUnique({
+    where: { id },
+    include: { termination_recommender: { select: { id: true, name: true } } },
+  });
+  if (!beneficiary) {
+    res.status(404).json({ status: 'error', data: null, message: 'Beneficiary not found' });
+    return;
+  }
+
+  if (beneficiary.status === 'Closed') {
+    res.status(409).json({ status: 'error', data: null, message: 'Cannot recommend termination for a Closed beneficiary' });
+    return;
+  }
+
+  if (beneficiary.termination_reason) {
+    res.status(409).json({ status: 'error', data: null, message: 'A termination recommendation already exists for this beneficiary' });
+    return;
+  }
+
+  const updated = await prisma.beneficiary.update({
+    where: { id },
+    data: {
+      termination_reason: reason,
+      termination_recommended_by: req.user!.userId,
+      termination_recommended_at: new Date(),
+    },
+    include: { termination_recommender: { select: { id: true, name: true } } },
+  });
+
+  await logAudit({
+    user_id: req.user?.userId,
+    action: 'recommend_termination',
+    entity_type: 'Beneficiary',
+    entity_id: id,
+    new_values: { reason },
+  });
+
+  res.json({
+    status: 'success',
+    data: {
+      beneficiary_id: updated.id,
+      reason: updated.termination_reason,
+      recommended_by: updated.termination_recommender
+        ? { id: updated.termination_recommender.id, name: updated.termination_recommender.name }
+        : { id: req.user!.userId, name: null },
+      recommended_at: updated.termination_recommended_at,
+    },
+    message: 'Termination recommendation logged',
+  });
+}
+
+/**
+ * @openapi
+ * /admin/beneficiaries/{id}/termination-recommendation:
+ *   delete:
+ *     tags: [Beneficiaries]
+ *     summary: Dismiss a termination recommendation without closing the beneficiary
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema: { type: string, format: uuid }
+ *     responses:
+ *       200:
+ *         description: Termination recommendation dismissed
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: success
+ *               data: null
+ *               message: Termination recommendation dismissed
+ *       404:
+ *         description: Beneficiary not found or no recommendation present
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *             example:
+ *               status: error
+ *               data: null
+ *               message: No termination recommendation found for this beneficiary
+ */
+export async function dismissTerminationRecommendation(req: Request, res: Response): Promise<void> {
+  const id = req.params.id as string;
+
+  const beneficiary = await prisma.beneficiary.findUnique({ where: { id } });
+  if (!beneficiary) {
+    res.status(404).json({ status: 'error', data: null, message: 'Beneficiary not found' });
+    return;
+  }
+
+  if (!beneficiary.termination_reason) {
+    res.status(404).json({ status: 'error', data: null, message: 'No termination recommendation found for this beneficiary' });
+    return;
+  }
+
+  await prisma.beneficiary.update({
+    where: { id },
+    data: {
+      termination_reason: null,
+      termination_recommended_by: null,
+      termination_recommended_at: null,
+    },
+  });
+
+  await logAudit({
+    user_id: req.user?.userId,
+    action: 'dismiss_termination_recommendation',
+    entity_type: 'Beneficiary',
+    entity_id: id,
+    old_values: { reason: beneficiary.termination_reason },
+  });
+
+  res.json({
+    status: 'success',
+    data: null,
+    message: 'Termination recommendation dismissed',
   });
 }
 
